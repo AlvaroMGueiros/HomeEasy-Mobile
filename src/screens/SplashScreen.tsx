@@ -1,0 +1,3 @@
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'; import { colors } from '../theme/colors';
+export function SplashScreen() { return <View style={styles.container}><View style={styles.mark}><Text style={styles.markText}>HE</Text></View><Text style={styles.name}>home easy</Text><ActivityIndicator color={colors.white} /></View>; }
+const styles = StyleSheet.create({ container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18, backgroundColor: colors.primary }, mark: { width: 92, height: 92, borderRadius: 28, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' }, markText: { color: colors.primary, fontSize: 28, fontWeight: '900' }, name: { color: colors.white, fontSize: 30, fontWeight: '900' } });
