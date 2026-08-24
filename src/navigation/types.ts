@@ -20,7 +20,7 @@ export type RootStackParamList = {
   RequestDetail: { requestId: string };
   ProposalForm: { requestId: string; serviceName: string };
   OrderDetail: { orderId: string };
-  Chat: { conversationId: string; otherUserId: string; otherUserName: string };
+  Chat: { conversationId: string; otherUserId: string; otherUserName: string; serviceName: string; isWritable: boolean };
   EditProfile: undefined;
   Favorites: undefined;
   ProfessionalManager: undefined;
