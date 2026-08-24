@@ -3,7 +3,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type AppTabParamList = { Home: undefined; Requests: undefined; Conversations: undefined; Profile: undefined; };
 export type RootStackParamList = {
   PublicHome: undefined;
-  Login: undefined;
+  Login: { mode?: 'login' | 'register' } | undefined;
   ForgotPassword: undefined;
   ResetPassword: { token?: string } | undefined;
   HowItWorks: undefined;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import { ApiError } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
@@ -17,8 +17,9 @@ const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
 
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { params } = useRoute<RouteProp<RootStackParamList, 'Login'>>();
   const { login, register } = useAuth();
-  const [mode, setMode] = useState<AuthMode>('login');
+  const [mode, setMode] = useState<AuthMode>(params?.mode || 'login');
   const [name, setName] = useState(''); const [birthDate, setBirthDate] = useState('');
   const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false); const [error, setError] = useState('');
