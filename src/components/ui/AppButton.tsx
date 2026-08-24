@@ -4,8 +4,9 @@ import { colors } from '../../theme/colors';
 
 export function AppButton({ label, onPress, loading = false, disabled = false, variant = 'primary' }: { label: string; onPress(): void; loading?: boolean; disabled?: boolean; variant?: 'primary' | 'secondary'; }) {
   const isDisabled = disabled || loading;
+  const indicatorColor = variant === 'primary' ? colors.white : colors.primary;
   return <Pressable accessibilityRole="button" disabled={isDisabled} onPress={onPress} style={({ pressed }) => [styles.button, variant === 'secondary' && styles.secondary, isDisabled && styles.disabled, pressed && styles.pressed]}>
-    {loading ? <ActivityIndicator color={variant === 'primary' ? colors.white : colors.primary} /> : <Text style={[styles.label, variant === 'secondary' && styles.secondaryLabel]}>{label}</Text>}
+    {loading ? <ActivityIndicator color={indicatorColor} /> : <Text style={[styles.label, variant === 'secondary' && styles.secondaryLabel]}>{label}</Text>}
   </Pressable>;
 }
 

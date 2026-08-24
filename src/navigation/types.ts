@@ -1,4 +1,34 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type AppTabParamList = { Home: undefined; Requests: undefined; Conversations: undefined; Profile: undefined; };
-export type RootStackParamList = { Login: undefined; App: NavigatorScreenParams<AppTabParamList>; Services: undefined; Professional: { professionalId: string }; Opportunities: undefined; Notifications: undefined; };
+export type RootStackParamList = {
+  PublicHome: undefined;
+  Login: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: { token?: string } | undefined;
+  HowItWorks: undefined;
+  BecomeProfessional: undefined;
+  About: undefined;
+  Contact: undefined;
+  App: NavigatorScreenParams<AppTabParamList>;
+  Services: undefined;
+  ServiceProfessionals: { serviceId: string; serviceName: string };
+  Professional: { professionalId: string };
+  ProfessionalReviews: { professionalId: string; professionalName: string };
+  RegionalMap: undefined;
+  RequestForm: { serviceId: string; serviceName: string; professionalId?: string };
+  RequestDetail: { requestId: string };
+  ProposalForm: { requestId: string; serviceName: string };
+  OrderDetail: { orderId: string };
+  Chat: { conversationId: string; otherUserId: string; otherUserName: string };
+  EditProfile: undefined;
+  Favorites: undefined;
+  ProfessionalManager: undefined;
+  Schedule: undefined;
+  Verification: undefined;
+  Admin: undefined;
+  Report: { targetUserId?: string; conversationId?: string };
+  Dispute: { orderId: string };
+  Opportunities: undefined;
+  Notifications: undefined;
+};

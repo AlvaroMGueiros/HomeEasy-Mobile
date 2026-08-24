@@ -1,9 +1,21 @@
-export interface AuthenticatedUser { id: string; name: string; email: string; role: string; }
+export interface AuthenticatedUser { id: string; name: string; email: string; role: 'user' | 'admin'; }
 export interface AuthResponse { accessToken: string; refreshToken: string; user: AuthenticatedUser; }
-export interface Service { id: string; name: string; category: string; description?: string; }
-export interface ProfessionalService { serviceId: string; serviceName: string; basePrice?: number; description?: string; }
-export interface Professional { id: string; name: string; city?: string; state?: string; profilePhotoMediaId?: string; verificationStatus?: string; services: ProfessionalService[]; metrics?: { averageRating?: number; completedServices?: number; }; }
+export interface ServiceRequestField { key: string; label: string; type: string; required?: boolean; options?: string[]; }
+export interface Service { id: string; name: string; category: string; requestForm?: ServiceRequestField[]; }
+export interface ProfessionalService { id: string; name: string; category: string; basePrice?: number | null; description?: string | null; isActive: boolean; }
+export interface ProfessionalMetrics { averageRating?: number | null; verifiedReviewCount?: number; completedServices?: number; responseRate?: number | null; cancellationRate?: number | null; averageResponseMinutes?: number | null; }
+export interface Professional { id: string; name: string; city?: string; state?: string; bio?: string; profilePhotoMediaId?: string | null; verificationStatus?: string; services: ProfessionalService[]; metrics?: ProfessionalMetrics | null; distanceKm?: number | null; }
 export interface ProfessionalsResponse { professionals: Professional[]; page: number; limit: number; total: number; }
-export interface ServiceRequest { id: string; service?: Service; serviceId: string; description: string; city: string; state: string; status: string; proposalCount: number; maximumProposals: number; preferredAt?: string; }
-export interface Conversation { id: string; otherUser: { id: string; name: string; profilePhotoMediaId?: string }; lastMessageAt?: string; unreadCount: number; }
+export interface ProfessionalReview { id: string; orderId: string; clientName: string; rating: number; comment: string; professionalResponse?: string | null; respondedAt?: string | null; createdAt: string; }
+export interface ProfessionalReviewsResponse { reviews: ProfessionalReview[]; total: number; ratingAverage?: number | null; }
+export interface ServiceRequest { id: string; clientId?: string; service?: Service; serviceId: string; description: string; urgency?: string; answers?: Record<string, string | number | boolean>; attachments?: Array<{ mediaId: string; fileName: string; contentType: string }>; address?: string; city: string; state: string; status: string; proposalCount: number; maximumProposals: number; preferredAt?: string | null; budgetMinimum?: string | number | null; budgetMaximum?: string | number | null; preferredProfessionalId?: string | null; createdAt?: string; hasSubmittedProposal?: boolean; }
+export interface Proposal { id: string; requestId: string; professionalId?: string; price: number | string; message: string; estimatedDurationMinutes: number; materialsIncluded: boolean; travelFee: number | string; paymentMethods: string[]; status: string; validUntil: string; professional?: Professional; }
+export interface Order { id: string; requestId: string; clientId: string; professionalId: string; agreedPrice: number | string; scheduledAt?: string | null; status: string; request: ServiceRequest; proposal: Proposal; createdAt: string; }
+export interface Conversation { id: string; orderId: string; otherUser: { id: string; name: string; profilePhotoMediaId?: string }; lastMessageAt?: string; unreadCount: number; createdAt?: string; }
+export interface ChatMessage { id: string; conversationId: string; senderId: string; type: 'text' | 'image' | 'budget' | 'system'; content?: string | null; budgetAmount?: string | null; attachment?: { mediaId: string; fileName: string; contentType: string } | null; readAt?: string | null; createdAt: string; }
 export interface Notification { id: string; title: string; body: string; actionUrl?: string; readAt?: string; createdAt: string; }
+export interface UserProfile extends AuthenticatedUser { memberSince: string; phone?: string | null; birthDate?: string | null; profilePhotoMediaId?: string | null; address?: string | null; city?: string | null; state?: string | null; cpf?: string | null; cnpj?: string | null; instagram?: string | null; website?: string | null; linkedin?: string | null; }
+export interface Schedule { periods: Array<{ id?: string; weekday: number; startTime: string; endTime: string }>; exceptions: Array<{ id?: string; date: string; isUnavailable: boolean; startTime?: string | null; endTime?: string | null }>; }
+export interface UploadAuthorization { mediaId: string; uploadUrl: string; expiresInSeconds: number; }
+export interface Favorite { professionalId?: string; professional?: Professional; id?: string; }
+export interface AdminMetrics { totalRequests: number; openRequests: number; hiredRequests: number; pendingVerifications: number; conversionRate: number; averageProposals: number; }
