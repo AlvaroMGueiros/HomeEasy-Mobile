@@ -11,7 +11,7 @@ import { StateView } from '../components/ui/StateView';
 import { UserAvatar } from '../components/ui/UserAvatar';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
-import { Proposal, ServiceRequest } from '../types/api';
+import { Conversation, Order, Proposal, ServiceRequest } from '../types/api';
 import { formatCurrency } from '../utils/currency';
 import { resolveEnumLabel, resolveStatusLabel } from '../utils/status';
 
@@ -21,6 +21,7 @@ export function RequestDetailScreen() {
   const { user } = useAuth();
   const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => { load(); }, [params.requestId]);
@@ -30,7 +31,16 @@ export function RequestDetailScreen() {
       const currentRequest = await apiRequest<ServiceRequest>(`/marketplace/requests/${params.requestId}`);
       setRequest(currentRequest);
       if (currentRequest.clientId === user?.id) {
-        setProposals(await apiRequest<Proposal[]>(`/marketplace/requests/${params.requestId}/proposals`));
+        const [currentProposals, orders, conversations] = await Promise.all([
+          apiRequest<Proposal[]>(`/marketplace/requests/${params.requestId}/proposals`),
+          apiRequest<Order[]>('/marketplace/orders/me'),
+          apiRequest<Conversation[]>('/conversations')
+        ]);
+        setProposals(currentProposals);
+        const acceptedOrder = orders.find(order => order.requestId === currentRequest.id);
+        setConversation(acceptedOrder
+          ? conversations.find(currentConversation => currentConversation.orderId === acceptedOrder.id) || null
+          : null);
       }
     } catch (currentError) {
       setError(currentError instanceof Error ? currentError.message : 'Não foi possível carregar a solicitação.');
@@ -51,6 +61,17 @@ export function RequestDetailScreen() {
     ]);
   }
 
+  function openConversation() {
+    if (!conversation) return;
+    navigation.navigate('Chat', {
+      conversationId: conversation.id,
+      otherUserId: conversation.otherUser.id,
+      otherUserName: conversation.otherUser.name,
+      serviceName: conversation.service.name,
+      isWritable: conversation.isWritable
+    });
+  }
+
   if (!request) return <Screen><StateView loading={!error} message={error || 'Carregando solicitação...'} /></Screen>;
   const isOwner = request.clientId === user?.id;
 
@@ -62,6 +83,7 @@ export function RequestDetailScreen() {
       <Text style={styles.line}>Propostas: {request.proposalCount} de {request.maximumProposals}</Text>
       {Boolean(request.preferredAt) && <Text style={styles.line}>Preferência: {new Date(request.preferredAt || '').toLocaleString('pt-BR')}</Text>}
     </View>
+    {conversation && <AppButton label={conversation.isWritable ? 'Abrir chat' : 'Ver histórico da conversa'} onPress={openConversation} />}
     {!isOwner && !request.hasSubmittedProposal && <AppButton label="Enviar proposta" onPress={() => navigation.navigate('ProposalForm', { requestId: request.id, serviceName: request.service?.name || 'Serviço' })} />}
     {isOwner && <>
       <Text style={styles.heading}>Propostas recebidas</Text>
@@ -70,7 +92,7 @@ export function RequestDetailScreen() {
         <View style={styles.professional}><UserAvatar name={proposal.professional?.name || 'Profissional'} mediaId={proposal.professional?.profilePhotoMediaId} /><View style={styles.grow}><Text style={styles.name}>{proposal.professional?.name}</Text><Text style={styles.price}>{formatCurrency(Number(proposal.price) + Number(proposal.travelFee))}</Text></View></View>
         <Text style={styles.line}>{proposal.message}</Text>
         <Text style={styles.line}>{proposal.estimatedDurationMinutes} min · Materiais {proposal.materialsIncluded ? 'incluídos' : 'não incluídos'}</Text>
-        <AppButton label="Aceitar proposta" onPress={() => accept(proposal.id)} />
+        {proposal.status === 'sent' && request.status !== 'accepted' && <AppButton label="Aceitar proposta" onPress={() => accept(proposal.id)} />}
       </View>)}
     </>}
   </Screen>;
