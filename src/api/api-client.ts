@@ -11,12 +11,22 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}, retry = true): Promise<T> {
+  return executeApiRequest<T>(path, options, retry, true);
+}
+
+export async function apiFormRequest<T>(path: string, formData: FormData, retry = true): Promise<T> {
+  return executeApiRequest<T>(path, { method: 'POST', body: formData }, retry, false);
+}
+
+async function executeApiRequest<T>(path: string, options: RequestInit, retry: boolean, usesJson: boolean): Promise<T> {
   const accessToken = await SecureStore.getItemAsync(accessTokenKey);
   const headers = new Headers(options.headers);
-  headers.set('Content-Type', 'application/json');
+  if (usesJson) headers.set('Content-Type', 'application/json');
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
   const response = await fetch(`${environment.apiUrl}${path}`, { ...options, headers });
-  if (response.status === 401 && retry && await refreshSession()) return apiRequest<T>(path, options, false);
+  if (response.status === 401 && retry && await refreshSession()) {
+    return executeApiRequest<T>(path, options, false, usesJson);
+  }
   if (!response.ok) throw new ApiError(await resolveErrorMessage(response), response.status);
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;

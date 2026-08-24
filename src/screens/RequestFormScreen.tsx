@@ -1,12 +1,13 @@
 import * as ImagePicker from 'expo-image-picker';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
 import { AppButton } from '../components/ui/AppButton';
 import { ChoiceChips } from '../components/ui/ChoiceChips';
+import { DatePickerField } from '../components/ui/DatePickerField';
 import { FormField } from '../components/ui/FormField';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
@@ -26,6 +27,12 @@ export function RequestFormScreen() {
   const [address, setAddress] = useState(''); const [city, setCity] = useState(''); const [state, setState] = useState('');
   const [budgetMinimum, setBudgetMinimum] = useState(''); const [budgetMaximum, setBudgetMaximum] = useState(''); const [preferredDate, setPreferredDate] = useState('');
   const [answers, setAnswers] = useState<Record<string, string>>({}); const [images, setImages] = useState<SelectedImage[]>([]); const [loading, setLoading] = useState(false);
+  const minimumPreferredDate = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return tomorrow;
+  }, []);
 
   useEffect(() => { Promise.all([apiRequest<Service[]>('/services'), apiRequest<UserProfile>('/users/me')]).then(([services, profile]) => { setService(services.find(currentService => currentService.id === params.serviceId) || null); setAddress(profile.address || ''); setCity(profile.city || ''); setState(profile.state || ''); }); }, [params.serviceId]);
 
@@ -52,7 +59,7 @@ export function RequestFormScreen() {
     {service?.requestForm?.map(field => <FormField key={field.key} label={field.label} value={answers[field.key] || ''} onChangeText={value => setAnswers(current => ({ ...current, [field.key]: value }))} placeholder={field.required ? 'Obrigatório' : 'Opcional'} />)}
     <FormField label="Endereço" value={address} onChangeText={setAddress} /><FormField label="Cidade" value={city} onChangeText={setCity} /><FormField label="UF" value={state} onChangeText={value => setState(value.slice(0, 2).toUpperCase())} autoCapitalize="characters" />
     <View style={styles.row}><View style={styles.grow}><FormField label="Orçamento mínimo" value={budgetMinimum} onChangeText={setBudgetMinimum} keyboardType="decimal-pad" /></View><View style={styles.grow}><FormField label="Orçamento máximo" value={budgetMaximum} onChangeText={setBudgetMaximum} keyboardType="decimal-pad" /></View></View>
-    <FormField label="Data preferida (AAAA-MM-DD)" value={preferredDate} onChangeText={setPreferredDate} keyboardType="numbers-and-punctuation" />
+    <DatePickerField label="Data preferida" value={preferredDate} onChange={setPreferredDate} minimumDate={minimumPreferredDate} />
     <Pressable style={styles.photoButton} onPress={selectImages}><Text style={styles.photoLabel}>Adicionar fotos ({images.length}/8)</Text></Pressable><View style={styles.images}>{images.map(image => <Image key={image.uri} source={{ uri: image.uri }} style={styles.image} />)}</View>
     <AppButton label="Enviar solicitação" onPress={submit} loading={loading} />
   </Screen>;

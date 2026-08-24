@@ -2,8 +2,8 @@ import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import MapView, { Marker, Region, UrlTile } from 'react-native-maps';
 
 import { apiRequest } from '../api/api-client';
 import { Screen } from '../components/ui/Screen';
@@ -54,7 +54,7 @@ export function RegionalMapScreen() {
     <ChoiceChips value={radiusKm} onChange={setRadiusKm} options={[{ value: 10, label: '10 km' }, { value: 25, label: '25 km' }, { value: 50, label: '50 km' }, { value: 100, label: '100 km' }]} />
     <Pressable style={styles.locationButton} onPress={centerOnUser}><Feather name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>
     {loading && <StateView loading message="Preparando mapa..." />}{Boolean(error) && <StateView message={error} />}
-    {!loading && <MapView style={styles.map} region={mapRegion} onRegionChangeComplete={setMapRegion}><Marker coordinate={{ latitude: mapRegion.latitude, longitude: mapRegion.longitude }} pinColor={colors.accent} title="Centro da busca" />{markers.map(marker => <Marker key={marker.key} coordinate={{ latitude: marker.latitude, longitude: marker.longitude }} title={`${marker.city}, ${marker.state}`} description={`${marker.professionals.length} profissional(is)`} />)}</MapView>}
+    {!loading && <MapView style={styles.map} mapType={Platform.OS === 'android' ? 'none' : 'standard'} region={mapRegion} onRegionChangeComplete={setMapRegion}><UrlTile urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maximumZ={19} flipY={false} /><Marker coordinate={{ latitude: mapRegion.latitude, longitude: mapRegion.longitude }} pinColor={colors.accent} title="Centro da busca" />{markers.map(marker => <Marker key={marker.key} coordinate={{ latitude: marker.latitude, longitude: marker.longitude }} title={`${marker.city}, ${marker.state}`} description={`${marker.professionals.length} profissional(is)`} />)}</MapView>}
     {markers.map(marker => <View key={marker.key} style={styles.card}><View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{marker.professionals.length} profissional(is)</Text></View><Pressable onPress={() => navigation.navigate('Professional', { professionalId: marker.professionals[0].id })}><Text style={styles.link}>Ver perfil</Text></Pressable></View>)}
   </Screen>;
 }

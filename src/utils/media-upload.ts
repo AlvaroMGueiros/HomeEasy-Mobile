@@ -1,4 +1,4 @@
-import { apiRequest } from '../api/api-client';
+import { apiFormRequest, apiRequest } from '../api/api-client';
 import { UploadAuthorization } from '../types/api';
 
 export type MediaPurpose = 'profile_photo' | 'request_attachment' | 'chat_attachment' | 'verification_document';
@@ -9,8 +9,8 @@ export async function uploadMedia(uri: string, fileName: string, contentType: st
   const authorization = await apiRequest<UploadAuthorization>('/media/uploads', {
     method: 'POST', body: JSON.stringify({ fileName, contentType, size: fileBlob.size, purpose })
   });
-  const uploadResponse = await fetch(authorization.uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: fileBlob });
-  if (!uploadResponse.ok) throw new Error('Não foi possível enviar o arquivo selecionado.');
-  await apiRequest(`/media/${authorization.mediaId}/complete`, { method: 'POST' });
+  const formData = new FormData();
+  formData.append('file', { uri, name: fileName, type: contentType } as unknown as Blob);
+  await apiFormRequest(`/media/${authorization.mediaId}/content`, formData);
   return authorization.mediaId;
 }
