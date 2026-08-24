@@ -5,6 +5,7 @@ import { AuthResponse } from '../types/api';
 
 const accessTokenKey = 'homeEasyAccessToken';
 const refreshTokenKey = 'homeEasyRefreshToken';
+let refreshRequest: Promise<boolean> | null = null;
 
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number) { super(message); }
@@ -57,6 +58,16 @@ export async function storeUser(user: AuthResponse['user']) {
 }
 
 async function refreshSession() {
+  if (refreshRequest) return refreshRequest;
+  refreshRequest = performRefresh();
+  try {
+    return await refreshRequest;
+  } finally {
+    refreshRequest = null;
+  }
+}
+
+async function performRefresh() {
   const refreshToken = await SecureStore.getItemAsync(refreshTokenKey);
   if (!refreshToken) return false;
   try {
