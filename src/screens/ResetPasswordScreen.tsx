@@ -1,8 +1,66 @@
-import { useState } from 'react'; import { StyleSheet, Text, TextInput, View } from 'react-native'; import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'; import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ApiError } from '../api/api-client'; import { useAuth } from '../auth/AuthContext'; import { AppButton } from '../components/ui/AppButton'; import { Screen } from '../components/ui/Screen'; import { SectionHeader } from '../components/ui/SectionHeader'; import { RootStackParamList } from '../navigation/types'; import { colors } from '../theme/colors';
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput } from 'react-native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { ApiError } from '../api/api-client';
+import { useAuth } from '../auth/AuthContext';
+import { AppButton } from '../components/ui/AppButton';
+import { AuthLayout } from '../components/ui/AuthLayout';
+import { RootStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
+
 const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
-export function ResetPasswordScreen() { const route = useRoute<RouteProp<RootStackParamList, 'ResetPassword'>>(); const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); const { resetPassword } = useAuth(); const [token, setToken] = useState(route.params?.token || ''); const [password, setPassword] = useState(''); const [confirmation, setConfirmation] = useState(''); const [loading, setLoading] = useState(false); const [message, setMessage] = useState(''); const [changed, setChanged] = useState(false);
+
+export function ResetPasswordScreen() {
+  const route = useRoute<RouteProp<RootStackParamList, 'ResetPassword'>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { resetPassword } = useAuth();
+  const [token, setToken] = useState(route.params?.token || '');
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [changed, setChanged] = useState(false);
   const valid = Boolean(token.trim() && passwordPattern.test(password) && password === confirmation);
-  async function submit() { if (!valid || loading) return; setLoading(true); setMessage(''); try { await resetPassword(token.trim(), password); setChanged(true); setMessage('Senha atualizada. Você já pode entrar com a nova senha.'); } catch (error) { setMessage(error instanceof ApiError ? error.message : 'O link expirou ou já foi utilizado.'); } finally { setLoading(false); } }
-  return <Screen><SectionHeader eyebrow="Nova senha" title="Proteja sua conta" description="Crie uma senha forte e diferente das anteriores." /><View style={styles.card}>{!changed && <><Text style={styles.label}>Código do link</Text><TextInput autoCapitalize="none" value={token} onChangeText={setToken} style={styles.input} /><Text style={styles.label}>Nova senha</Text><TextInput secureTextEntry value={password} onChangeText={setPassword} style={styles.input} /><Text style={styles.label}>Confirmar senha</Text><TextInput secureTextEntry value={confirmation} onChangeText={setConfirmation} style={styles.input} /><Text style={styles.help}>Use 8 ou mais caracteres, com maiúscula, minúscula e número.</Text><AppButton label="Atualizar senha" onPress={submit} loading={loading} disabled={!valid} /></>}{Boolean(message) && <Text accessibilityRole="alert" style={changed ? styles.success : styles.error}>{message}</Text>}{changed && <AppButton label="Entrar" onPress={() => navigation.navigate('Login')} />}</View></Screen>; }
-const styles = StyleSheet.create({ card: { gap: 12, padding: 18, borderRadius: 22, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, label: { color: colors.text, fontWeight: '700' }, input: { minHeight: 50, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, color: colors.text }, help: { color: colors.textMuted, fontSize: 12 }, error: { color: colors.danger }, success: { color: colors.success, lineHeight: 20 } });
+
+  async function submit() {
+    if (!valid || loading) return;
+    setLoading(true);
+    setMessage('');
+    try {
+      await resetPassword(token.trim(), password);
+      setChanged(true);
+      setMessage('Senha atualizada. Você já pode entrar com a nova senha.');
+    } catch (resetError) {
+      setMessage(resetError instanceof ApiError ? resetError.message : 'O link de recuperação expirou ou já foi utilizado.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return <AuthLayout title="Crie uma nova senha." description="Escolha uma senha forte e diferente das anteriores.">
+    <Text style={styles.title}>{changed ? 'Senha atualizada' : 'Proteja sua conta'}</Text>
+    {!changed && <>
+      <Text style={styles.label}>Código do link</Text>
+      <TextInput autoCapitalize="none" value={token} onChangeText={setToken} style={styles.input} />
+      <Text style={styles.label}>Nova senha</Text>
+      <TextInput secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
+      <Text style={styles.label}>Confirmar senha</Text>
+      <TextInput secureTextEntry value={confirmation} onChangeText={setConfirmation} style={styles.input} />
+      <Text style={styles.help}>Use 8 ou mais caracteres, com maiúscula, minúscula e número.</Text>
+      <AppButton label="Atualizar senha" onPress={submit} loading={loading} disabled={!valid} />
+    </>}
+    {Boolean(message) && <Text accessibilityRole="alert" style={changed ? styles.success : styles.error}>{message}</Text>}
+    {changed && <AppButton label="Entrar" onPress={() => navigation.navigate('Login')} />}
+  </AuthLayout>;
+}
+
+const styles = StyleSheet.create({
+  title: { color: colors.text, fontSize: 22, fontWeight: '800' },
+  label: { color: colors.text, fontWeight: '700' },
+  input: { minHeight: 50, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, color: colors.text, backgroundColor: colors.background },
+  help: { color: colors.textMuted, fontSize: 12, lineHeight: 17 },
+  error: { color: colors.danger, lineHeight: 20 },
+  success: { color: colors.success, lineHeight: 20 }
+});
