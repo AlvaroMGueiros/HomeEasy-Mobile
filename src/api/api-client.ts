@@ -42,6 +42,10 @@ export async function readStoredUser() {
   return storedUser ? JSON.parse(storedUser) : null;
 }
 
+export async function storeUser(user: AuthResponse['user']) {
+  await SecureStore.setItemAsync('homeEasyUser', JSON.stringify(user));
+}
+
 async function refreshSession() {
   const refreshToken = await SecureStore.getItemAsync(refreshTokenKey);
   if (!refreshToken) return false;

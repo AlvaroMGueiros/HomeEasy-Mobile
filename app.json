@@ -23,7 +23,19 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "A Home Easy usa sua localização para encontrar profissionais dentro do raio escolhido."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "A Home Easy acessa suas fotos somente para anexos, documentos e foto de perfil."
+        }
+      ]
     ]
   }
 }
