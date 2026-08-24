@@ -1,6 +1,37 @@
-import { Image, StyleSheet, Text, View } from 'react-native'; import { NativeStackNavigationProp } from '@react-navigation/native-stack'; import { useNavigation } from '@react-navigation/native';
-import { AppButton } from '../components/ui/AppButton'; import { PublicNavigation } from '../components/ui/PublicNavigation'; import { Screen } from '../components/ui/Screen'; import { SectionHeader } from '../components/ui/SectionHeader'; import { RootStackParamList } from '../navigation/types'; import { colors } from '../theme/colors';
-const steps = [{ number: '01', title: 'Escolha o serviço', text: 'Conte o que sua casa precisa e encontre profissionais disponíveis.' }, { number: '02', title: 'Converse e combine', text: 'Veja perfis, avaliações e alinhe todos os detalhes diretamente.' }, { number: '03', title: 'Pronto, resolvido', text: 'Agende com tranquilidade e avalie o atendimento ao final.' }];
-export function PublicHomeScreen() { const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); function openServices() { navigation.navigate('Services'); }
-  return <Screen><View style={styles.brand}><Image source={require('../../assets/home-easy-logo-v2.png')} style={styles.logo} resizeMode="contain" accessibilityLabel="Home Easy" /></View><PublicNavigation /><SectionHeader eyebrow="Sua casa, bem cuidada" title="O profissional certo, sem complicação." description="Encontre especialistas de confiança para limpeza, reparos e reformas. Compare opções, converse e contrate em um só lugar." /><View style={styles.actions}><AppButton label="Encontrar um serviço" onPress={openServices} /><AppButton label="Quero trabalhar" variant="secondary" onPress={() => navigation.navigate('BecomeProfessional')} /></View><View style={styles.trust}><Text style={styles.trustText}>✓ Profissionais avaliados</Text><Text style={styles.trustText}>✓ Contato direto</Text></View><SectionHeader eyebrow="Simples de verdade" title="Resolva em três passos" />{steps.map(step => <View key={step.number} style={styles.card}><Text style={styles.number}>{step.number}</Text><View style={styles.grow}><Text style={styles.title}>{step.title}</Text><Text style={styles.text}>{step.text}</Text></View></View>)}<Text style={styles.footer}>© 2026 Home Easy · Cuidar da casa pode ser mais simples.</Text></Screen>; }
-const styles = StyleSheet.create({ brand: { alignItems: 'center' }, logo: { width: 150, height: 115 }, actions: { gap: 10 }, trust: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 }, trustText: { color: colors.success, fontWeight: '700' }, card: { flexDirection: 'row', gap: 14, padding: 17, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, number: { color: colors.accent, fontWeight: '900', fontSize: 18 }, grow: { flex: 1, gap: 4 }, title: { color: colors.text, fontSize: 17, fontWeight: '800' }, text: { color: colors.textMuted, lineHeight: 20 }, footer: { color: colors.textMuted, fontSize: 12, textAlign: 'center', paddingVertical: 20 } });
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { AppButton } from '../components/ui/AppButton';
+import { Screen } from '../components/ui/Screen';
+import { RootStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
+
+export function PublicHomeScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  return <Screen>
+    <View style={styles.container}>
+      <Image source={require('../../assets/home-easy-logo-v2.png')} style={styles.logo} resizeMode="contain" accessibilityLabel="Home Easy" />
+      <View style={styles.copy}>
+        <Text style={styles.title}>Serviços para sua casa, de um jeito simples.</Text>
+        <Text style={styles.description}>Encontre profissionais ou ofereça seus serviços pela Home Easy.</Text>
+      </View>
+      <View style={styles.actions}>
+        <AppButton label="Ver serviços" onPress={() => navigation.navigate('Services')} />
+        <AppButton label="Entrar" variant="secondary" onPress={() => navigation.navigate('Login', { mode: 'login' })} />
+        <AppButton label="Criar conta" variant="secondary" onPress={() => navigation.navigate('Login', { mode: 'register' })} />
+        <AppButton label="Quero oferecer serviços" variant="secondary" onPress={() => navigation.navigate('BecomeProfessional')} />
+      </View>
+    </View>
+  </Screen>;
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', gap: 30, paddingVertical: 28 },
+  logo: { width: 180, height: 150, alignSelf: 'center' },
+  copy: { alignItems: 'center', gap: 10 },
+  title: { maxWidth: 340, color: colors.text, fontSize: 30, lineHeight: 36, fontWeight: '900', textAlign: 'center' },
+  description: { maxWidth: 320, color: colors.textMuted, fontSize: 16, lineHeight: 23, textAlign: 'center' },
+  actions: { gap: 10 }
+});
