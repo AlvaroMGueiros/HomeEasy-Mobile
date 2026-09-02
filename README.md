@@ -202,6 +202,4 @@ Evoluções possíveis incluem notificações push e atualização do chat por c
 
 ## Equipe
 
-- **Álvaro Miguel:** design de produto;
-- **Carlos Sabino:** estratégia e operações;
-- **Péricles Soares:** análise e tecnologia.
+- **Álvaro Miguel
