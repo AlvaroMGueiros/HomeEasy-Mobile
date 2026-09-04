@@ -16,7 +16,12 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.homeeasy.mobile"
+      "package": "com.homeeasy.mobile",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,6 +41,12 @@
           "photosPermission": "A Home Easy acessa suas fotos somente para anexos, documentos e foto de perfil."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5531442d-8c7c-4d59-acca-ae1e045d4f24"
+      }
+    },
+    "owner": "alvaromgueiros"
   }
 }

@@ -176,6 +176,11 @@ http://10.0.2.2:3000/api
 
 Em um dispositivo físico, use o endereço IPv4 do computador na mesma rede local.
 
+Em builds distribuídos pelo EAS, configure `EXPO_PUBLIC_API_URL` no ambiente
+`preview` ou `production` com a URL HTTPS pública da API. Endereços como
+`localhost` e `10.0.2.2` não funcionam em um aparelho físico fora do ambiente
+de desenvolvimento.
+
 ## Execução
 
 Inicie o servidor de desenvolvimento:
@@ -194,9 +199,27 @@ npm run web
 
 Para testar os fluxos integrados, mantenha a API do Home Easy acessível pelo endereço configurado e leia o QR Code com o Expo Go ou execute o aplicativo em um emulador.
 
+## Builds com EAS
+
+O perfil `preview` gera um APK para instalação direta e testes internos. O
+perfil `production` gera o artefato destinado às lojas, com incremento remoto
+da versão de build.
+
+Depois de autenticar e vincular o projeto à conta Expo, execute:
+
+```bash
+npx eas-cli@latest build --platform android --profile preview
+```
+
+Para gerar um build de produção Android:
+
+```bash
+npx eas-cli@latest build --platform android --profile production
+```
+
 ## Estado atual
 
-O projeto possui um MVP mobile funcional com as jornadas principais de cliente, profissional e administração conectadas ao backend. A configuração está preparada para Android e iOS, mas este repositório não documenta publicação nas lojas.
+O projeto possui um MVP mobile funcional com as jornadas principais de cliente, profissional e administração conectadas ao backend. A configuração está preparada para builds Android e iOS pelo EAS.
 
 Evoluções possíveis incluem notificações push e atualização do chat por conexão em tempo real.
 
