@@ -166,6 +166,14 @@ Defina o endereço da API em um arquivo `.env`:
 
 ```env
 EXPO_PUBLIC_API_URL=http://192.168.0.10:3000/api
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=seu-cliente-web.apps.googleusercontent.com
+```
+
+O login com Google usa código nativo e deve ser testado em um development build,
+não no Expo Go:
+
+```bash
+npx eas-cli@latest build --profile development --platform android
 ```
 
 No emulador Android, o endereço padrão é:

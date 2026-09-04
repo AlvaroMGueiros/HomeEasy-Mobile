@@ -7,6 +7,7 @@ interface AuthContextValue {
   user: AuthenticatedUser | null;
   loading: boolean;
   login(email: string, password: string): Promise<void>;
+  loginWithGoogle(idToken: string, birthDate?: string): Promise<void>;
   register(name: string, email: string, password: string, birthDate: string): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
   resetPassword(token: string, password: string): Promise<void>;
@@ -27,6 +28,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     user, loading,
     async login(email: string, password: string) {
       const session = await apiRequest<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }, false);
+      await storeSession(session); setUser(session.user);
+    },
+    async loginWithGoogle(idToken: string, birthDate?: string) {
+      const session = await apiRequest<AuthResponse>('/auth/google', {
+        method: 'POST', body: JSON.stringify({ idToken, birthDate })
+      }, false);
       await storeSession(session); setUser(session.user);
     },
     async register(name: string, email: string, password: string, birthDate: string) {

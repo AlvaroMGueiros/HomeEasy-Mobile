@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { ApiError } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import { AppButton } from '../components/ui/AppButton';
 import { AuthLayout } from '../components/ui/AuthLayout';
 import { RootStackParamList } from '../navigation/types';
@@ -17,13 +18,14 @@ const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { params } = useRoute<RouteProp<RootStackParamList, 'Login'>>();
-  const { login, register } = useAuth();
+  const { login, loginWithGoogle, register } = useAuth();
   const [mode, setMode] = useState<AuthMode>(params?.mode || 'login');
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
   const parsedBirthDate = parseBrazilianBirthDate(birthDate);
@@ -40,6 +42,20 @@ export function LoginScreen() {
       setError(authError instanceof ApiError ? authError.message : 'Não foi possível concluir o acesso.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function submitGoogle(idToken: string) {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+    setError('');
+    try {
+      const googleBirthDate = mode === 'register' ? parsedBirthDate : undefined;
+      await loginWithGoogle(idToken, googleBirthDate);
+    } catch (authError) {
+      setError(authError instanceof ApiError ? authError.message : 'Não foi possível concluir o acesso com Google.');
+    } finally {
+      setGoogleLoading(false);
     }
   }
 
@@ -64,6 +80,13 @@ export function LoginScreen() {
       <TextInput keyboardType="number-pad" maxLength={10} placeholder="dd/mm/aaaa" placeholderTextColor={colors.textMuted} value={birthDate} onChangeText={value => setBirthDate(formatBrazilianBirthDate(value))} style={styles.input} />
       <Text style={styles.help}>É necessário ter pelo menos 18 anos.</Text>
     </>}
+    <GoogleAuthButton
+      disabled={loading || (mode === 'register' && !isAdultBirthDate(parsedBirthDate))}
+      loading={googleLoading}
+      onError={setError}
+      onIdToken={(idToken) => void submitGoogle(idToken)}
+    />
+    <View style={styles.divider}><View style={styles.dividerLine} /><Text style={styles.dividerText}>ou use seu e-mail</Text><View style={styles.dividerLine} /></View>
     <Text style={styles.label}>E-mail</Text>
     <TextInput autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
     <Text style={styles.label}>Senha</Text>
@@ -86,5 +109,8 @@ const styles = StyleSheet.create({
   input: { minHeight: 50, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, color: colors.text, backgroundColor: colors.background },
   help: { color: colors.textMuted, fontSize: 12, lineHeight: 17 },
   error: { color: colors.danger, lineHeight: 20 },
-  recovery: { color: colors.primary, textAlign: 'center', padding: 8, fontWeight: '700' }
+  recovery: { color: colors.primary, textAlign: 'center', padding: 8, fontWeight: '700' },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textMuted, fontSize: 12 }
 });
