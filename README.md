@@ -153,7 +153,7 @@ O cliente HTTP centraliza:
 
 - Node.js compatível com o Expo SDK 57;
 - npm;
-- Expo Go ou um emulador Android/iOS;
+- Android Studio com um emulador configurado ou um aparelho Android com depuração USB;
 - API do Home Easy em execução.
 
 Instale as dependências:
@@ -162,11 +162,12 @@ Instale as dependências:
 npm install
 ```
 
-Defina o endereço da API em um arquivo `.env`:
+Defina o endereço da API em um arquivo `.env.local`. Para trabalhar contra a
+API de produção:
 
 ```env
-EXPO_PUBLIC_API_URL=http://192.168.0.10:3000/api
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=seu-cliente-web.apps.googleusercontent.com
+EXPO_PUBLIC_API_URL=https://homeeasy-api-8uw9.onrender.com/api
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=636779212416-1hck1h1n3r4taskcarjlv3ss9pr17ai3.apps.googleusercontent.com
 ```
 
 O login com Google usa código nativo e deve ser testado em um development build,
@@ -191,21 +192,21 @@ de desenvolvimento.
 
 ## Execução
 
-Inicie o servidor de desenvolvimento:
-
-```bash
-npm start
-```
-
-Ou abra diretamente uma plataforma:
+Compile, instale e abra o aplicativo no emulador ativo do Android Studio:
 
 ```bash
 npm run android
-npm run ios
-npm run web
 ```
 
-Para testar os fluxos integrados, mantenha a API do Home Easy acessível pelo endereço configurado e leia o QR Code com o Expo Go ou execute o aplicativo em um emulador.
+Para instalar em um aparelho conectado por USB, habilite a depuração USB e use:
+
+```bash
+npx expo run:android --device
+```
+
+O comando gera automaticamente o projeto nativo quando necessário. Depois da
+primeira compilação, execute `npm start` para iniciar o Metro e abra o development
+build já instalado. O login Google não é compatível com o Expo Go.
 
 ## Builds com EAS
 
@@ -218,6 +219,10 @@ Depois de autenticar e vincular o projeto à conta Expo, execute:
 ```bash
 npx eas-cli@latest build --platform android --profile preview
 ```
+
+Quando o build terminar, abra o link exibido pelo EAS no próprio Android,
+baixe o arquivo `.apk`, permita a instalação de aplicativos dessa origem e
+instale. Esse APK usa a API de produção configurada no ambiente `preview`.
 
 Para gerar um build de produção Android:
 
