@@ -11,6 +11,7 @@ export type RootStackParamList = {
   About: undefined;
   Contact: undefined;
   PrivacyPolicy: undefined;
+  FullPrivacyPolicy: undefined;
   App: NavigatorScreenParams<AppTabParamList>;
   Services: undefined;
   ServiceProfessionals: { serviceId: string; serviceName: string };
