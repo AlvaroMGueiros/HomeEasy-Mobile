@@ -1,13 +1,18 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { AppButton } from '../components/ui/AppButton';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { environment } from '../config/environment';
+import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { openExternalLink } from '../utils/external-link';
 
 export function PrivacyPolicyScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   async function openLink(url: string) {
     try {
       await openExternalLink(url);
@@ -30,7 +35,7 @@ export function PrivacyPolicyScreen() {
       <Text style={styles.title}>Seus direitos</Text>
       <Text style={styles.text}>Você pode solicitar acesso, correção e exclusão dos seus dados. Alguns registros podem ser preservados somente quando necessários para segurança, disputas ou obrigações legais.</Text>
     </View>
-    <AppButton label="Ler política completa" onPress={() => void openLink(environment.privacyPolicyUrl)} />
+    <AppButton label="Ler política completa" onPress={() => navigation.navigate('FullPrivacyPolicy')} />
     <AppButton label="Excluir conta sem acesso ao app" variant="secondary" onPress={() => void openLink(environment.accountDeletionUrl)} />
   </Screen>;
 }
