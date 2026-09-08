@@ -10,6 +10,7 @@ export type RootStackParamList = {
   BecomeProfessional: undefined;
   About: undefined;
   Contact: undefined;
+  PrivacyPolicy: undefined;
   App: NavigatorScreenParams<AppTabParamList>;
   Services: undefined;
   ServiceProfessionals: { serviceId: string; serviceName: string };
@@ -31,4 +32,5 @@ export type RootStackParamList = {
   Dispute: { orderId: string };
   Opportunities: undefined;
   Notifications: undefined;
+  DeleteAccount: undefined;
 };
