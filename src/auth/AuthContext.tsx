@@ -12,6 +12,7 @@ interface AuthContextValue {
   requestPasswordReset(email: string): Promise<void>;
   resetPassword(token: string, password: string): Promise<void>;
   updateCurrentUser(user: AuthenticatedUser): Promise<void>;
+  deleteAccount(): Promise<void>;
   logout(): Promise<void>;
 }
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -49,6 +50,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await apiRequest('/auth/password-reset/confirm', { method: 'POST', body: JSON.stringify({ token, password }) }, false);
     },
     async updateCurrentUser(updatedUser: AuthenticatedUser) { await storeUser(updatedUser); setUser(updatedUser); },
+    async deleteAccount() {
+      await apiRequest('/users/me', { method: 'DELETE' });
+      await clearSession();
+      setUser(null);
+    },
     async logout() { await clearSession(); setUser(null); }
   }), [user, loading]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

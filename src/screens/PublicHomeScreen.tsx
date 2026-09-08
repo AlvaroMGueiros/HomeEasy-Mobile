@@ -1,4 +1,4 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -25,6 +25,7 @@ export function PublicHomeScreen() {
         <View style={styles.divider} />
         <Text style={styles.professionalHint}>Você trabalha com serviços para casa?</Text>
         <AppButton label="Quero oferecer serviços" variant="secondary" onPress={() => navigation.navigate('BecomeProfessional')} />
+        <Pressable onPress={() => navigation.navigate('PrivacyPolicy')}><Text style={styles.privacyLink}>Política de privacidade</Text></Pressable>
       </View>
     </ScrollView>
   </SafeAreaView>;
@@ -38,5 +39,6 @@ const styles = StyleSheet.create({
   accountActions: { flexDirection: 'row', gap: 10 },
   accountAction: { flex: 1 },
   divider: { height: 1, marginVertical: 2, backgroundColor: colors.border },
-  professionalHint: { color: colors.textMuted, fontSize: 13, textAlign: 'center' }
+  professionalHint: { color: colors.textMuted, fontSize: 13, textAlign: 'center' },
+  privacyLink: { color: colors.primary, fontSize: 13, fontWeight: '700', textAlign: 'center', padding: 8 }
 });

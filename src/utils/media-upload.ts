@@ -12,7 +12,7 @@ export async function uploadMedia(uri: string, fileName: string, contentType: st
     method: 'POST', body: JSON.stringify({ fileName, contentType, size: file.size, purpose })
   });
   const formData = new FormData();
-  formData.append('file', { uri, name: fileName, type: contentType } as unknown as Blob);
+  formData.append('file', file);
   await apiFormRequest(`/media/${authorization.mediaId}/content`, formData);
   return authorization.mediaId;
 }

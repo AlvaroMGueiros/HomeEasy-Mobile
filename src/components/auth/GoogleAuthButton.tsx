@@ -1,14 +1,18 @@
-import { useEffect } from 'react';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import {
   GoogleOneTapSignIn,
-  GoogleSignInButton,
+  isCancelledResponse,
   isErrorWithCode,
-  statusCodes
+  isSuccessResponse,
+  statusCodes,
 } from 'react-native-nitro-google-signin';
 
 import { environment } from '../../config/environment';
 import { colors } from '../../theme/colors';
+import { PromiseTimeoutError, withTimeout } from '../../utils/promise-timeout';
+import { AppButton } from '../ui/AppButton';
 
 interface GoogleAuthButtonProps {
   disabled?: boolean;
@@ -24,6 +28,7 @@ export function GoogleAuthButton({
   onError
 }: GoogleAuthButtonProps) {
   const clientId = environment.googleWebClientId;
+  const [nativeLoading, setNativeLoading] = useState(false);
 
   useEffect(() => {
     if (clientId) {
@@ -31,14 +36,40 @@ export function GoogleAuthButton({
     }
   }, [clientId]);
 
+  const googleIcon = <FontAwesome6 color={colors.primary} name="google" size={18} />;
+
+  async function signInWithGoogle() {
+    if (disabled || loading || nativeLoading) return;
+    setNativeLoading(true);
+    onError('');
+    try {
+      await GoogleOneTapSignIn.checkPlayServices();
+      const response = await withTimeout(GoogleOneTapSignIn.presentExplicitSignIn(), 20000);
+      if (isCancelledResponse(response)) {
+        onError('Login com Google cancelado.');
+        return;
+      }
+      if (!isSuccessResponse(response) || !response.data.idToken) {
+        onError('O Google não retornou uma credencial de identidade. Tente novamente.');
+        return;
+      }
+      onIdToken(response.data.idToken);
+    } catch (error) {
+      onError(resolveGoogleSignInError(error));
+    } finally {
+      setNativeLoading(false);
+    }
+  }
+
   if (!clientId) {
     return (
       <View>
-        <GoogleSignInButton
-          colorScheme="light"
+        <AppButton
           disabled
-          size="wide"
-          style={styles.button}
+          icon={googleIcon}
+          label="Continuar com Google"
+          onPress={() => undefined}
+          variant="secondary"
         />
         <Text style={styles.configurationMessage}>
           Login Google aguardando a configuração OAuth do aplicativo.
@@ -48,27 +79,21 @@ export function GoogleAuthButton({
   }
 
   return (
-    <GoogleSignInButton
-      accessibilityLabel="Continuar com Google"
-      colorScheme="light"
-      disabled={disabled || loading}
-      loading={loading}
-      onSignInError={(error) => onError(resolveGoogleSignInError(error))}
-      onSignInSuccess={(response) => {
-        if (!response.idToken) {
-          onError('O Google não retornou uma credencial de identidade. Tente novamente.');
-          return;
-        }
-        onIdToken(response.idToken);
-      }}
-      signInBehavior="credentialManager"
-      size="wide"
-      style={styles.button}
+    <AppButton
+      disabled={disabled}
+      icon={googleIcon}
+      label="Continuar com Google"
+      loading={loading || nativeLoading}
+      onPress={() => void signInWithGoogle()}
+      variant="secondary"
     />
   );
 }
 
 function resolveGoogleSignInError(error: unknown) {
+  if (error instanceof PromiseTimeoutError) {
+    return 'O Google demorou para responder. Verifique sua conta no dispositivo e tente novamente.';
+  }
   if (isErrorWithCode(error)) {
     if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
       return 'O Google Play Services não está disponível ou precisa ser atualizado.';
@@ -84,6 +109,5 @@ function resolveGoogleSignInError(error: unknown) {
 }
 
 const styles = StyleSheet.create({
-  button: { width: '100%', height: 48 },
   configurationMessage: { color: colors.textMuted, fontSize: 12, lineHeight: 17, marginTop: 8 }
 });
