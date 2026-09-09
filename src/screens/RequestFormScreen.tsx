@@ -55,6 +55,7 @@ export function RequestFormScreen() {
 
   return <Screen><SectionHeader eyebrow={params.professionalId ? 'Solicitação direcionada' : 'Nova solicitação'} title={params.serviceName} description="Conte o que precisa, defina local, orçamento e preferência de atendimento." />
     <FormField label="Descrição detalhada" value={description} onChangeText={setDescription} multiline placeholder="Explique o problema, o ambiente e o resultado esperado." />
+    <Text style={styles.descriptionHelp}>Escreva pelo menos 20 caracteres para ajudar o profissional a entender o serviço. ({description.trim().length}/20)</Text>
     <Text style={styles.label}>Urgência</Text><ChoiceChips value={urgency} onChange={setUrgency} options={[{ value: 'flexible', label: 'Flexível' }, { value: 'this_week', label: 'Esta semana' }, { value: 'urgent', label: 'Urgente' }]} />
     {service?.requestForm?.map(field => <FormField key={field.key} label={field.label} value={answers[field.key] || ''} onChangeText={value => setAnswers(current => ({ ...current, [field.key]: value }))} placeholder={field.required ? 'Obrigatório' : 'Opcional'} />)}
     <FormField label="Endereço" value={address} onChangeText={setAddress} /><FormField label="Cidade" value={city} onChangeText={setCity} /><FormField label="UF" value={state} onChangeText={value => setState(value.slice(0, 2).toUpperCase())} autoCapitalize="characters" />
@@ -65,4 +66,4 @@ export function RequestFormScreen() {
   </Screen>;
 }
 
-const styles = StyleSheet.create({ label: { color: colors.text, fontWeight: '800' }, row: { flexDirection: 'row', gap: 10 }, grow: { flex: 1 }, photoButton: { minHeight: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 14, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.surface }, photoLabel: { color: colors.primary, fontWeight: '800' }, images: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, image: { width: 72, height: 72, borderRadius: 12, backgroundColor: colors.border } });
+const styles = StyleSheet.create({ label: { color: colors.text, fontWeight: '800' }, descriptionHelp: { color: colors.textMuted, fontSize: 12, lineHeight: 17 }, row: { flexDirection: 'row', gap: 10 }, grow: { flex: 1 }, photoButton: { minHeight: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 14, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.surface }, photoLabel: { color: colors.primary, fontWeight: '800' }, images: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, image: { width: 72, height: 72, borderRadius: 12, backgroundColor: colors.border } });

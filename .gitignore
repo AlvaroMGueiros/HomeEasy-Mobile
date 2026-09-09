@@ -39,7 +39,11 @@ expo.err.log
 .tools/
 
 # local env files
+.env
 .env*.local
+
+# local build artifacts
+*.apk
 
 # typescript
 *.tsbuildinfo
