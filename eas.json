@@ -14,11 +14,30 @@
       "environment": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://homeeasy-api-8uw9.onrender.com/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "636779212416-1hck1h1n3r4taskcarjlv3ss9pr17ai3.apps.googleusercontent.com"
+      }
+    },
+    "production-apk": {
+      "distribution": "internal",
+      "environment": "production",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://homeeasy-api-8uw9.onrender.com/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "636779212416-1hck1h1n3r4taskcarjlv3ss9pr17ai3.apps.googleusercontent.com"
       }
     },
     "production": {
       "environment": "production",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://homeeasy-api-8uw9.onrender.com/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "636779212416-1hck1h1n3r4taskcarjlv3ss9pr17ai3.apps.googleusercontent.com"
+      }
     }
   },
   "submit": {
