@@ -2,7 +2,7 @@
   "expo": {
     "name": "Home Easy",
     "slug": "homeeasy-mobile",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,8 +19,7 @@
       "package": "com.homeeasy.mobile",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
