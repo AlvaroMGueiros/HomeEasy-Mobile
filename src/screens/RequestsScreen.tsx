@@ -1,11 +1,145 @@
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { apiRequest } from '../api/api-client'; import { AppButton } from '../components/ui/AppButton'; import { ChoiceChips } from '../components/ui/ChoiceChips'; import { Screen } from '../components/ui/Screen'; import { SectionHeader } from '../components/ui/SectionHeader'; import { StateView } from '../components/ui/StateView'; import { RootStackParamList } from '../navigation/types'; import { colors } from '../theme/colors'; import { Order, ServiceRequest } from '../types/api'; import { formatCurrency } from '../utils/currency'; import { resolveStatusLabel } from '../utils/status';
-export function RequestsScreen() { const navigation = useNavigation<NavigationProp<RootStackParamList>>(); const [section, setSection] = useState<'requests' | 'orders'>('requests'); const [requests, setRequests] = useState<ServiceRequest[]>([]); const [orders, setOrders] = useState<Order[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
-  useFocusEffect(useCallback(() => { setLoading(true); setError(''); Promise.all([apiRequest<ServiceRequest[]>('/marketplace/requests/me'), apiRequest<Order[]>('/marketplace/orders/me')]).then(([requestList, orderList]) => { setRequests(requestList); setOrders(orderList); }).catch(currentError => setError(currentError.message)).finally(() => setLoading(false)); }, []));
-  return <Screen><SectionHeader eyebrow="Acompanhamento" title="Solicitações e pedidos" description="Compare propostas e acompanhe cada contratação." /><ChoiceChips value={section} onChange={setSection} options={[{ value: 'requests', label: 'Solicitações' }, { value: 'orders', label: 'Pedidos' }]} />{loading && <StateView loading message="Carregando..." />}{Boolean(error) && <StateView message={error} />}
-    {section === 'requests' && <><AppButton label="Criar nova solicitação" onPress={() => navigation.navigate('Services')} />{!loading && !requests.length && <StateView message="Você ainda não criou nenhuma solicitação." />}{requests.map(request => <Pressable key={request.id} style={styles.card} onPress={() => navigation.navigate('RequestDetail', { requestId: request.id })}><Text style={styles.status}>{resolveStatusLabel(request.status)}</Text><Text style={styles.title}>{request.service?.name || 'Serviço'}</Text><Text style={styles.description}>{request.description}</Text><Text style={styles.meta}>{request.city}, {request.state} · {request.proposalCount} proposta(s)</Text></Pressable>)}</>}
-    {section === 'orders' && <>{!loading && !orders.length && <StateView message="Nenhum pedido contratado." />}{orders.map(order => <Pressable key={order.id} style={styles.card} onPress={() => navigation.navigate('OrderDetail', { orderId: order.id })}><Text style={styles.status}>{resolveStatusLabel(order.status)}</Text><Text style={styles.title}>{order.request.service?.name || 'Serviço contratado'}</Text><Text style={styles.meta}>{formatCurrency(Number(order.agreedPrice))}</Text></Pressable>)}</>}
-  </Screen>; }
-const styles = StyleSheet.create({ card: { padding: 17, gap: 8, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, status: { color: colors.accent, fontSize: 11, fontWeight: '900', textTransform: 'uppercase' }, title: { color: colors.text, fontSize: 18, fontWeight: '800' }, description: { color: colors.textMuted }, meta: { color: colors.primary, fontSize: 12, fontWeight: '700' } });
+
+import { apiRequest } from '../api/api-client';
+import { AppButton } from '../components/ui/AppButton';
+import { ChoiceChips } from '../components/ui/ChoiceChips';
+import { Screen } from '../components/ui/Screen';
+import { SectionHeader } from '../components/ui/SectionHeader';
+import { StateView } from '../components/ui/StateView';
+import { RootStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
+import { Order, ServiceRequest } from '../types/api';
+import { formatCurrency } from '../utils/currency';
+import { resolveStatusLabel } from '../utils/status';
+
+export function RequestsScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [section, setSection] = useState<'requests' | 'opportunities' | 'orders'>('requests');
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [opportunities, setOpportunities] = useState<ServiceRequest[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      setError('');
+      Promise.all([
+        apiRequest<ServiceRequest[]>('/marketplace/requests/me'),
+        apiRequest<ServiceRequest[]>('/marketplace/opportunities').catch(() => []),
+        apiRequest<Order[]>('/marketplace/orders/me')
+      ])
+        .then(([requestList, opportunityList, orderList]) => {
+          setRequests(requestList);
+          setOpportunities(opportunityList);
+          setOrders(orderList);
+        })
+        .catch(currentError => setError(currentError.message))
+        .finally(() => setLoading(false));
+    }, [])
+  );
+
+  return (
+    <Screen>
+      <SectionHeader
+        eyebrow="Acompanhamento"
+        title="Solicitações e pedidos"
+        description="Compare propostas, veja oportunidades e acompanhe cada contratação."
+      />
+      <ChoiceChips
+        value={section}
+        onChange={setSection}
+        options={[
+          { value: 'requests', label: 'Minhas solicitações' },
+          { value: 'opportunities', label: `Oportunidades${opportunities.length ? ` (${opportunities.length})` : ''}` },
+          { value: 'orders', label: 'Pedidos' }
+        ]}
+      />
+      {loading && <StateView loading message="Carregando..." />}
+      {Boolean(error) && <StateView message={error} />}
+
+      {section === 'requests' && (
+        <>
+          <AppButton label="Criar nova solicitação" onPress={() => navigation.navigate('Services')} />
+          {!loading && !requests.length && (
+            <StateView message="Você ainda não criou nenhuma solicitação como cliente." />
+          )}
+          {requests.map(request => (
+            <Pressable
+              key={request.id}
+              style={styles.card}
+              onPress={() => navigation.navigate('RequestDetail', { requestId: request.id })}
+            >
+              <Text style={styles.status}>{resolveStatusLabel(request.status)}</Text>
+              <Text style={styles.title}>{request.service?.name || 'Serviço'}</Text>
+              <Text style={styles.description}>{request.description}</Text>
+              <Text style={styles.meta}>
+                {request.city}, {request.state} · {request.proposalCount} proposta(s)
+              </Text>
+            </Pressable>
+          ))}
+        </>
+      )}
+
+      {section === 'opportunities' && (
+        <>
+          {!loading && !opportunities.length && (
+            <StateView message="Nenhuma solicitação ou oportunidade de serviço disponível no momento." />
+          )}
+          {opportunities.map(opportunity => (
+            <Pressable
+              key={opportunity.id}
+              style={styles.card}
+              onPress={() => navigation.navigate('RequestDetail', { requestId: opportunity.id })}
+            >
+              <Text style={styles.status}>
+                {opportunity.preferredProfessionalId ? 'Solicitação Direta para Você' : 'Oportunidade'}
+              </Text>
+              <Text style={styles.title}>{opportunity.service?.name || 'Serviço'}</Text>
+              <Text style={styles.description}>{opportunity.description}</Text>
+              <Text style={styles.meta}>
+                {opportunity.city}, {opportunity.state} · {opportunity.proposalCount} de {opportunity.maximumProposals} propostas
+              </Text>
+            </Pressable>
+          ))}
+        </>
+      )}
+
+      {section === 'orders' && (
+        <>
+          {!loading && !orders.length && <StateView message="Nenhum pedido contratado." />}
+          {orders.map(order => (
+            <Pressable
+              key={order.id}
+              style={styles.card}
+              onPress={() => navigation.navigate('OrderDetail', { orderId: order.id })}
+            >
+              <Text style={styles.status}>{resolveStatusLabel(order.status)}</Text>
+              <Text style={styles.title}>{order.request.service?.name || 'Serviço contratado'}</Text>
+              <Text style={styles.meta}>{formatCurrency(Number(order.agreedPrice))}</Text>
+            </Pressable>
+          ))}
+        </>
+      )}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    padding: 17,
+    gap: 8,
+    borderRadius: 19,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border
+  },
+  status: { color: colors.accent, fontSize: 11, fontWeight: '900', textTransform: 'uppercase' },
+  title: { color: colors.text, fontSize: 18, fontWeight: '800' },
+  description: { color: colors.textMuted },
+  meta: { color: colors.primary, fontSize: 12, fontWeight: '700' }
+});
+
