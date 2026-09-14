@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { useHeaderHeight } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -6,6 +7,7 @@ import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet,
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { Screen } from '../components/ui/Screen';
+import { PrivateMediaImage } from '../components/ui/PrivateMediaImage';
 import { StateView } from '../components/ui/StateView';
 import { UserAvatar } from '../components/ui/UserAvatar';
 import { RootStackParamList } from '../navigation/types';
@@ -15,7 +17,6 @@ import { uploadMedia } from '../utils/media-upload';
 
 function resolveMessageContent(message: ChatMessage) {
   if (message.type === 'budget') return `Orçamento: R$ ${message.budgetAmount}`;
-  if (message.type === 'image') return 'Imagem anexada';
   return message.content || 'Mensagem do sistema';
 }
 
@@ -27,6 +28,7 @@ function resolvePresenceLabel(isTyping: boolean, isOnline: boolean) {
 export function ChatScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Chat'>>();
   const { user } = useAuth();
+  const headerHeight = useHeaderHeight();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [otherUser, setOtherUser] = useState<Pick<UserProfile, 'name' | 'profilePhotoMediaId'> | null>(null);
   const [content, setContent] = useState('');
@@ -112,7 +114,7 @@ export function ChatScreen() {
     ? resolvePresenceLabel(presence.isTyping, presence.isOnline)
     : 'serviço encerrado';
 
-  return <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+  return <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={headerHeight}>
     <Screen scroll={false} header={<View style={styles.header}>
       <UserAvatar name={params.otherUserName} mediaId={otherUser?.profilePhotoMediaId} size={44} />
       <View><Text style={styles.serviceName}>{params.serviceName}</Text><Text style={styles.name}>{params.otherUserName}</Text><Text style={styles.presence}>{presenceLabel}</Text></View>
@@ -124,10 +126,11 @@ export function ChatScreen() {
         keyExtractor={message => message.id}
         renderItem={({ item: message }) => {
           const ownMessage = message.senderId === user?.id;
-          return <View style={[styles.bubble, ownMessage ? styles.ownBubble : styles.otherBubble]}><View style={styles.messageContent}><Text style={[styles.messageText, ownMessage && styles.ownText]}>{resolveMessageContent(message)}</Text><Text style={[styles.time, ownMessage && styles.ownTime]}>{new Date(message.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}{ownMessage && message.readAt ? '  ✓✓' : ''}</Text></View></View>;
+          return <View style={[styles.bubble, message.type === 'image' && styles.imageBubble, ownMessage ? styles.ownBubble : styles.otherBubble]}>{message.type === 'image' && message.attachment?.mediaId ? <PrivateMediaImage mediaId={message.attachment.mediaId} accessibilityLabel={`Imagem enviada por ${ownMessage ? 'você' : params.otherUserName}`} /> : <Text style={[styles.messageText, ownMessage && styles.ownText]}>{resolveMessageContent(message)}</Text>}<Text style={[styles.time, ownMessage && styles.ownTime]}>{new Date(message.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}{ownMessage && message.readAt ? '  ✓✓' : ''}</Text></View>;
         }}
         contentContainerStyle={styles.messageListContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         onContentSizeChange={() => messageList.current?.scrollToEnd({ animated: true })}
       />
       {params.isWritable
@@ -138,5 +141,5 @@ export function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 }, header: { flexDirection: 'row', alignItems: 'center', gap: 11, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: colors.border }, serviceName: { color: colors.primary, fontSize: 12, fontWeight: '900' }, name: { color: colors.text, fontWeight: '900' }, presence: { color: colors.success, fontSize: 12 }, messageListContent: { flexGrow: 1, justifyContent: 'flex-end', gap: 8, paddingBottom: 4 }, messageContent: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 }, bubble: { maxWidth: '82%', paddingHorizontal: 12, paddingVertical: 9, borderRadius: 16 }, ownBubble: { alignSelf: 'flex-end', backgroundColor: colors.primary }, otherBubble: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, messageText: { flexShrink: 1, color: colors.text, lineHeight: 20 }, ownText: { color: colors.white }, time: { flexShrink: 0, paddingBottom: 1, color: colors.textMuted, fontSize: 10, textAlign: 'right' }, ownTime: { color: colors.border }, composer: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background }, attachment: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, attachmentText: { color: colors.primary, fontSize: 24, fontWeight: '900' }, input: { flex: 1, minHeight: 48, maxHeight: 120, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 18, color: colors.text, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, send: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.primary }, sendText: { color: colors.white, fontWeight: '900' }, closedNotice: { padding: 14, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, closedNoticeText: { color: colors.textMuted, textAlign: 'center', lineHeight: 19 }
+  screen: { flex: 1 }, header: { flexDirection: 'row', alignItems: 'center', gap: 11, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: colors.border }, serviceName: { color: colors.primary, fontSize: 12, fontWeight: '900' }, name: { color: colors.text, fontWeight: '900' }, presence: { color: colors.success, fontSize: 12 }, messageListContent: { flexGrow: 1, justifyContent: 'flex-end', gap: 8, paddingBottom: 4 }, bubble: { maxWidth: '82%', gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 16 }, imageBubble: { padding: 5 }, ownBubble: { alignSelf: 'flex-end', backgroundColor: colors.primary }, otherBubble: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, messageText: { flexShrink: 1, color: colors.text, lineHeight: 20 }, ownText: { color: colors.white }, time: { flexShrink: 0, paddingBottom: 1, color: colors.textMuted, fontSize: 10, textAlign: 'right' }, ownTime: { color: colors.border }, composer: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background }, attachment: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, attachmentText: { color: colors.primary, fontSize: 24, fontWeight: '900' }, input: { flex: 1, minHeight: 48, maxHeight: 120, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 18, color: colors.text, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, send: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.primary }, sendText: { color: colors.white, fontWeight: '900' }, closedNotice: { padding: 14, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, closedNoticeText: { color: colors.textMuted, textAlign: 'center', lineHeight: 19 }
 });

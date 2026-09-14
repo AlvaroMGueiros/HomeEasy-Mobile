@@ -5,6 +5,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { AppButton } from '../components/ui/AppButton';
+import { PrivateMediaImage } from '../components/ui/PrivateMediaImage';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
@@ -83,6 +84,7 @@ export function RequestDetailScreen() {
       <Text style={styles.line}>Propostas: {request.proposalCount} de {request.maximumProposals}</Text>
       {Boolean(request.preferredAt) && <Text style={styles.line}>Preferência: {new Date(request.preferredAt || '').toLocaleString('pt-BR')}</Text>}
     </View>
+    {Boolean(request.attachments?.length) && <View style={styles.attachmentsSection}><Text style={styles.heading}>Fotos anexadas pelo cliente</Text><View style={styles.attachments}>{request.attachments?.map(attachment => <PrivateMediaImage key={attachment.mediaId} mediaId={attachment.mediaId} accessibilityLabel={`Anexo ${attachment.fileName}`} compact />)}</View></View>}
     {conversation && <AppButton label={conversation.isWritable ? 'Abrir chat' : 'Ver histórico da conversa'} onPress={openConversation} />}
     {!isOwner && !request.hasSubmittedProposal && <AppButton label="Enviar proposta" onPress={() => navigation.navigate('ProposalForm', { requestId: request.id, serviceName: request.service?.name || 'Serviço' })} />}
     {isOwner && <>
@@ -98,4 +100,4 @@ export function RequestDetailScreen() {
   </Screen>;
 }
 
-const styles = StyleSheet.create({ card: { gap: 10, padding: 17, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, line: { color: colors.textMuted, lineHeight: 20 }, heading: { color: colors.text, fontSize: 20, fontWeight: '900' }, professional: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1 }, name: { color: colors.text, fontWeight: '800' }, price: { color: colors.primary, fontWeight: '900' } });
+const styles = StyleSheet.create({ card: { gap: 10, padding: 17, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, line: { color: colors.textMuted, lineHeight: 20 }, heading: { color: colors.text, fontSize: 20, fontWeight: '900' }, attachmentsSection: { gap: 10 }, attachments: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, professional: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1 }, name: { color: colors.text, fontWeight: '800' }, price: { color: colors.primary, fontWeight: '900' } });
