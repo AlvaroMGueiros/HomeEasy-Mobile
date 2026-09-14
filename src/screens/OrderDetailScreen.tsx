@@ -12,9 +12,9 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
-import { Conversation, Order } from '../types/api';
+import { Conversation, Dispute, Order } from '../types/api';
 import { formatCurrency } from '../utils/currency';
-import { resolveStatusLabel } from '../utils/status';
+import { resolveEnumLabel, resolveStatusLabel } from '../utils/status';
 
 export function OrderDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'OrderDetail'>>();
@@ -22,6 +22,7 @@ export function OrderDetailScreen() {
   const { user } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [dispute, setDispute] = useState<Dispute | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,11 @@ export function OrderDetailScreen() {
       }
       setOrder(currentOrder);
       setConversation(conversations.find(conversationItem => conversationItem.orderId === params.orderId) || null);
+      if (currentOrder.status === 'disputed') {
+        setDispute(await apiRequest<Dispute>(`/orders/${params.orderId}/dispute`));
+      } else {
+        setDispute(null);
+      }
     } catch (currentError) {
       setError(currentError instanceof Error ? currentError.message : 'Não foi possível carregar o pedido.');
     }
@@ -116,20 +122,24 @@ export function OrderDetailScreen() {
   if (!order) return <Screen><StateView loading={!error} message={error || 'Carregando pedido...'} /></Screen>;
   const isClient = order.clientId === user?.id;
   const isFinished = ['completed', 'cancelled_by_client', 'cancelled_by_professional'].includes(order.status);
+  const cancellationMessage = order.status === 'disputed'
+    ? 'O cancelamento fica bloqueado enquanto a disputa está sendo analisada. A moderação precisa avaliar o relato antes de definir o encerramento do pedido.'
+    : '';
 
   return <Screen>
     <SectionHeader eyebrow={resolveStatusLabel(order.status)} title={order.request.service?.name || 'Pedido'} description={order.request.description} />
     <View style={styles.card}><Text style={styles.price}>{formatCurrency(Number(order.agreedPrice))}</Text><Text style={styles.line}>Local: {order.request.city}/{order.request.state}</Text>{Boolean(order.scheduledAt) && <Text style={styles.line}>Agendado: {new Date(order.scheduledAt || '').toLocaleString('pt-BR')}</Text>}</View>
+    {dispute && <View style={styles.disputeCard}><Text style={styles.heading}>Detalhes da disputa</Text><Text style={styles.disputeLabel}>Motivo</Text><Text style={styles.line}>{resolveEnumLabel(dispute.reason)}</Text><Text style={styles.disputeLabel}>Relato enviado</Text><Text style={styles.line}>{dispute.description}</Text><Text style={styles.disputeLabel}>Andamento</Text><Text style={styles.line}>{resolveStatusLabel(dispute.status)}</Text>{Boolean(dispute.resolutionNotes) && <><Text style={styles.disputeLabel}>Resposta da moderação</Text><Text style={styles.line}>{dispute.resolutionNotes}</Text></>}<Text style={styles.help}>Você acompanha esta disputa aqui, na tela do próprio pedido. As atualizações também aparecem em Notificações.</Text></View>}
     {conversation && <AppButton label={conversation.isWritable ? 'Abrir chat' : 'Ver histórico da conversa'} onPress={openConversation} />}
     {!isFinished && <>
       {isClient && order.status === 'accepted' && <AppButton label="Confirmar agendamento" onPress={() => updateStatus('scheduled')} loading={loading} />}
       {!isClient && ['accepted', 'scheduled'].includes(order.status) && <AppButton label="Iniciar serviço" onPress={() => updateStatus('in_progress')} loading={loading} />}
       {!isClient && order.status === 'in_progress' && <AppButton label="Marcar como concluído" onPress={() => updateStatus('completed')} loading={loading} />}
-      <AppButton label="Cancelar pedido" variant="secondary" onPress={cancel} loading={loading} />
+      {order.status === 'disputed' ? <View style={styles.notice}><Text style={styles.noticeTitle}>Por que não posso cancelar?</Text><Text style={styles.line}>{cancellationMessage}</Text></View> : <AppButton label="Cancelar pedido" variant="secondary" onPress={cancel} loading={loading} />}
     </>}
     {isClient && order.status === 'completed' && <View style={styles.card}><Text style={styles.heading}>Avaliar atendimento</Text><ChoiceChips value={rating} onChange={setRating} options={[1, 2, 3, 4, 5].map(value => ({ value, label: `${value} ★` }))} /><FormField label="Comentário" value={comment} onChangeText={setComment} multiline /><AppButton label="Publicar avaliação" onPress={review} /><AppButton label="Recontratar" variant="secondary" onPress={rehire} /></View>}
     {!['cancelled_by_client', 'cancelled_by_professional', 'disputed'].includes(order.status) && <AppButton label="Abrir disputa" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id })} />}
   </Screen>;
 }
 
-const styles = StyleSheet.create({ card: { gap: 12, padding: 17, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, price: { color: colors.primary, fontSize: 24, fontWeight: '900' }, line: { color: colors.textMuted }, heading: { color: colors.text, fontSize: 18, fontWeight: '900' } });
+const styles = StyleSheet.create({ card: { gap: 12, padding: 17, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, disputeCard: { gap: 8, padding: 17, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.warning }, disputeLabel: { marginTop: 4, color: colors.text, fontWeight: '800' }, notice: { gap: 7, padding: 15, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.warning }, noticeTitle: { color: colors.warning, fontWeight: '900' }, help: { marginTop: 6, color: colors.textMuted, fontSize: 12, lineHeight: 18 }, price: { color: colors.primary, fontSize: 24, fontWeight: '900' }, line: { color: colors.textMuted, lineHeight: 20 }, heading: { color: colors.text, fontSize: 18, fontWeight: '900' } });
