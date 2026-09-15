@@ -17,7 +17,7 @@ export interface RegionalMapRegion extends RegionalMapCoordinate {
   longitudeDelta: number;
 }
 
-export function buildRegionalMapHtml(region: RegionalMapRegion, points: RegionalMapPoint[]) {
+export function buildRegionalMapHtml(region: RegionalMapRegion, points: RegionalMapPoint[], showZoomControls = true, compactMarkers = false) {
   const payload = JSON.stringify({ region, points }).replaceAll('<', '\\u003c');
   return `<!doctype html>
 <html lang="pt-BR">
@@ -29,6 +29,7 @@ export function buildRegionalMapHtml(region: RegionalMapRegion, points: Regional
       body { font-family: Arial, sans-serif; }
       .leaflet-container { background: ${colors.background}; }
       .leaflet-popup-content { color: ${colors.text}; font-size: 13px; line-height: 1.4; }
+      .professional-marker { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border: 3px solid ${colors.white}; border-radius: 50%; color: ${colors.white}; background: ${colors.primary}; box-shadow: 0 3px 10px rgba(16, 45, 45, 0.28); font-size: 16px; font-weight: 800; }
     </style>
   </head>
   <body>
@@ -38,7 +39,7 @@ export function buildRegionalMapHtml(region: RegionalMapRegion, points: Regional
       const payload = ${payload};
       const delta = Math.max(payload.region.latitudeDelta, payload.region.longitudeDelta);
       const zoom = delta > 20 ? 4 : delta > 8 ? 5 : delta > 3 ? 7 : delta > 1 ? 9 : delta > 0.3 ? 11 : 13;
-      const map = L.map('map', { zoomControl: true }).setView([payload.region.latitude, payload.region.longitude], zoom);
+      const map = L.map('map', { zoomControl: ${showZoomControls} }).setView([payload.region.latitude, payload.region.longitude], zoom);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors'
@@ -57,7 +58,10 @@ export function buildRegionalMapHtml(region: RegionalMapRegion, points: Regional
         popup.appendChild(title);
         popup.appendChild(document.createElement('br'));
         popup.appendChild(document.createTextNode(point.professionalCount + ' profissional(is)'));
-        L.marker([point.latitude, point.longitude])
+        const markerOptions = ${compactMarkers}
+          ? { icon: L.divIcon({ className: '', html: '<div class="professional-marker">' + point.professionalCount + '</div>', iconSize: [42, 42], iconAnchor: [21, 21] }) }
+          : {};
+        L.marker([point.latitude, point.longitude], markerOptions)
           .addTo(map)
           .bindPopup(popup);
       });
