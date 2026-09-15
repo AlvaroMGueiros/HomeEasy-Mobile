@@ -50,7 +50,7 @@ export function RegionalMapScreen() {
         Alert.alert('Permissão necessária', 'Permita o acesso à localização para visualizar profissionais próximos.');
         return;
       }
-      const location = await Location.getLastKnownPositionAsync() || await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       setMapRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1.2, longitudeDelta: 1.2 });
       const query = new URLSearchParams({ latitude: String(location.coords.latitude), longitude: String(location.coords.longitude), radiusKm: String(radiusKm), limit: '50' });
       const response = await apiRequest<ProfessionalsResponse>(`/professionals?${query.toString()}`);
