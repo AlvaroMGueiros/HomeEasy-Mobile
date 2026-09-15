@@ -13,6 +13,8 @@ import { colors } from '../theme/colors';
 import { Notification, Professional, ProfessionalsResponse, Service, UserProfile } from '../types/api';
 import { buildProfessionalRegionMarkers } from '../utils/professional-map';
 import { buildRegionalMapHtml, RegionalMapRegion } from '../utils/regional-map-html';
+import { resolveLocationLabel } from '../utils/location-label';
+import { requestLocationAccess } from '../utils/location-permission';
 import { resolveServiceIcon } from '../utils/service-icon';
 
 const brazilRegion: RegionalMapRegion = { latitude: -14.235, longitude: -51.9253, latitudeDelta: 28, longitudeDelta: 28 };
@@ -29,6 +31,7 @@ export function HomeScreen() {
   const [mapHtml, setMapHtml] = useState(() => buildRegionalMapHtml(brazilRegion, [], false, true));
   const [loading, setLoading] = useState(true);
   const [locating, setLocating] = useState(false);
+  const [locationLabel, setLocationLabel] = useState('Localização atual');
   const [isExpanded, setIsExpanded] = useState(false);
   const isExpandedRef = useRef(false);
   const mapHeight = Math.min(Math.max(height * 0.46, 360), 430);
@@ -69,11 +72,12 @@ export function HomeScreen() {
         apiRequest<UserProfile>('/users/me'),
         apiRequest<Notification[]>('/notifications')
       ]);
-      const visibleProfessionals = response.professionals;
       setServices(serviceList);
       setProfile(currentProfile);
       setUnreadCount(notifications.filter(notification => !notification.readAt).length);
-      await updateMap(visibleProfessionals, await resolveInitialRegion(currentProfile));
+      const initialRegion = await resolveInitialRegion(currentProfile);
+      const visibleProfessionals = await loadProfessionalsForRegion(initialRegion, response.professionals);
+      await updateMap(visibleProfessionals, initialRegion);
     } catch {
       Alert.alert('Conteúdo indisponível', 'Não foi possível carregar todas as informações da tela inicial. Tente novamente.');
     } finally {
@@ -82,14 +86,15 @@ export function HomeScreen() {
   }
 
   async function resolveInitialRegion(currentProfile: UserProfile) {
+    if (await Location.hasServicesEnabledAsync() && await requestLocationAccess()) {
+      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      await updateLocationLabel(location.coords.latitude, location.coords.longitude);
+      return createNearbyRegion(location.coords.latitude, location.coords.longitude);
+    }
     if (currentProfile.city && currentProfile.state) {
+      setLocationLabel(`${currentProfile.city}, ${currentProfile.state}`);
       const locations = await Location.geocodeAsync(`${currentProfile.city}, ${currentProfile.state}, Brasil`);
       if (locations[0]) return createNearbyRegion(locations[0].latitude, locations[0].longitude);
-    }
-    const permission = await Location.getForegroundPermissionsAsync();
-    if (permission.granted && await Location.hasServicesEnabledAsync()) {
-      const location = await Location.getLastKnownPositionAsync();
-      if (location) return createNearbyRegion(location.coords.latitude, location.coords.longitude);
     }
     return brazilRegion;
   }
@@ -108,6 +113,17 @@ export function HomeScreen() {
     })), false, true));
   }
 
+  async function loadProfessionalsForRegion(region: RegionalMapRegion, fallbackProfessionals: Professional[]) {
+    if (region === brazilRegion) return fallbackProfessionals;
+    try {
+      const query = new URLSearchParams({ latitude: String(region.latitude), longitude: String(region.longitude), radiusKm: '50', limit: '8' });
+      const response = await apiRequest<ProfessionalsResponse>(`/professionals?${query.toString()}`);
+      return response.professionals;
+    } catch {
+      return fallbackProfessionals;
+    }
+  }
+
   async function centerOnUser() {
     setLocating(true);
     try {
@@ -121,6 +137,7 @@ export function HomeScreen() {
         return;
       }
       const location = await Location.getLastKnownPositionAsync() || await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      await updateLocationLabel(location.coords.latitude, location.coords.longitude);
       const query = new URLSearchParams({ latitude: String(location.coords.latitude), longitude: String(location.coords.longitude), radiusKm: '50', limit: '8' });
       const response = await apiRequest<ProfessionalsResponse>(`/professionals?${query.toString()}`);
       await updateMap(response.professionals, createNearbyRegion(location.coords.latitude, location.coords.longitude));
@@ -131,8 +148,12 @@ export function HomeScreen() {
     }
   }
 
+  async function updateLocationLabel(latitude: number, longitude: number) {
+    const resolvedLabel = await resolveLocationLabel(latitude, longitude);
+    setLocationLabel(resolvedLabel || 'Localização atual');
+  }
+
   const firstName = (profile?.name || user?.name || 'Cliente').split(' ')[0];
-  const locationLabel = profile?.city && profile.state ? `${profile.city}, ${profile.state}` : 'Minha localização';
   return <View style={styles.root}>
     <View style={[styles.mapContainer, { height: mapHeight }]}>
       <WebView key={`${mapRegion.latitude}-${mapRegion.longitude}-${professionals.length}`} originWhitelist={['*']} source={{ html: mapHtml }} javaScriptEnabled scrollEnabled={false} style={styles.map} />
