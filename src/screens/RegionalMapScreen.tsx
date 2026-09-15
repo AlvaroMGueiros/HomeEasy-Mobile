@@ -10,7 +10,6 @@ import { Screen } from '../components/ui/Screen';
 import { ChoiceChips } from '../components/ui/ChoiceChips';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
-import { UserAvatar } from '../components/ui/UserAvatar';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Professional, ProfessionalsResponse } from '../types/api';
@@ -28,7 +27,6 @@ export function RegionalMapScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [radiusKm, setRadiusKm] = useState(50);
-  const [expandedRegionKey, setExpandedRegionKey] = useState<string | null>(null);
 
   useEffect(() => { loadMap(); }, []);
 
@@ -72,27 +70,14 @@ export function RegionalMapScreen() {
     <Pressable style={styles.locationButton} onPress={centerOnUser}><Feather name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>
     {loading && <StateView loading message="Preparando mapa..." />}{Boolean(error) && <StateView message={error} />}
     {!loading && <View style={styles.map}><WebView originWhitelist={['*']} source={{ html: mapHtml }} javaScriptEnabled onError={() => setError('Não foi possível carregar o mapa. Verifique sua conexão.')} /></View>}
-    {markers.map(marker => {
-      const isExpanded = expandedRegionKey === marker.key;
-      return <View key={marker.key} style={styles.region}>
-        <View style={styles.card}>
-          <View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{formatProfessionalCount(marker.professionals.length)}</Text></View>
-          <Pressable accessibilityRole="button" accessibilityState={{ expanded: isExpanded }} onPress={() => setExpandedRegionKey(isExpanded ? null : marker.key)} style={styles.regionButton}>
-            <Text style={styles.link}>{isExpanded ? 'Ocultar' : 'Ver profissionais'}</Text>
-            <Feather name={isExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} />
-          </Pressable>
-        </View>
-        {isExpanded && <View style={styles.professionalList}>{marker.professionals.map(professional => {
-          const serviceNames = professional.services.map(service => service.name).join(', ');
-          return <Pressable key={professional.id} style={styles.professional} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}>
-            <UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={48} />
-            <View style={styles.grow}><Text style={styles.professionalName}>{professional.name}</Text><Text style={styles.meta}>{serviceNames || 'Serviços não informados'}</Text></View>
-            <Feather name="chevron-right" size={20} color={colors.primary} />
-          </Pressable>;
-        })}</View>}
-      </View>;
-    })}
+    {markers.map(marker => <View key={marker.key} style={styles.card}>
+      <View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{formatProfessionalCount(marker.professionals.length)}</Text></View>
+      <Pressable accessibilityRole="button" onPress={() => navigation.navigate('CityProfessionals', { city: marker.city, state: marker.state })} style={styles.regionButton}>
+        <Text style={styles.link}>Ver profissionais</Text>
+        <Feather name="chevron-right" size={18} color={colors.primary} />
+      </Pressable>
+    </View>)}
   </Screen>;
 }
 
-const styles = StyleSheet.create({ locationButton: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 15, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, locationLabel: { color: colors.primary, fontWeight: '800' }, map: { width: '100%', height: 360, overflow: 'hidden', borderRadius: 20, backgroundColor: colors.background }, region: { gap: 8 }, card: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, grow: { flex: 1 }, city: { color: colors.text, fontWeight: '800' }, meta: { color: colors.textMuted, fontSize: 12 }, regionButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5 }, link: { color: colors.primary, fontWeight: '800' }, professionalList: { gap: 8, paddingLeft: 12 }, professional: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, professionalName: { color: colors.text, fontWeight: '800' } });
+const styles = StyleSheet.create({ locationButton: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 15, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, locationLabel: { color: colors.primary, fontWeight: '800' }, map: { width: '100%', height: 360, overflow: 'hidden', borderRadius: 20, backgroundColor: colors.background }, card: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, grow: { flex: 1 }, city: { color: colors.text, fontWeight: '800' }, meta: { color: colors.textMuted, fontSize: 12 }, regionButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5 }, link: { color: colors.primary, fontWeight: '800' } });
