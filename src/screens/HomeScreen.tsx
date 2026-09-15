@@ -1,8 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Animated, PanResponder, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 import { apiRequest } from '../api/api-client';
@@ -29,8 +29,37 @@ export function HomeScreen() {
   const [mapHtml, setMapHtml] = useState(() => buildRegionalMapHtml(brazilRegion, [], false, true));
   const [loading, setLoading] = useState(true);
   const [locating, setLocating] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isExpandedRef = useRef(false);
+  const mapHeight = Math.min(Math.max(height * 0.46, 360), 430);
+  const collapsedSheetTop = mapHeight - 24;
+  const expandedSheetTop = 24;
+  const sheetTop = useRef(new Animated.Value(collapsedSheetTop)).current;
+  const dragStartTop = useRef(collapsedSheetTop);
 
   useEffect(() => { void loadHome(); }, [user?.id]);
+  useEffect(() => { sheetTop.setValue(isExpandedRef.current ? expandedSheetTop : collapsedSheetTop); }, [collapsedSheetTop, expandedSheetTop, sheetTop]);
+
+  const sheetPanResponder = useMemo(() => PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 5,
+    onPanResponderGrant: () => { sheetTop.stopAnimation(value => { dragStartTop.current = value; }); },
+    onPanResponderMove: (_, gestureState) => {
+      const nextTop = Math.min(collapsedSheetTop, Math.max(expandedSheetTop, dragStartTop.current + gestureState.dy));
+      sheetTop.setValue(nextTop);
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      const releasedTop = dragStartTop.current + gestureState.dy;
+      const midpoint = (collapsedSheetTop + expandedSheetTop) / 2;
+      animateSheet(gestureState.vy < -0.35 || releasedTop < midpoint);
+    },
+    onPanResponderTerminate: () => animateSheet(isExpanded)
+  }), [collapsedSheetTop, expandedSheetTop, isExpanded, sheetTop]);
+
+  function animateSheet(expand: boolean) {
+    isExpandedRef.current = expand;
+    setIsExpanded(expand);
+    Animated.spring(sheetTop, { toValue: expand ? expandedSheetTop : collapsedSheetTop, useNativeDriver: false, damping: 22, stiffness: 220, mass: 0.8 }).start();
+  }
 
   async function loadHome() {
     try {
@@ -103,7 +132,6 @@ export function HomeScreen() {
   }
 
   const firstName = (profile?.name || user?.name || 'Cliente').split(' ')[0];
-  const mapHeight = Math.min(Math.max(height * 0.46, 360), 430);
   const locationLabel = profile?.city && profile.state ? `${profile.city}, ${profile.state}` : 'Minha localização';
   return <View style={styles.root}>
     <View style={[styles.mapContainer, { height: mapHeight }]}>
@@ -113,9 +141,10 @@ export function HomeScreen() {
       <Pressable style={styles.targetButton} onPress={centerOnUser} disabled={locating} accessibilityRole="button" accessibilityLabel="Usar minha localização"><Feather name={locating ? 'loader' : 'crosshair'} size={21} color={colors.text} /></Pressable>
       <Pressable style={styles.exploreButton} onPress={() => navigation.navigate('RegionalMap')} accessibilityRole="button"><Feather name="list" size={22} color={colors.text} /><View><Text style={styles.exploreTitle}>Ver profissionais</Text><Text style={styles.exploreText}>{professionals.length} nesta área</Text></View></Pressable>
     </View>
-    <View style={[styles.sheet, { top: mapHeight - 24 }]}>
-      <View style={styles.dragHandle} />
+    <Animated.View style={[styles.sheet, { top: sheetTop }]}>
+      <View style={styles.dragArea} {...sheetPanResponder.panHandlers}><View style={styles.dragHandle} /></View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
+        {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet(false)} accessibilityRole="button"><Feather name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
         <Text style={styles.greeting}>Olá, {firstName}!</Text><Text style={styles.question}>Como podemos te ajudar hoje?</Text>
         <Pressable style={styles.search} onPress={() => navigation.navigate('Services')} accessibilityRole="button"><Feather name="search" size={22} color={colors.text} /><Text style={styles.searchText}>Buscar serviço ou profissional</Text></Pressable>
         {loading && <Text style={styles.loadingText}>Preparando sua região...</Text>}
@@ -123,7 +152,7 @@ export function HomeScreen() {
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Profissionais recomendados</Text><Pressable style={styles.seeAllButton} onPress={() => navigation.navigate('RegionalMap')}><Text style={styles.seeAll}>Ver todos</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList} contentContainerStyle={styles.horizontalContent}>{professionals.slice(0, 6).map(professional => <Pressable key={professional.id} style={styles.professional} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={52} /><View style={styles.professionalInfo}><Text style={styles.professionalName} numberOfLines={1}>{professional.name}</Text><Text style={styles.professionalLocation} numberOfLines={1}>{professional.city}, {professional.state}</Text><Text style={styles.rating}>{professional.metrics?.averageRating ? `★ ${professional.metrics.averageRating.toFixed(1)}` : '★ Novo'}</Text></View></Pressable>)}</ScrollView>
       </ScrollView>
-    </View>
+    </Animated.View>
   </View>;
 }
 
@@ -137,7 +166,7 @@ const styles = StyleSheet.create({
   notificationButton: { position: 'absolute', top: 38, right: 20, width: 50, height: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 25, backgroundColor: colors.surface, elevation: 5, shadowColor: colors.text, shadowOpacity: 0.14, shadowRadius: 9 }, notificationDot: { position: 'absolute', top: 7, right: 7, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger },
   targetButton: { position: 'absolute', top: 100, right: 20, width: 50, height: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 25, backgroundColor: colors.surface, elevation: 5, shadowColor: colors.text, shadowOpacity: 0.14, shadowRadius: 9 },
   exploreButton: { position: 'absolute', right: 20, bottom: 42, minHeight: 58, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 17, borderRadius: 29, backgroundColor: colors.surface, elevation: 5, shadowColor: colors.text, shadowOpacity: 0.14, shadowRadius: 9 }, exploreTitle: { color: colors.text, fontSize: 14, fontWeight: '900' }, exploreText: { color: colors.textMuted, fontSize: 11 },
-  sheet: { position: 'absolute', right: 0, bottom: 0, left: 0, overflow: 'hidden', borderTopLeftRadius: 30, borderTopRightRadius: 30, backgroundColor: colors.surface, elevation: 8, shadowColor: colors.text, shadowOpacity: 0.1, shadowRadius: 12 }, dragHandle: { width: 52, height: 5, alignSelf: 'center', marginTop: 12, borderRadius: 3, backgroundColor: colors.border }, sheetContent: { gap: 14, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 24 },
+  sheet: { position: 'absolute', right: 0, bottom: 0, left: 0, overflow: 'hidden', borderTopLeftRadius: 30, borderTopRightRadius: 30, backgroundColor: colors.surface, elevation: 8, shadowColor: colors.text, shadowOpacity: 0.1, shadowRadius: 12 }, dragArea: { minHeight: 34, alignItems: 'center', justifyContent: 'center' }, dragHandle: { width: 52, height: 5, borderRadius: 3, backgroundColor: colors.border }, sheetContent: { gap: 14, paddingHorizontal: 20, paddingTop: 2, paddingBottom: 24 }, backToMapButton: { minHeight: 44, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 13, borderRadius: 14, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }, backToMapText: { color: colors.primary, fontWeight: '800' },
   greeting: { color: colors.textMuted, fontSize: 15 }, question: { color: colors.text, fontSize: 24, lineHeight: 30, fontWeight: '900' }, search: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, borderRadius: 17, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, searchText: { flex: 1, color: colors.textMuted, fontSize: 15 }, loadingText: { color: colors.textMuted, fontSize: 12 },
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 }, category: { width: '31%', minHeight: 88, alignItems: 'center', justifyContent: 'center', gap: 7, padding: 8, borderRadius: 17, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, categoryName: { color: colors.text, fontSize: 11, fontWeight: '800', textAlign: 'center' },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, sectionTitle: { flex: 1, color: colors.text, fontSize: 17, fontWeight: '900' }, seeAllButton: { flexDirection: 'row', alignItems: 'center' }, seeAll: { color: colors.primary, fontWeight: '800' }, horizontalList: { flexGrow: 0 }, horizontalContent: { gap: 10, paddingRight: 4 },
