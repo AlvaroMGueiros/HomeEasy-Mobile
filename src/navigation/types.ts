@@ -18,6 +18,7 @@ export type RootStackParamList = {
   Professional: { professionalId: string };
   ProfessionalReviews: { professionalId: string; professionalName: string };
   RegionalMap: undefined;
+  CityProfessionals: { city: string; state: string };
   RequestForm: { serviceId: string; serviceName: string; professionalId?: string };
   RequestDetail: { requestId: string };
   ProposalForm: { requestId: string; serviceName: string };
