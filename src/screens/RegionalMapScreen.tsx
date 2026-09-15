@@ -13,17 +13,16 @@ import { StateView } from '../components/ui/StateView';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Professional, ProfessionalsResponse } from '../types/api';
+import { buildProfessionalRegionMarkers, ProfessionalRegionMarker } from '../utils/professional-map';
 import { buildRegionalMapHtml, RegionalMapRegion } from '../utils/regional-map-html';
 
-interface RegionMarker { key: string; city: string; state: string; latitude: number; longitude: number; professionals: Professional[]; }
 const brazilRegion: RegionalMapRegion = { latitude: -14.235, longitude: -51.9253, latitudeDelta: 28, longitudeDelta: 28 };
-async function buildRegionMarkers(professionals: Professional[]) { const grouped = new Map<string, Professional[]>(); for (const professional of professionals) { if (!professional.city || !professional.state) continue; const key = `${professional.city}|${professional.state}`; grouped.set(key, [...(grouped.get(key) || []), professional]); } const markers: RegionMarker[] = []; for (const [key, groupedProfessionals] of grouped) { const first = groupedProfessionals[0]; const locations = await Location.geocodeAsync(`${first.city}, ${first.state}, Brasil`); if (locations[0]) markers.push({ key, city: first.city || '', state: first.state || '', latitude: locations[0].latitude, longitude: locations[0].longitude, professionals: groupedProfessionals }); } return markers; }
 function formatProfessionalCount(count: number) { return count === 1 ? '1 profissional' : `${count} profissionais`; }
 
 export function RegionalMapScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [mapRegion, setMapRegion] = useState(brazilRegion);
-  const [markers, setMarkers] = useState<RegionMarker[]>([]);
+  const [markers, setMarkers] = useState<ProfessionalRegionMarker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [radiusKm, setRadiusKm] = useState(50);
@@ -33,7 +32,7 @@ export function RegionalMapScreen() {
   async function loadMap() {
     try {
       const response = await apiRequest<ProfessionalsResponse>('/professionals?limit=50');
-      setMarkers(await buildRegionMarkers(response.professionals));
+      setMarkers(await buildProfessionalRegionMarkers(response.professionals));
     } catch (currentError) {
       setError(currentError instanceof Error ? currentError.message : 'Não foi possível montar o mapa regional.');
     } finally { setLoading(false); }
@@ -55,7 +54,7 @@ export function RegionalMapScreen() {
       setMapRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1.2, longitudeDelta: 1.2 });
       const query = new URLSearchParams({ latitude: String(location.coords.latitude), longitude: String(location.coords.longitude), radiusKm: String(radiusKm), limit: '50' });
       const response = await apiRequest<ProfessionalsResponse>(`/professionals?${query.toString()}`);
-      setMarkers(await buildRegionMarkers(response.professionals));
+      setMarkers(await buildProfessionalRegionMarkers(response.professionals));
       setError('');
     } catch {
       Alert.alert('Localização indisponível', 'Não foi possível obter sua posição. No emulador, defina uma localização nas configurações de GPS.');
