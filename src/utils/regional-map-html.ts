@@ -55,7 +55,15 @@ export function buildRegionalMapHtml(
       const payload = ${payload};
       const delta = Math.max(payload.region.latitudeDelta, payload.region.longitudeDelta);
       const zoom = delta > 20 ? 4 : delta > 8 ? 5 : delta > 3 ? 7 : delta > 1 ? 9 : delta > 0.3 ? 11 : 13;
-      const map = L.map('map', { zoomControl: ${showZoomControls} }).setView([payload.region.latitude, payload.region.longitude], zoom);
+      const map = L.map('map', {
+        zoomControl: ${showZoomControls},
+        dragging: true,
+        touchZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
+        scrollWheelZoom: true
+      }).setView([payload.region.latitude, payload.region.longitude], zoom);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors'
@@ -88,4 +96,3 @@ export function buildRegionalMapHtml(
   </body>
 </html>`;
 }
-
