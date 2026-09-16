@@ -18,6 +18,7 @@ import { requestLocationAccess } from '../utils/location-permission';
 import { resolveServiceIcon } from '../utils/service-icon';
 
 const brazilRegion: RegionalMapRegion = { latitude: -14.235, longitude: -51.9253, latitudeDelta: 28, longitudeDelta: 28 };
+type SheetPosition = 'expanded' | 'default' | 'map';
 
 export function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -33,38 +34,71 @@ export function HomeScreen() {
   const [locating, setLocating] = useState(false);
   const [locationLabel, setLocationLabel] = useState('Localização atual');
   const [isExpanded, setIsExpanded] = useState(false);
-  const isExpandedRef = useRef(false);
-  const mapHeight = Math.min(Math.max(height * 0.46, 360), 430);
-  const collapsedSheetTop = mapHeight - 24;
+  const mapHeight = Math.min(Math.max(height * 0.68, 480), 620);
+  const defaultSheetTop = Math.min(Math.max(height * 0.46, 360), 430) - 24;
+  const mapSheetTop = mapHeight - 18;
   const expandedSheetTop = 24;
-  const sheetTop = useRef(new Animated.Value(collapsedSheetTop)).current;
-  const dragStartTop = useRef(collapsedSheetTop);
+  const sheetTop = useRef(new Animated.Value(defaultSheetTop)).current;
+  const dragStartTop = useRef(defaultSheetTop);
+  const sheetPositionRef = useRef<SheetPosition>('default');
 
-  useEffect(() => { void loadHome(); }, [user?.id]);
-  useEffect(() => { sheetTop.setValue(isExpandedRef.current ? expandedSheetTop : collapsedSheetTop); }, [collapsedSheetTop, expandedSheetTop, sheetTop]);
+  useEffect(() => {
+    const deviceRegionPromise = resolveDeviceRegion();
+    void deviceRegionPromise.then(region => {
+      if (!region) return;
+      setMapRegion(region);
+      setMapHtml(buildRegionalMapHtml(region, [], false, true));
+    });
+    void loadHome(deviceRegionPromise);
+  }, [user?.id]);
+  useEffect(() => {
+    sheetTop.setValue(resolveSheetTop(sheetPositionRef.current));
+  }, [defaultSheetTop, expandedSheetTop, mapSheetTop, sheetTop]);
 
   const sheetPanResponder = useMemo(() => PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 5,
     onPanResponderGrant: () => { sheetTop.stopAnimation(value => { dragStartTop.current = value; }); },
     onPanResponderMove: (_, gestureState) => {
-      const nextTop = Math.min(collapsedSheetTop, Math.max(expandedSheetTop, dragStartTop.current + gestureState.dy));
+      const nextTop = Math.min(mapSheetTop, Math.max(expandedSheetTop, dragStartTop.current + gestureState.dy));
       sheetTop.setValue(nextTop);
     },
     onPanResponderRelease: (_, gestureState) => {
       const releasedTop = dragStartTop.current + gestureState.dy;
-      const midpoint = (collapsedSheetTop + expandedSheetTop) / 2;
-      animateSheet(gestureState.vy < -0.35 || releasedTop < midpoint);
+      animateSheet(resolveSheetPosition(releasedTop, gestureState.vy));
     },
-    onPanResponderTerminate: () => animateSheet(isExpanded)
-  }), [collapsedSheetTop, expandedSheetTop, isExpanded, sheetTop]);
+    onPanResponderTerminate: () => animateSheet(sheetPositionRef.current)
+  }), [defaultSheetTop, expandedSheetTop, mapSheetTop, sheetTop]);
 
-  function animateSheet(expand: boolean) {
-    isExpandedRef.current = expand;
-    setIsExpanded(expand);
-    Animated.spring(sheetTop, { toValue: expand ? expandedSheetTop : collapsedSheetTop, useNativeDriver: false, damping: 22, stiffness: 220, mass: 0.8 }).start();
+  function resolveSheetTop(position: SheetPosition) {
+    if (position === 'expanded') return expandedSheetTop;
+    if (position === 'map') return mapSheetTop;
+    return defaultSheetTop;
   }
 
-  async function loadHome() {
+  function resolveSheetPosition(releasedTop: number, velocityY: number): SheetPosition {
+    if (velocityY < -0.35) return 'expanded';
+    if (velocityY > 0.35) return 'map';
+    const positions: SheetPosition[] = ['expanded', 'default', 'map'];
+    let closestPosition = positions[0];
+    let closestDistance = Math.abs(releasedTop - resolveSheetTop(closestPosition));
+    for (let index = 1; index < positions.length; index += 1) {
+      const distance = Math.abs(releasedTop - resolveSheetTop(positions[index]));
+      if (distance < closestDistance) {
+        closestPosition = positions[index];
+        closestDistance = distance;
+      }
+    }
+    return closestPosition;
+  }
+
+  function animateSheet(position: SheetPosition) {
+    const expanded = position === 'expanded';
+    sheetPositionRef.current = position;
+    setIsExpanded(expanded);
+    Animated.spring(sheetTop, { toValue: resolveSheetTop(position), useNativeDriver: false, damping: 22, stiffness: 220, mass: 0.8 }).start();
+  }
+
+  async function loadHome(deviceRegionPromise: Promise<RegionalMapRegion | null>) {
     try {
       const [serviceList, response, currentProfile, notifications] = await Promise.all([
         apiRequest<Service[]>('/services'),
@@ -75,7 +109,7 @@ export function HomeScreen() {
       setServices(serviceList);
       setProfile(currentProfile);
       setUnreadCount(notifications.filter(notification => !notification.readAt).length);
-      const initialRegion = await resolveInitialRegion(currentProfile);
+      const initialRegion = await resolveInitialRegion(currentProfile, await deviceRegionPromise);
       const visibleProfessionals = await loadProfessionalsForRegion(initialRegion, response.professionals);
       await updateMap(visibleProfessionals, initialRegion);
     } catch {
@@ -85,12 +119,26 @@ export function HomeScreen() {
     }
   }
 
-  async function resolveInitialRegion(currentProfile: UserProfile) {
-    if (await Location.hasServicesEnabledAsync() && await requestLocationAccess()) {
-      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      await updateLocationLabel(location.coords.latitude, location.coords.longitude);
-      return createNearbyRegion(location.coords.latitude, location.coords.longitude);
+  async function resolveDeviceRegion() {
+    try {
+      if (await Location.hasServicesEnabledAsync() && await requestLocationAccess()) {
+        const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const region = createNearbyRegion(location.coords.latitude, location.coords.longitude);
+        try {
+          await updateLocationLabel(location.coords.latitude, location.coords.longitude);
+        } catch {
+          setLocationLabel('Localização atual');
+        }
+        return region;
+      }
+    } catch {
+      return null;
     }
+    return null;
+  }
+
+  async function resolveInitialRegion(currentProfile: UserProfile, deviceRegion: RegionalMapRegion | null) {
+    if (deviceRegion) return deviceRegion;
     if (currentProfile.city && currentProfile.state) {
       setLocationLabel(`${currentProfile.city}, ${currentProfile.state}`);
       const locations = await Location.geocodeAsync(`${currentProfile.city}, ${currentProfile.state}, Brasil`);
@@ -169,7 +217,9 @@ export function HomeScreen() {
         originWhitelist={['*']}
         source={{ html: mapHtml }}
         javaScriptEnabled
-        scrollEnabled={false}
+        scrollEnabled
+        nestedScrollEnabled
+        overScrollMode="never"
         onMessage={event => {
           try {
             const data = JSON.parse(event.nativeEvent.data);
@@ -188,12 +238,14 @@ export function HomeScreen() {
       <Pressable style={styles.locationPill} onPress={centerOnUser} disabled={locating} accessibilityRole="button"><Feather name="map-pin" size={20} color={colors.primary} /><Text style={styles.locationText} numberOfLines={1}>{locationLabel}</Text><Feather name="chevron-down" size={18} color={colors.primary} /></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Abrir notificações" onPress={() => navigation.navigate('Notifications')} style={styles.notificationButton}><Feather name="bell" size={21} color={colors.text} />{unreadCount > 0 && <View style={styles.notificationDot} />}</Pressable>
       <Pressable style={styles.targetButton} onPress={centerOnUser} disabled={locating} accessibilityRole="button" accessibilityLabel="Usar minha localização"><Feather name={locating ? 'loader' : 'crosshair'} size={21} color={colors.text} /></Pressable>
-      <Pressable style={styles.exploreButton} onPress={handleExploreProfessionals} accessibilityRole="button"><Feather name="list" size={22} color={colors.text} /><View><Text style={styles.exploreTitle}>Ver profissionais</Text><Text style={styles.exploreText}>{professionals.length} nesta área</Text></View></Pressable>
+      <Animated.View style={[styles.exploreButtonContainer, { top: Animated.subtract(sheetTop, 76) }]}>
+        <Pressable style={styles.exploreButton} onPress={handleExploreProfessionals} accessibilityRole="button"><Feather name="list" size={22} color={colors.text} /><View><Text style={styles.exploreTitle}>Ver profissionais</Text><Text style={styles.exploreText}>{professionals.length} nesta área</Text></View></Pressable>
+      </Animated.View>
     </View>
     <Animated.View style={[styles.sheet, { top: sheetTop }]}>
       <View style={styles.dragArea} {...sheetPanResponder.panHandlers}><View style={styles.dragHandle} /></View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
-        {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet(false)} accessibilityRole="button"><Feather name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
+        {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet('default')} accessibilityRole="button"><Feather name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
         <Text style={styles.greeting}>Olá, {firstName}!</Text><Text style={styles.question}>Como podemos te ajudar hoje?</Text>
         <Pressable style={styles.search} onPress={() => navigation.navigate('Services')} accessibilityRole="button"><Feather name="search" size={22} color={colors.text} /><Text style={styles.searchText}>Buscar serviço ou profissional</Text></Pressable>
         {loading && <Text style={styles.loadingText}>Preparando sua região...</Text>}
@@ -332,10 +384,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.14,
     shadowRadius: 9
   },
-  exploreButton: {
+  exploreButtonContainer: {
     position: 'absolute',
     right: 20,
-    bottom: 42,
+  },
+  exploreButton: {
     minHeight: 58,
     flexDirection: 'row',
     alignItems: 'center',
