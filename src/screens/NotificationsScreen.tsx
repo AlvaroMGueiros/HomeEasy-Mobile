@@ -10,6 +10,7 @@ import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Notification } from '../types/api';
 import { formatDate } from '../utils/date';
+import { resolveNotificationAction } from '../utils/notification-action';
 
 export function NotificationsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -36,17 +37,15 @@ export function NotificationsScreen() {
       }
     }
 
-    const actionUrl = item.actionUrl || '';
-    const id = actionUrl.split('/').filter(Boolean).at(-1);
-
-    if ((actionUrl.includes('solicitacoes') || actionUrl.includes('oportunidades')) && id) {
-      navigation.navigate('RequestDetail', { requestId: id });
-    } else if ((actionUrl.includes('pedidos') || actionUrl.includes('pedidos-feitos') || actionUrl.includes('pedidos-recebidos')) && id) {
-      navigation.navigate('OrderDetail', { orderId: id });
-    } else if (actionUrl.includes('conversas')) {
+    const action = resolveNotificationAction(item.actionUrl);
+    if (action.type === 'request') {
+      navigation.navigate('RequestDetail', { requestId: action.id });
+    } else if (action.type === 'order') {
+      navigation.navigate('OrderDetail', { orderId: action.id });
+    } else if (action.type === 'conversations') {
       navigation.navigate('App', { screen: 'Conversations' });
-    } else if (actionUrl.includes('usuario') && id) {
-      navigation.navigate('Professional', { professionalId: id });
+    } else if (action.type === 'professional') {
+      navigation.navigate('Professional', { professionalId: action.id });
     } else {
       navigation.navigate('App', { screen: 'Requests' });
     }
@@ -89,4 +88,3 @@ const styles = StyleSheet.create({
   body: { color: colors.textMuted, lineHeight: 20 },
   date: { color: colors.primary, fontSize: 11, fontWeight: '700' }
 });
-

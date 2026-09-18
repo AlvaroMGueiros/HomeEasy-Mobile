@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "636779212416",
+    "firebase_url": "https://homeeasy-bd496.firebaseio.com",
+    "project_id": "homeeasy-bd496",
+    "storage_bucket": "homeeasy-bd496.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636779212416:android:c308b2ec963dac9ef04065",
+        "android_client_info": {
+          "package_name": "com.homeeasy.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "636779212416-mqb4qlkc427ua33329ldt30o24eq0kos.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.homeeasy.mobile",
+            "certificate_hash": "6a6e7bb0976bb50f1c223673836edbea0e026356"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3GrKMkAA2Gop8j19rkLKurWNpKyFkwpo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
