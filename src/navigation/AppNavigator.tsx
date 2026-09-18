@@ -1,22 +1,53 @@
 import { Feather } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import { createNavigationContainerRef, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useEffect } from 'react';
+import * as Notifications from 'expo-notifications';
+import { useCallback, useEffect } from 'react';
 
 import { useAuth } from '../auth/AuthContext';
 import { CityProfessionalsScreen } from '../screens/CityProfessionalsScreen';
 import { AboutScreen } from '../screens/AboutScreen'; import { AdminScreen } from '../screens/AdminScreen'; import { BecomeProfessionalScreen } from '../screens/BecomeProfessionalScreen'; import { ChatScreen } from '../screens/ChatScreen'; import { ContactScreen } from '../screens/ContactScreen'; import { ConversationsScreen } from '../screens/ConversationsScreen'; import { DeleteAccountScreen } from '../screens/DeleteAccountScreen'; import { DisputeScreen } from '../screens/DisputeScreen'; import { EditProfileScreen } from '../screens/EditProfileScreen'; import { FavoritesScreen } from '../screens/FavoritesScreen'; import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen'; import { FullPrivacyPolicyScreen } from '../screens/FullPrivacyPolicyScreen'; import { HomeScreen } from '../screens/HomeScreen'; import { HowItWorksScreen } from '../screens/HowItWorksScreen'; import { LoginScreen } from '../screens/LoginScreen'; import { NotificationsScreen } from '../screens/NotificationsScreen'; import { OpportunitiesScreen } from '../screens/OpportunitiesScreen'; import { OrderDetailScreen } from '../screens/OrderDetailScreen'; import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen'; import { ProfessionalManagerScreen } from '../screens/ProfessionalManagerScreen'; import { ProfessionalReviewsScreen } from '../screens/ProfessionalReviewsScreen'; import { ProfessionalScreen } from '../screens/ProfessionalScreen'; import { ProfileScreen } from '../screens/ProfileScreen'; import { ProposalFormScreen } from '../screens/ProposalFormScreen'; import { PublicHomeScreen } from '../screens/PublicHomeScreen'; import { RegionalMapScreen } from '../screens/RegionalMapScreen'; import { ReportScreen } from '../screens/ReportScreen'; import { RequestDetailScreen } from '../screens/RequestDetailScreen'; import { RequestFormScreen } from '../screens/RequestFormScreen'; import { RequestsScreen } from '../screens/RequestsScreen'; import { ResetPasswordScreen } from '../screens/ResetPasswordScreen'; import { ScheduleScreen } from '../screens/ScheduleScreen'; import { ServiceProfessionalsScreen } from '../screens/ServiceProfessionalsScreen'; import { ServicesScreen } from '../screens/ServicesScreen'; import { SplashScreen } from '../screens/SplashScreen'; import { VerificationScreen } from '../screens/VerificationScreen';
 import { colors } from '../theme/colors';
 import { requestLocationAccess } from '../utils/location-permission';
+import { readNotificationActionUrl, registerPushNotifications } from '../notifications/push-notifications';
+import { resolveNotificationAction } from '../utils/notification-action';
 import { AppTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>(); const Tabs = createBottomTabNavigator<AppTabParamList>();
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const tabIcons: Record<keyof AppTabParamList, keyof typeof Feather.glyphMap> = { Home: 'home', Requests: 'clipboard', Conversations: 'message-circle', Profile: 'user' };
 
 function AppTabs() { return <Tabs.Navigator screenOptions={({ route }) => ({ headerShown: false, tabBarActiveTintColor: colors.accent, tabBarInactiveTintColor: colors.textMuted, tabBarStyle: { height: 68, paddingTop: 8, paddingBottom: 8, borderTopColor: colors.border, backgroundColor: colors.surface }, tabBarIcon: ({ color, size }) => <Feather name={tabIcons[route.name]} color={color} size={size} /> })}><Tabs.Screen name="Home" component={HomeScreen} options={{ title: 'Início' }} /><Tabs.Screen name="Requests" component={RequestsScreen} options={{ title: 'Pedidos' }} /><Tabs.Screen name="Conversations" component={ConversationsScreen} options={{ title: 'Mensagens' }} /><Tabs.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} /></Tabs.Navigator>; }
 
-export function AppNavigator() { const { user, loading } = useAuth(); useEffect(() => { if (user) void requestLocationAccess(); }, [user]); if (loading) return <SplashScreen />; return <NavigationContainer><Stack.Navigator screenOptions={{ headerTintColor: colors.primary, headerShadowVisible: false, headerStyle: { backgroundColor: colors.background }, contentStyle: { backgroundColor: colors.background } }}>
+export function AppNavigator() { const { user, loading } = useAuth();
+  const openNotification = useCallback((actionUrl?: string) => {
+    if (!user || !navigationRef.isReady()) return;
+    const action = resolveNotificationAction(actionUrl);
+    if (action.type === 'request') navigationRef.navigate('RequestDetail', { requestId: action.id });
+    else if (action.type === 'order') navigationRef.navigate('OrderDetail', { orderId: action.id });
+    else if (action.type === 'professional') navigationRef.navigate('Professional', { professionalId: action.id });
+    else if (action.type === 'conversations') navigationRef.navigate('App', { screen: 'Conversations' });
+    else navigationRef.navigate('App', { screen: 'Requests' });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    void requestLocationAccess();
+    void registerPushNotifications().catch(() => undefined);
+
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      openNotification(readNotificationActionUrl(response));
+    });
+    void Notifications.getLastNotificationResponseAsync().then(response => {
+      if (!response) return;
+      openNotification(readNotificationActionUrl(response));
+      return Notifications.clearLastNotificationResponseAsync();
+    });
+    return () => responseSubscription.remove();
+  }, [openNotification, user]);
+
+  if (loading) return <SplashScreen />; return <NavigationContainer ref={navigationRef}><Stack.Navigator screenOptions={{ headerTintColor: colors.primary, headerShadowVisible: false, headerStyle: { backgroundColor: colors.background }, contentStyle: { backgroundColor: colors.background } }}>
   {user ? <Stack.Screen name="App" component={AppTabs} options={{ headerShown: false }} /> : <Stack.Screen name="PublicHome" component={PublicHomeScreen} options={{ headerShown: false }} />}
   {!user && <><Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} /><Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} /><Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ headerShown: false }} /></>}
   <Stack.Screen name="HowItWorks" component={HowItWorksScreen} options={{ title: 'Como funciona' }} /><Stack.Screen name="BecomeProfessional" component={BecomeProfessionalScreen} options={{ title: 'Para profissionais' }} /><Stack.Screen name="About" component={AboutScreen} options={{ title: 'Sobre' }} /><Stack.Screen name="Contact" component={ContactScreen} options={{ title: 'Contato' }} /><Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} options={{ title: 'Política de privacidade' }} /><Stack.Screen name="FullPrivacyPolicy" component={FullPrivacyPolicyScreen} options={{ title: 'Política de privacidade' }} /><Stack.Screen name="Services" component={ServicesScreen} options={{ title: 'Serviços' }} /><Stack.Screen name="ServiceProfessionals" component={ServiceProfessionalsScreen} options={{ title: 'Profissionais' }} /><Stack.Screen name="Professional" component={ProfessionalScreen} options={{ title: 'Profissional' }} /><Stack.Screen name="ProfessionalReviews" component={ProfessionalReviewsScreen} options={{ title: 'Avaliações' }} /><Stack.Screen name="RegionalMap" component={RegionalMapScreen} options={{ title: 'Mapa regional' }} /><Stack.Screen name="CityProfessionals" component={CityProfessionalsScreen} options={{ title: 'Profissionais da cidade' }} />

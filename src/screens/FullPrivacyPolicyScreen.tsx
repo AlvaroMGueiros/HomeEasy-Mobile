@@ -11,7 +11,7 @@ const policySections = [
       'Podemos tratar dados de cadastro e autenticação, como nome, e-mail, data de nascimento e credenciais protegidas.',
       'Também tratamos informações de perfil, como telefone, endereço, cidade, estado, foto, documentos e dados profissionais fornecidos por você.',
       'Durante o uso do Home Easy, podemos tratar localização, solicitações, propostas, pedidos, agenda, mensagens, avaliações, denúncias, disputas, fotos e arquivos enviados.',
-      'Dados técnicos e de segurança, como identificadores de sessão, registros de acesso e informações do dispositivo, podem ser usados para proteger sua conta e a plataforma.'
+      'Dados técnicos e de segurança, como identificadores de sessão, registros de acesso, informações do dispositivo e token de notificação, podem ser usados para proteger sua conta, operar a plataforma e entregar avisos solicitados.'
     ]
   },
   {
@@ -23,7 +23,7 @@ const policySections = [
   {
     title: '3. Compartilhamento',
     paragraphs: [
-      'Não vendemos dados pessoais. Compartilhamos apenas o necessário com participantes de uma contratação e com fornecedores que operam serviços de infraestrutura, banco de dados, armazenamento e e-mail em nosso nome.',
+      'Não vendemos dados pessoais. Compartilhamos apenas o necessário com participantes de uma contratação e com fornecedores que operam serviços de infraestrutura, banco de dados, armazenamento, e-mail e entrega de notificações em nosso nome.',
       'Também poderemos compartilhar informações quando houver obrigação legal, solicitação de autoridade competente ou necessidade de proteger direitos e prevenir atividades ilícitas.'
     ]
   },
@@ -62,7 +62,7 @@ const policySections = [
 
 export function FullPrivacyPolicyScreen() {
   return <Screen>
-    <SectionHeader eyebrow="Política de privacidade" title="Política completa" description="Última atualização: 8 de setembro de 2026." />
+    <SectionHeader eyebrow="Política de privacidade" title="Política completa" description="Última atualização: 18 de setembro de 2026." />
     <View style={styles.introduction}>
       <Text style={styles.text}>Esta política explica como o Home Easy coleta, utiliza, compartilha, protege e elimina dados pessoais durante o uso do aplicativo e de seus serviços.</Text>
     </View>

@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 
 import { apiRequest, clearSession, readStoredUser, storeSession, storeUser } from '../api/api-client';
+import { unregisterPushNotifications } from '../notifications/push-notifications';
 import { AuthenticatedUser, AuthResponse } from '../types/api';
 
 interface AuthContextValue {
@@ -55,7 +56,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await clearSession();
       setUser(null);
     },
-    async logout() { await clearSession(); setUser(null); }
+    async logout() {
+      await unregisterPushNotifications().catch(() => undefined);
+      await clearSession();
+      setUser(null);
+    }
   }), [user, loading]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
