@@ -1,0 +1,23 @@
+{
+  "name": "homeeasy-motion",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts --public-dir public",
+    "render": "remotion render src/index.ts HomeEasyCampaign16x9 out/home-easy-launch-16x9.mp4 --public-dir public",
+    "render:vertical": "remotion render src/index.ts HomeEasyCampaign9x16 out/home-easy-launch-9x16.mp4 --public-dir public"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@remotion/cli": "^4.0.414",
+    "@remotion/google-fonts": "^4.0.414",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "^4.0.414"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3"
+  }
+}
