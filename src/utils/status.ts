@@ -14,3 +14,29 @@ const enumLabels: Record<string, string> = {
 
 export function resolveStatusLabel(status: string) { return statusLabels[status] || status; }
 export function resolveEnumLabel(value: string) { return enumLabels[value] || resolveStatusLabel(value); }
+
+export function resolveStatusTone(status: string): 'neutral' | 'active' | 'success' | 'warning' | 'danger' {
+  switch (status) {
+    case 'accepted':
+    case 'completed':
+    case 'approved':
+    case 'resolved':
+      return 'success';
+    case 'requested':
+    case 'proposal_received':
+    case 'scheduled':
+    case 'in_progress':
+    case 'sent':
+      return 'active';
+    case 'pending':
+    case 'disputed':
+      return 'warning';
+    case 'cancelled':
+    case 'cancelled_by_client':
+    case 'cancelled_by_professional':
+    case 'rejected':
+      return 'danger';
+    default:
+      return 'neutral';
+  }
+}

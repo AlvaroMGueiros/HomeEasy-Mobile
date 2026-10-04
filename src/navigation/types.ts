@@ -1,5 +1,7 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
+export enum ProfileEditorSection { Personal = 'personal', Professional = 'professional' }
+
 export type AppTabParamList = { Home: undefined; Requests: undefined; Conversations: undefined; Profile: undefined; };
 export type RootStackParamList = {
   PublicHome: undefined;
@@ -24,9 +26,10 @@ export type RootStackParamList = {
   ProposalForm: { requestId: string; serviceName: string };
   OrderDetail: { orderId: string };
   Chat: { conversationId: string; otherUserId: string; otherUserName: string; serviceName: string; isWritable: boolean };
-  EditProfile: undefined;
+  EditProfile: { section?: ProfileEditorSection } | undefined;
   Favorites: undefined;
   ProfessionalManager: undefined;
+  ProfessionalDashboard: undefined;
   Schedule: undefined;
   Verification: undefined;
   Admin: undefined;

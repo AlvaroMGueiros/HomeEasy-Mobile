@@ -7,6 +7,7 @@ import { apiRequest } from '../api/api-client';
 import { AppButton } from '../components/ui/AppButton';
 import { useAuth } from '../auth/AuthContext';
 import { UserAvatar } from '../components/ui/UserAvatar';
+import { ProfessionalReputation } from '../components/professional/ProfessionalReputation';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
@@ -79,7 +80,8 @@ export function ServiceProfessionalsScreen() {
       const service = professional.services.find(currentService => currentService.id === params.serviceId);
       return <Pressable key={professional.id} style={styles.card} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}>
         <View style={styles.header}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={58} /><View style={styles.grow}><Text style={styles.name}>{professional.name}</Text><Text style={styles.location}>{professional.city || 'Cidade não informada'}{professional.state ? `, ${professional.state}` : ''}</Text></View><Feather name="chevron-right" size={21} color={colors.primary} /></View>
-        <View style={styles.details}><Text style={styles.rating}>{professional.metrics?.averageRating ? `★ ${professional.metrics.averageRating.toFixed(1)}` : 'Novo profissional'}</Text><Text style={styles.price}>{service?.basePrice ? `A partir de ${formatCurrency(service.basePrice)}` : 'Preço a combinar'}</Text></View>
+        <ProfessionalReputation professional={professional} compact />
+        <View style={styles.details}><Text style={styles.price}>{service?.basePrice ? `A partir de ${formatCurrency(service.basePrice)}` : 'Preço a combinar'}</Text></View>
       </Pressable>;
     })}
   </Screen>;
@@ -95,6 +97,6 @@ const styles = StyleSheet.create({
   filterError: { color: colors.danger, fontWeight: '700' },
   card: { gap: 14, padding: 16, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, header: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1, gap: 3 },
   name: { color: colors.text, fontSize: 17, fontWeight: '800' }, location: { color: colors.textMuted, fontSize: 13 }, details: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
-  rating: { color: colors.warning, fontWeight: '800' }, price: { flex: 1, color: colors.primary, fontWeight: '800', textAlign: 'right' },
+  price: { flex: 1, color: colors.primary, fontWeight: '800', textAlign: 'right' },
   empty: { alignItems: 'center', gap: 8, padding: 26, borderRadius: 18, backgroundColor: colors.surface }, emptyTitle: { color: colors.text, fontSize: 18, fontWeight: '800' }, emptyText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 }
 });
