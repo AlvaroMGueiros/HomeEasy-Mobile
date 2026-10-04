@@ -4,9 +4,12 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
+import { CompletedOrderPhotos } from '../components/professional/CompletedOrderPhotos';
 import { AppButton } from '../components/ui/AppButton';
 import { ChoiceChips } from '../components/ui/ChoiceChips';
 import { FormField } from '../components/ui/FormField';
+import { OrderProgress } from '../components/ui/OrderProgress';
+import { UserAvatar } from '../components/ui/UserAvatar';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
@@ -14,6 +17,7 @@ import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Conversation, Dispute, Order } from '../types/api';
 import { formatCurrency } from '../utils/currency';
+import { formatAppointment } from '../utils/date';
 import { resolveEnumLabel, resolveStatusLabel } from '../utils/status';
 
 export function OrderDetailScreen() {
@@ -128,15 +132,17 @@ export function OrderDetailScreen() {
 
   return <Screen>
     <SectionHeader eyebrow={resolveStatusLabel(order.status)} title={order.request.service?.name || 'Pedido'} description={order.request.description} />
-    <View style={styles.card}><Text style={styles.price}>{formatCurrency(Number(order.agreedPrice))}</Text><Text style={styles.line}>Local: {order.request.city}/{order.request.state}</Text>{Boolean(order.scheduledAt) && <Text style={styles.line}>Agendado: {new Date(order.scheduledAt || '').toLocaleString('pt-BR')}</Text>}</View>
+    <View style={styles.card}><Text style={styles.heading}>{formatAppointment(order.scheduledAt)}</Text><Text style={styles.line}>{order.request.city}, {order.request.state}</Text><Text style={styles.line}>Valor combinado</Text><Text style={styles.price}>{formatCurrency(Number(order.agreedPrice))}</Text></View>
+    {conversation && <View style={styles.card}><UserAvatar name={conversation.otherUser.name} mediaId={conversation.otherUser.profilePhotoMediaId} size={52} /><Text style={styles.heading}>{conversation.otherUser.name}</Text><Text style={styles.line}>{isClient ? 'Profissional responsável' : 'Cliente do serviço'}</Text><AppButton label={conversation.isWritable ? `Conversar com ${conversation.otherUser.name.split(' ')[0]}` : 'Ver histórico da conversa'} onPress={openConversation} /></View>}
+    <OrderProgress order={order} />
     {dispute && <View style={styles.disputeCard}><Text style={styles.heading}>Detalhes da disputa</Text><Text style={styles.disputeLabel}>Motivo</Text><Text style={styles.line}>{resolveEnumLabel(dispute.reason)}</Text><Text style={styles.disputeLabel}>Relato enviado</Text><Text style={styles.line}>{dispute.description}</Text><Text style={styles.disputeLabel}>Andamento</Text><Text style={styles.line}>{resolveStatusLabel(dispute.status)}</Text>{Boolean(dispute.resolutionNotes) && <><Text style={styles.disputeLabel}>Resposta da moderação</Text><Text style={styles.line}>{dispute.resolutionNotes}</Text></>}<Text style={styles.help}>Você acompanha esta disputa aqui, na tela do próprio pedido. As atualizações também aparecem em Notificações.</Text></View>}
-    {conversation && <AppButton label={conversation.isWritable ? 'Abrir chat' : 'Ver histórico da conversa'} onPress={openConversation} />}
     {!isFinished && <>
       {isClient && order.status === 'accepted' && <AppButton label="Confirmar agendamento" onPress={() => updateStatus('scheduled')} loading={loading} />}
       {!isClient && ['accepted', 'scheduled'].includes(order.status) && <AppButton label="Iniciar serviço" onPress={() => updateStatus('in_progress')} loading={loading} />}
       {!isClient && order.status === 'in_progress' && <AppButton label="Marcar como concluído" onPress={() => updateStatus('completed')} loading={loading} />}
       {order.status === 'disputed' ? <View style={styles.notice}><Text style={styles.noticeTitle}>Por que não posso cancelar?</Text><Text style={styles.line}>{cancellationMessage}</Text></View> : <AppButton label="Cancelar pedido" variant="secondary" onPress={cancel} loading={loading} />}
     </>}
+    {order.professionalId === user?.id && order.status === 'completed' && <CompletedOrderPhotos key={order.id} orderId={order.id} />}
     {isClient && order.status === 'completed' && <View style={styles.card}><Text style={styles.heading}>Avaliar atendimento</Text><ChoiceChips value={rating} onChange={setRating} options={[1, 2, 3, 4, 5].map(value => ({ value, label: `${value} ★` }))} /><FormField label="Comentário" value={comment} onChangeText={setComment} multiline /><AppButton label="Publicar avaliação" onPress={review} /><AppButton label="Recontratar" variant="secondary" onPress={rehire} /></View>}
     {!['cancelled_by_client', 'cancelled_by_professional', 'disputed'].includes(order.status) && <AppButton label="Abrir disputa" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id })} />}
   </Screen>;

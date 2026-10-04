@@ -8,6 +8,7 @@ import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
 import { UserAvatar } from '../components/ui/UserAvatar';
+import { ProfessionalReputation } from '../components/professional/ProfessionalReputation';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Professional, ProfessionalsResponse } from '../types/api';
@@ -53,7 +54,7 @@ export function CityProfessionalsScreen() {
     {!loading && !error && !filteredProfessionals.length && <View style={styles.empty}><Feather name="users" size={30} color={colors.textMuted} /><Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text><Text style={styles.emptyText}>Tente outro nome ou selecione uma categoria diferente.</Text></View>}
     {filteredProfessionals.map(professional => <Pressable key={professional.id} style={styles.card} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}>
       <UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={58} />
-      <View style={styles.grow}><Text style={styles.name}>{professional.name}</Text><Text style={styles.services}>{professional.services.map(service => service.name).join(', ') || 'Serviços não informados'}</Text></View>
+      <View style={styles.grow}><Text style={styles.name}>{professional.name}</Text><Text style={styles.services}>{professional.services.map(service => service.name).join(', ') || 'Serviços não informados'}</Text><ProfessionalReputation professional={professional} compact /></View>
       <Feather name="chevron-right" size={21} color={colors.primary} />
     </Pressable>)}
   </Screen>;

@@ -26,6 +26,7 @@ export function RegionalMapScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [radiusKm, setRadiusKm] = useState(50);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
 
   useEffect(() => { loadMap(); }, []);
 
@@ -68,8 +69,19 @@ export function RegionalMapScreen() {
     <ChoiceChips value={radiusKm} onChange={setRadiusKm} options={[{ value: 10, label: '10 km' }, { value: 25, label: '25 km' }, { value: 50, label: '50 km' }, { value: 100, label: '100 km' }]} />
     <Pressable style={styles.locationButton} onPress={centerOnUser}><Feather name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>
     {loading && <StateView loading message="Preparando mapa..." />}{Boolean(error) && <StateView message={error} />}
-    {!loading && <View style={styles.map}><WebView originWhitelist={['*']} source={{ html: mapHtml }} javaScriptEnabled onError={() => setError('Não foi possível carregar o mapa. Verifique sua conexão.')} /></View>}
-    {markers.map(marker => <View key={marker.key} style={styles.card}>
+    <ChoiceChips value={viewMode} onChange={setViewMode} options={[{ value: 'map', label: 'Mapa' }, { value: 'list', label: 'Lista de cidades' }]} />
+    {!loading && !error && !markers.length && <StateView message="Nenhum profissional encontrado. Tente ampliar o raio da busca." />}
+    {!loading && viewMode === 'map' && <View style={styles.map}><WebView originWhitelist={['*']} source={{ html: mapHtml }} javaScriptEnabled onMessage={event => {
+      try {
+        const selectedRegion = JSON.parse(event.nativeEvent.data);
+        if (selectedRegion.type === 'SELECT_CITY' && typeof selectedRegion.city === 'string' && typeof selectedRegion.state === 'string') {
+          navigation.navigate('CityProfessionals', { city: selectedRegion.city, state: selectedRegion.state });
+        }
+      } catch {
+        setError('Não foi possível abrir a cidade selecionada. Use a lista de cidades.');
+      }
+    }} onError={() => setError('Não foi possível carregar o mapa. Verifique sua conexão.')} /></View>}
+    {viewMode === 'list' && markers.map(marker => <View key={marker.key} style={styles.card}>
       <View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{formatProfessionalCount(marker.professionals.length)}</Text></View>
       <Pressable accessibilityRole="button" onPress={() => navigation.navigate('CityProfessionals', { city: marker.city, state: marker.state })} style={styles.regionButton}>
         <Text style={styles.link}>Ver profissionais</Text>

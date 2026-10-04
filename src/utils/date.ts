@@ -23,3 +23,10 @@ export function formatIsoDateForDisplay(dateValue: string) {
   if (!parsedDate) return 'Selecione uma data';
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(parsedDate);
 }
+
+export function formatAppointment(dateValue?: string | null) {
+  if (!dateValue) return 'Agendamento a combinar';
+  const appointmentDate = new Date(dateValue);
+  if (Number.isNaN(appointmentDate.getTime())) return 'Data do agendamento indisponível';
+  return new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(appointmentDate);
+}

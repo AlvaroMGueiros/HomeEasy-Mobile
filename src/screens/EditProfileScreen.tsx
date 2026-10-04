@@ -1,9 +1,12 @@
+import { RouteProp, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
+import { ProfessionalPresentationEditor } from '../components/professional/ProfessionalPresentationEditor';
+import { ChoiceChips } from '../components/ui/ChoiceChips';
 import { AppButton } from '../components/ui/AppButton';
 import { DatePickerField } from '../components/ui/DatePickerField';
 import { FormField } from '../components/ui/FormField';
@@ -11,10 +14,14 @@ import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { UserAvatar } from '../components/ui/UserAvatar';
 import { colors } from '../theme/colors';
+import { ProfileEditorSection, RootStackParamList } from '../navigation/types';
 import { UserProfile } from '../types/api';
 import { uploadMedia } from '../utils/media-upload';
 
 export function EditProfileScreen() {
+  const { params } = useRoute<RouteProp<RootStackParamList, 'EditProfile'>>();
+  const [section, setSection] = useState(params?.section || ProfileEditorSection.Personal);
+  useEffect(() => { if (params?.section) setSection(params.section); }, [params?.section]);
   const { updateCurrentUser } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -107,58 +114,61 @@ export function EditProfileScreen() {
   return (
     <Screen>
       <SectionHeader
-        eyebrow="Dados pessoais"
+        eyebrow="Minha conta"
         title="Editar perfil"
-        description="Mantenha seus dados e sua foto atualizados."
+        description="Cuide dos seus dados pessoais e da apresentação do seu trabalho."
       />
-      <UserAvatar name={profile.name} mediaId={profile.profilePhotoMediaId} size={104} />
-      <Pressable style={styles.photoButton} onPress={choosePhoto}>
-        <Text style={styles.photoLabel}>Alterar foto</Text>
-      </Pressable>
-      <FormField label="Nome" value={profile.name} onChangeText={value => update('name', value)} />
-      <FormField
-        label="Telefone"
-        value={profile.phone || ''}
-        onChangeText={value => update('phone', value)}
-        keyboardType="phone-pad"
-      />
-      <DatePickerField
-        label="Data de nascimento"
-        value={profile.birthDate || ''}
-        onChange={value => update('birthDate', value)}
-        maximumDate={new Date()}
-      />
-      <FormField
-        label="Endereço"
-        value={profile.address || ''}
-        onChangeText={value => update('address', value)}
-      />
-      <FormField
-        label="Cidade"
-        value={profile.city || ''}
-        onChangeText={value => update('city', value)}
-      />
-      <FormField
-        label="UF"
-        value={profile.state || ''}
-        onChangeText={value => update('state', value.slice(0, 2).toUpperCase())}
-      />
-      <FormField
-        label="Instagram"
-        value={profile.instagram || ''}
-        onChangeText={value => update('instagram', value)}
-      />
-      <FormField
-        label="Site"
-        value={profile.website || ''}
-        onChangeText={value => update('website', value)}
-      />
-      <FormField
-        label="LinkedIn"
-        value={profile.linkedin || ''}
-        onChangeText={value => update('linkedin', value)}
-      />
-      <AppButton label="Salvar perfil" onPress={save} loading={loading} />
+      <ChoiceChips value={section} onChange={setSection} options={[{ value: ProfileEditorSection.Personal, label: 'Dados pessoais' }, { value: ProfileEditorSection.Professional, label: 'Perfil profissional' }]} />
+      {section === ProfileEditorSection.Professional ? <ProfessionalPresentationEditor /> : <>
+        <UserAvatar name={profile.name} mediaId={profile.profilePhotoMediaId} size={104} />
+        <Pressable style={styles.photoButton} onPress={choosePhoto}>
+          <Text style={styles.photoLabel}>Alterar foto</Text>
+        </Pressable>
+        <FormField label="Nome" value={profile.name} onChangeText={value => update('name', value)} />
+        <FormField
+          label="Telefone"
+          value={profile.phone || ''}
+          onChangeText={value => update('phone', value)}
+          keyboardType="phone-pad"
+        />
+        <DatePickerField
+          label="Data de nascimento"
+          value={profile.birthDate || ''}
+          onChange={value => update('birthDate', value)}
+          maximumDate={new Date()}
+        />
+        <FormField
+          label="Endereço"
+          value={profile.address || ''}
+          onChangeText={value => update('address', value)}
+        />
+        <FormField
+          label="Cidade"
+          value={profile.city || ''}
+          onChangeText={value => update('city', value)}
+        />
+        <FormField
+          label="UF"
+          value={profile.state || ''}
+          onChangeText={value => update('state', value.slice(0, 2).toUpperCase())}
+        />
+        <FormField
+          label="Instagram"
+          value={profile.instagram || ''}
+          onChangeText={value => update('instagram', value)}
+        />
+        <FormField
+          label="Site"
+          value={profile.website || ''}
+          onChangeText={value => update('website', value)}
+        />
+        <FormField
+          label="LinkedIn"
+          value={profile.linkedin || ''}
+          onChangeText={value => update('linkedin', value)}
+        />
+        <AppButton label="Salvar dados pessoais" onPress={save} loading={loading} />
+      </>}
     </Screen>
   );
 }

@@ -7,7 +7,10 @@ import { WebView } from 'react-native-webview';
 
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
-import { UserAvatar } from '../components/ui/UserAvatar';
+import { ProfessionalDiscoveryCard } from '../components/professional/ProfessionalDiscoveryCard';
+import { ChoiceChips } from '../components/ui/ChoiceChips';
+import { MenuRow } from '../components/ui/MenuRow';
+import { StateView } from '../components/ui/StateView';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Notification, Professional, ProfessionalsResponse, Service, UserProfile } from '../types/api';
@@ -203,9 +206,13 @@ export function HomeScreen() {
 
   function handleExploreProfessionals() {
     const [cityPart, statePart] = locationLabel.split(',').map(s => s.trim());
+    if (!cityPart || !statePart) {
+      navigation.navigate('RegionalMap');
+      return;
+    }
     navigation.navigate('CityProfessionals', {
-      city: cityPart || 'Recife',
-      state: statePart || 'PE'
+      city: cityPart,
+      state: statePart
     });
   }
 
@@ -245,10 +252,12 @@ export function HomeScreen() {
     <Animated.View style={[styles.sheet, { top: sheetTop }]}>
       <View style={styles.dragArea} {...sheetPanResponder.panHandlers}><View style={styles.dragHandle} /></View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
+        <ChoiceChips value={isExpanded ? 'list' : 'map'} options={[{ value: 'map', label: 'Mapa' }, { value: 'list', label: 'Lista' }]} onChange={viewMode => animateSheet(viewMode === 'list' ? 'expanded' : 'default')} />
         {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet('default')} accessibilityRole="button"><Feather name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
         <Text style={styles.greeting}>Olá, {firstName}!</Text><Text style={styles.question}>Como podemos te ajudar hoje?</Text>
         <Pressable style={styles.search} onPress={() => navigation.navigate('Services')} accessibilityRole="button"><Feather name="search" size={22} color={colors.text} /><Text style={styles.searchText}>Buscar serviço ou profissional</Text></Pressable>
         {loading && <Text style={styles.loadingText}>Preparando sua região...</Text>}
+        <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Serviços para sua casa</Text><Pressable accessibilityRole="button" style={styles.seeAllButton} onPress={() => navigation.navigate('Services')}><Text style={styles.seeAll}>Ver todos</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
         <View style={styles.categoryGrid}>{services.slice(0, 6).map(service => <Pressable key={service.id} style={styles.category} onPress={() => navigation.navigate('ServiceProfessionals', { serviceId: service.id, serviceName: service.name })}><Feather name={resolveServiceIcon(service.name)} size={23} color={colors.primary} /><Text style={styles.categoryName} numberOfLines={2}>{service.name}</Text></Pressable>)}</View>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Profissionais recomendados</Text>
@@ -257,63 +266,13 @@ export function HomeScreen() {
             <Feather name="chevron-right" size={18} color={colors.primary} />
           </Pressable>
         </View>
-        {isExpanded ? (
-          <View style={styles.verticalList}>
-            {professionals.map(professional => (
-              <Pressable
-                key={professional.id}
-                style={styles.verticalProfessional}
-                onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}
-              >
-                <UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={52} />
-                <View style={styles.professionalInfo}>
-                  <Text style={styles.professionalName} numberOfLines={1}>
-                    {professional.name}
-                  </Text>
-                  <Text style={styles.professionalLocation} numberOfLines={1}>
-                    {professional.city}, {professional.state}
-                  </Text>
-                  <Text style={styles.rating}>
-                    {professional.metrics?.averageRating
-                      ? `★ ${professional.metrics.averageRating.toFixed(1)}`
-                      : '★ Novo'}
-                  </Text>
-                </View>
-                <Feather name="chevron-right" size={20} color={colors.textMuted} />
-              </Pressable>
-            ))}
-          </View>
-        ) : (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.horizontalList}
-            contentContainerStyle={styles.horizontalContent}
-          >
-            {professionals.slice(0, 6).map(professional => (
-              <Pressable
-                key={professional.id}
-                style={styles.professional}
-                onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}
-              >
-                <UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={52} />
-                <View style={styles.professionalInfo}>
-                  <Text style={styles.professionalName} numberOfLines={1}>
-                    {professional.name}
-                  </Text>
-                  <Text style={styles.professionalLocation} numberOfLines={1}>
-                    {professional.city}, {professional.state}
-                  </Text>
-                  <Text style={styles.rating}>
-                    {professional.metrics?.averageRating
-                      ? `★ ${professional.metrics.averageRating.toFixed(1)}`
-                      : '★ Novo'}
-                  </Text>
-                </View>
-              </Pressable>
-            ))}
-          </ScrollView>
-        )}
+        {!loading && !professionals.length && <StateView message="Nenhum profissional encontrado nesta região. Explore o mapa ou escolha um serviço." />}
+        {isExpanded ? <View style={styles.verticalList}>
+          {professionals.map(professional => <ProfessionalDiscoveryCard key={professional.id} professional={professional} expanded onPress={() => navigation.navigate('Professional', { professionalId: professional.id })} />)}
+        </View> : <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList} contentContainerStyle={styles.horizontalContent}>
+          {professionals.slice(0, 6).map(professional => <ProfessionalDiscoveryCard key={professional.id} professional={professional} expanded={false} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })} />)}
+        </ScrollView>}
+        <View style={styles.shortcut}><MenuRow icon="file-text" title="Precisa de um orçamento?" description="Escolha o serviço e conte o que você precisa." onPress={() => navigation.navigate('Services')} /></View>
       </ScrollView>
     </Animated.View>
   </View>;
@@ -457,7 +416,7 @@ const styles = StyleSheet.create({
     gap: 7,
     padding: 8,
     borderRadius: 17,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.primarySoft,
     borderWidth: 1,
     borderColor: colors.border
   },
@@ -468,33 +427,6 @@ const styles = StyleSheet.create({
   seeAll: { color: colors.primary, fontWeight: '800' },
   horizontalList: { flexGrow: 0 },
   horizontalContent: { gap: 10, paddingRight: 4 },
-  professional: {
-    width: 248,
-    minHeight: 92,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 11,
-    padding: 13,
-    borderRadius: 18,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border
-  },
   verticalList: { gap: 10, marginTop: 2 },
-  verticalProfessional: {
-    width: '100%',
-    minHeight: 82,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 14,
-    borderRadius: 18,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border
-  },
-  professionalInfo: { flex: 1, gap: 3 },
-  professionalName: { color: colors.text, fontSize: 15, fontWeight: '900' },
-  professionalLocation: { color: colors.textMuted, fontSize: 12 },
-  rating: { color: colors.warning, fontSize: 12, fontWeight: '800' }
+  shortcut: { borderRadius: 17, overflow: 'hidden', backgroundColor: colors.primarySoft }
 });

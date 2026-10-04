@@ -1,7 +1,77 @@
-import { useEffect, useState } from 'react'; import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { apiRequest } from '../api/api-client'; import { AppButton } from '../components/ui/AppButton'; import { FormField } from '../components/ui/FormField'; import { Screen } from '../components/ui/Screen'; import { SectionHeader } from '../components/ui/SectionHeader'; import { colors } from '../theme/colors'; import { Schedule } from '../types/api';
-const weekdays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-export function ScheduleScreen() { const [selectedDays, setSelectedDays] = useState<number[]>([]); const [startTime, setStartTime] = useState('08:00'); const [endTime, setEndTime] = useState('18:00'); const [loading, setLoading] = useState(false); useEffect(() => { apiRequest<Schedule>('/schedules/me').then(schedule => { setSelectedDays(Array.from(new Set(schedule.periods.map(period => period.weekday)))); if (schedule.periods[0]) { setStartTime(schedule.periods[0].startTime.slice(0, 5)); setEndTime(schedule.periods[0].endTime.slice(0, 5)); } }).catch(() => undefined); }, []);
-  function toggle(day: number) { setSelectedDays(current => current.includes(day) ? current.filter(value => value !== day) : [...current, day]); } async function save() { setLoading(true); try { await apiRequest('/schedules/me', { method: 'PUT', body: JSON.stringify({ periods: selectedDays.map(weekday => ({ weekday, startTime, endTime })), exceptions: [] }) }); Alert.alert('Agenda atualizada', 'Sua disponibilidade foi salva.'); } catch (error) { Alert.alert('Não foi possível salvar', error instanceof Error ? error.message : 'Revise os horários.'); } finally { setLoading(false); } }
-  return <Screen><SectionHeader eyebrow="Disponibilidade" title="Agenda profissional" description="Escolha os dias e o horário padrão em que você atende." /><View style={styles.days}>{weekdays.map((day, index) => <Pressable key={day} onPress={() => toggle(index)} style={[styles.day, selectedDays.includes(index) && styles.activeDay]}><Text style={[styles.dayText, selectedDays.includes(index) && styles.activeText]}>{day}</Text></Pressable>)}</View><FormField label="Início (HH:MM)" value={startTime} onChangeText={setStartTime} /><FormField label="Fim (HH:MM)" value={endTime} onChangeText={setEndTime} /><AppButton label="Salvar agenda" onPress={save} loading={loading} /></Screen>; }
-const styles = StyleSheet.create({ days: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, day: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 13, borderRadius: 21, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, activeDay: { backgroundColor: colors.primary }, dayText: { color: colors.textMuted, fontWeight: '700' }, activeText: { color: colors.white } });
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+
+import { apiRequest } from '../api/api-client';
+import { ProfessionalScheduleDay } from '../components/professional/ProfessionalScheduleDay';
+import { AppButton } from '../components/ui/AppButton';
+import { DatePickerField } from '../components/ui/DatePickerField';
+import { Screen } from '../components/ui/Screen';
+import { SectionHeader } from '../components/ui/SectionHeader';
+import { StateView } from '../components/ui/StateView';
+import { colors } from '../theme/colors';
+import { Schedule } from '../types/api';
+import { formatIsoDateForDisplay } from '../utils/date';
+import { normalizeProfessionalSchedule, professionalWeekdays, validateProfessionalSchedule } from '../utils/professionalSchedule';
+
+export function ScheduleScreen() {
+  const [schedule, setSchedule] = useState<Schedule | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [blockedDate, setBlockedDate] = useState('');
+
+  async function loadSchedule() {
+    setLoading(true); setError('');
+    try {
+      const savedSchedule = await apiRequest<Schedule>('/schedules/me');
+      setSchedule(normalizeProfessionalSchedule(savedSchedule));
+    } catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível consultar sua disponibilidade.'); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { void loadSchedule(); }, []);
+
+  function updateDay(weekday: number, periods: Schedule['periods']) {
+    setSchedule(current => current ? { ...current, periods: [...current.periods.filter(period => period.weekday !== weekday), ...periods] } : current);
+  }
+
+  function applyBusinessHours() {
+    Alert.alert('Aplicar horário comercial?', 'Os horários da semana serão substituídos por segunda a sexta, das 08:00 às 18:00. Os bloqueios de datas serão mantidos.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Aplicar', onPress: () => setSchedule(current => current ? { ...current, periods: [1, 2, 3, 4, 5].map(weekday => ({ weekday, startTime: '08:00', endTime: '18:00' })) } : current) }]);
+  }
+
+  function blockDate() {
+    if (!blockedDate || !schedule) return;
+    if (schedule.exceptions.some(exception => exception.date.slice(0, 10) === blockedDate)) { Alert.alert('Data já configurada', 'Remova a exceção existente antes de bloquear esta data.'); return; }
+    if (schedule.exceptions.length >= 120) { Alert.alert('Limite de datas', 'Remova uma exceção para adicionar outra. O limite é de 120 datas.'); return; }
+    setSchedule({ ...schedule, exceptions: [...schedule.exceptions, { date: blockedDate, isUnavailable: true }] });
+    setBlockedDate('');
+  }
+
+  async function saveSchedule() {
+    if (!schedule || saving) return;
+    const validationError = validateProfessionalSchedule(schedule);
+    if (validationError) { Alert.alert('Revise os horários', validationError); return; }
+    setSaving(true);
+    try {
+      await apiRequest('/schedules/me', { method: 'PUT', body: JSON.stringify(normalizeProfessionalSchedule(schedule)) });
+      Alert.alert('Agenda atualizada', 'Seus horários e bloqueios de datas foram salvos.');
+    } catch (failure) { Alert.alert('Agenda não salva', failure instanceof Error ? failure.message : 'Não foi possível salvar seus horários e bloqueios.'); }
+    finally { setSaving(false); }
+  }
+
+  if (!schedule) return <Screen><StateView loading={loading} title="Agenda indisponível" message={error || 'Carregando disponibilidade...'} onAction={error ? loadSchedule : undefined} /></Screen>;
+  const availableDays = new Set(schedule.periods.map(period => period.weekday)).size;
+  return <Screen>
+    <SectionHeader eyebrow="Disponibilidade" title="Sua semana de trabalho" description="Ative os dias em que atende e ajuste os horários de cada um. Use mais de um intervalo para reservar a pausa do almoço." />
+    <View style={styles.summary}><Text style={styles.heading}>{availableDays} dias disponíveis por semana</Text><Text style={styles.help}>Dias desligados são folgas. As mudanças só entram em vigor ao salvar.</Text></View>
+    <AppButton label="Usar segunda a sexta · 08h às 18h" variant="secondary" disabled={saving} onPress={applyBusinessHours} />
+    {professionalWeekdays.map((label, weekday) => <ProfessionalScheduleDay key={weekday} label={label} weekday={weekday} periods={schedule.periods.filter(period => period.weekday === weekday)} disabled={saving} onChange={periods => updateDay(weekday, periods)} />)}
+    <Text style={styles.heading}>Folgas e datas especiais</Text>
+    <Text style={styles.help}>Bloqueie um dia inteiro para férias ou compromissos. Os horários especiais já cadastrados são preservados.</Text>
+    {!saving && <DatePickerField label="Dia sem atendimento" value={blockedDate} onChange={setBlockedDate} minimumDate={new Date()} />}
+    <AppButton label="Bloquear esta data" variant="secondary" disabled={!blockedDate || saving} onPress={blockDate} />
+    {schedule.exceptions.map(exception => <View key={exception.date} style={styles.summary}><Text style={styles.heading}>{formatIsoDateForDisplay(exception.date.slice(0, 10))}</Text><Text style={styles.help}>{exception.isUnavailable ? 'Sem atendimento' : `${exception.startTime?.slice(0, 5)} às ${exception.endTime?.slice(0, 5)}`}</Text><AppButton label="Remover exceção" variant="secondary" disabled={saving} onPress={() => setSchedule(current => current ? { ...current, exceptions: current.exceptions.filter(currentException => currentException.date !== exception.date) } : current)} /></View>)}
+    <AppButton label="Salvar disponibilidade" loading={saving} onPress={() => { if (!schedule.periods.length) Alert.alert('Salvar sem horários?', 'Seu perfil ficará sem horários semanais de atendimento.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Salvar', onPress: () => void saveSchedule() }]); else void saveSchedule(); }} />
+  </Screen>;
+}
+
+const styles = StyleSheet.create({ summary: { padding: 16, borderRadius: 18, gap: 10, backgroundColor: colors.primarySoft }, heading: { color: colors.text, fontSize: 17, fontWeight: '800' }, help: { color: colors.textMuted, fontSize: 13, lineHeight: 20 } });
