@@ -7,6 +7,7 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Notifications from "expo-notifications";
 import { useCallback, useEffect } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "../auth/AuthContext";
 import { CityProfessionalsScreen } from "../screens/CityProfessionalsScreen";
@@ -67,6 +68,7 @@ const tabIcons: Record<keyof AppTabParamList, keyof typeof Feather.glyphMap> = {
 };
 
 function AppTabs() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
@@ -74,9 +76,9 @@ function AppTabs() {
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          height: 68,
+          height: 68 + insets.bottom,
           paddingTop: 8,
-          paddingBottom: 8,
+          paddingBottom: 8 + insets.bottom,
           borderTopColor: colors.border,
           backgroundColor: colors.surface,
         },
@@ -268,7 +270,7 @@ export function AppNavigator() {
             <Stack.Screen
               name="OrderDetail"
               component={OrderDetailScreen}
-              options={{ title: "Pedido" }}
+              options={{ title: "Meu serviço" }}
             />
             <Stack.Screen
               name="Chat"

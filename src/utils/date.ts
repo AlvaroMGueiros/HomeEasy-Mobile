@@ -30,3 +30,23 @@ export function formatAppointment(dateValue?: string | null) {
   if (Number.isNaN(appointmentDate.getTime())) return 'Data do agendamento indisponível';
   return new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(appointmentDate);
 }
+
+export function formatAppointmentDay(dateValue?: string | null) {
+  if (!dateValue) return 'Data a combinar';
+  const appointmentDate = new Date(dateValue);
+  if (Number.isNaN(appointmentDate.getTime())) return 'Data indisponível';
+  return new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' }).format(appointmentDate);
+}
+
+export function formatAppointmentTimeRange(dateValue?: string | null, durationMinutes?: number) {
+  if (!dateValue) return 'Combine o horário pela conversa';
+  const startDate = new Date(dateValue);
+  if (Number.isNaN(startDate.getTime())) return 'Horário indisponível';
+  const formatter = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const startTime = formatter.format(startDate);
+  if (!durationMinutes || !Number.isFinite(durationMinutes) || durationMinutes < 0) return startTime;
+  const endDate = new Date(startDate.getTime() + durationMinutes * 60_000);
+  let range = `${startTime} – ${formatter.format(endDate)}`;
+  if (formatIsoDate(startDate) !== formatIsoDate(endDate)) range += ` (${formatAppointmentDay(endDate.toISOString())})`;
+  return range;
+}

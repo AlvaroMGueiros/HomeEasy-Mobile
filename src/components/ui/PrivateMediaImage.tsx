@@ -8,9 +8,10 @@ interface PrivateMediaImageProps {
   mediaId: string;
   accessibilityLabel: string;
   compact?: boolean;
+  wide?: boolean;
 }
 
-export function PrivateMediaImage({ mediaId, accessibilityLabel, compact = false }: PrivateMediaImageProps) {
+export function PrivateMediaImage({ mediaId, accessibilityLabel, compact = false, wide = false }: PrivateMediaImageProps) {
   const [imageUrl, setImageUrl] = useState('');
   const [failed, setFailed] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -24,12 +25,12 @@ export function PrivateMediaImage({ mediaId, accessibilityLabel, compact = false
     return () => { active = false; };
   }, [mediaId]);
 
-  if (failed) return <View style={[styles.fallback, compact && styles.compact]}><Text style={styles.fallbackText}>Imagem indisponível</Text></View>;
-  if (!imageUrl) return <View style={[styles.loading, compact && styles.compact]}><ActivityIndicator color={colors.primary} /></View>;
+  if (failed) return <View style={[styles.fallback, compact && styles.compact, wide && styles.wide]}><Text style={styles.fallbackText}>Imagem indisponível</Text></View>;
+  if (!imageUrl) return <View style={[styles.loading, compact && styles.compact, wide && styles.wide]}><ActivityIndicator color={colors.primary} /></View>;
 
   return <>
     <Pressable onPress={() => setExpanded(true)} accessibilityRole="imagebutton" accessibilityLabel={accessibilityLabel}>
-      <Image source={{ uri: imageUrl }} style={[styles.image, compact && styles.compact]} resizeMode="cover" />
+      <Image source={{ uri: imageUrl }} style={[styles.image, compact && styles.compact, wide && styles.wide]} resizeMode="cover" onError={() => setFailed(true)} />
     </Pressable>
     <Modal visible={expanded} transparent animationType="fade" onRequestClose={() => setExpanded(false)}>
       <Pressable style={styles.overlay} onPress={() => setExpanded(false)}>
@@ -43,6 +44,7 @@ export function PrivateMediaImage({ mediaId, accessibilityLabel, compact = false
 const styles = StyleSheet.create({
   image: { width: 220, height: 220, borderRadius: 12, backgroundColor: colors.border },
   compact: { width: 112, height: 112 },
+  wide: { width: '100%', height: 175 },
   loading: { width: 220, height: 220, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: colors.surface },
   fallback: { width: 220, height: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: colors.surface },
   fallbackText: { color: colors.textMuted, fontSize: 12 },
