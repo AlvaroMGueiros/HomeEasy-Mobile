@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../../theme/colors';
@@ -8,6 +8,7 @@ import { resolveUserInitials } from '../../utils/user-name';
 export function UserAvatar({ name, mediaId, size = 52 }: { name: string; mediaId?: string | null; size?: number }) {
   const [hasImageError, setHasImageError] = useState(false);
   const imageUrl = resolvePublicMediaUrl(mediaId);
+  useEffect(() => setHasImageError(false), [imageUrl]);
   const avatarStyle = { width: size, height: size, borderRadius: size / 2 };
 
   if (imageUrl && !hasImageError) {
