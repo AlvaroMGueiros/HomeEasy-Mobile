@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "636779212416-6q2ve3ddcismugtfnm7cc62jifkso9ut.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.homeeasy.mobile",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "636779212416-mqb4qlkc427ua33329ldt30o24eq0kos.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

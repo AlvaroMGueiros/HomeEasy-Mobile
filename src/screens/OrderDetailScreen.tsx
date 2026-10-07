@@ -131,7 +131,7 @@ export function OrderDetailScreen() {
 
   return <Screen refreshing={refreshing} onRefresh={() => void loadOrder(true)}>
     {Boolean(error) && <StateView message={error} onAction={() => void loadOrder(true)} />}
-    <OrderServiceSummary order={order} onViewDetails={() => setDetailsExpanded(true)} />
+    <OrderServiceSummary order={order} onViewDetails={() => setDetailsExpanded(true)} onViewAddress={() => navigation.navigate('ServiceAddressMap', { address: order.request.address, city: order.request.city, state: order.request.state })} />
     <View style={[styles.statusNotice, order.status === OrderStatus.Disputed && styles.disputedNotice]}><Feather name="info" size={18} color={colors.primary} /><Text style={styles.statusDescription}>{resolveOrderStatusDescription(order.status, isClient, Boolean(order.scheduledAt))}</Text></View>
     <OrderParticipantSummary order={order} isClient={isClient} canChat={Boolean(conversation)} onChat={openConversation} onViewProfessional={() => navigation.navigate('Professional', { professionalId: order.professionalId })} />
     <OrderProgress order={order} review={order.review} />

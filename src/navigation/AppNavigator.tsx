@@ -38,6 +38,7 @@ import { ProfileScreen } from "../screens/ProfileScreen";
 import { ProposalFormScreen } from "../screens/ProposalFormScreen";
 import { PublicHomeScreen } from "../screens/PublicHomeScreen";
 import { RegionalMapScreen } from "../screens/RegionalMapScreen";
+import { ServiceAddressMapScreen } from "../screens/ServiceAddressMapScreen";
 import { ReportScreen } from "../screens/ReportScreen";
 import { RequestDetailScreen } from "../screens/RequestDetailScreen";
 import { RequestFormScreen } from "../screens/RequestFormScreen";
@@ -244,6 +245,11 @@ export function AppNavigator() {
           name="RegionalMap"
           component={RegionalMapScreen}
           options={{ title: "Mapa regional" }}
+        />
+        <Stack.Screen
+          name="ServiceAddressMap"
+          component={ServiceAddressMapScreen}
+          options={{ title: "Endereço do serviço" }}
         />
         <Stack.Screen
           name="CityProfessionals"

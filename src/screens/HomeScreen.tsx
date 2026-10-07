@@ -3,10 +3,10 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, PanResponder, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { WebView } from 'react-native-webview';
 
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
+import { RegionalMap } from '../components/RegionalMap';
 import { ProfessionalDiscoveryCard } from '../components/professional/ProfessionalDiscoveryCard';
 import { ChoiceChips } from '../components/ui/ChoiceChips';
 import { MenuRow } from '../components/ui/MenuRow';
@@ -219,29 +219,7 @@ export function HomeScreen() {
   const firstName = (profile?.name || user?.name || 'Cliente').split(' ')[0];
   return <View style={styles.root}>
     <View style={[styles.mapContainer, { height: mapHeight }]}>
-      <WebView
-        key={`${mapRegion.latitude}-${mapRegion.longitude}-${professionals.length}`}
-        originWhitelist={['*']}
-        source={{ html: mapHtml }}
-        javaScriptEnabled
-        scrollEnabled
-        nestedScrollEnabled
-        overScrollMode="never"
-        onMessage={event => {
-          try {
-            const data = JSON.parse(event.nativeEvent.data);
-            if (data.type === 'SELECT_CITY' && data.city) {
-              navigation.navigate('CityProfessionals', {
-                city: data.city,
-                state: data.state || 'PE'
-              });
-            }
-          } catch {
-            // ignora
-          }
-        }}
-        style={styles.map}
-      />
+      <RegionalMap html={mapHtml} onSelectCity={(city, state) => navigation.navigate('CityProfessionals', { city, state })} />
       <Pressable style={styles.locationPill} onPress={centerOnUser} disabled={locating} accessibilityRole="button"><Feather name="map-pin" size={20} color={colors.primary} /><Text style={styles.locationText} numberOfLines={1}>{locationLabel}</Text><Feather name="chevron-down" size={18} color={colors.primary} /></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Abrir notificações" onPress={() => navigation.navigate('Notifications')} style={styles.notificationButton}><Feather name="bell" size={21} color={colors.text} />{unreadCount > 0 && <View style={styles.notificationDot} />}</Pressable>
       <Pressable style={styles.targetButton} onPress={centerOnUser} disabled={locating} accessibilityRole="button" accessibilityLabel="Usar minha localização"><Feather name={locating ? 'loader' : 'crosshair'} size={21} color={colors.text} /></Pressable>
@@ -285,7 +263,6 @@ function createNearbyRegion(latitude: number, longitude: number): RegionalMapReg
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   mapContainer: { overflow: 'hidden', backgroundColor: colors.background },
-  map: { flex: 1, backgroundColor: colors.background },
   locationPill: {
     position: 'absolute',
     top: 38,

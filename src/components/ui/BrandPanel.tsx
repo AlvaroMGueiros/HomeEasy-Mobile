@@ -1,6 +1,7 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../../theme/colors';
+import { BrandLogo } from './BrandLogo';
 
 interface BrandPanelProps {
   title: string;
@@ -14,11 +15,9 @@ export function BrandPanel({ title, description, compact = false, landing = fals
   const landingHeightStyle = landing && landingMinHeight ? { minHeight: landingMinHeight } : undefined;
 
   return <View style={[styles.panel, compact && styles.compactPanel, landing && styles.landingPanel, landingHeightStyle]}>
-    <Image
-      source={require('../../../assets/home-easy-logo-v2.png')}
+    <BrandLogo
+      light
       style={[styles.logo, compact && styles.compactLogo, landing && styles.landingLogo]}
-      resizeMode="contain"
-      accessibilityLabel="Home Easy"
     />
     <View style={styles.copy}>
       <Text style={[styles.title, compact && styles.compactTitle, landing && styles.landingTitle]}>{title}</Text>

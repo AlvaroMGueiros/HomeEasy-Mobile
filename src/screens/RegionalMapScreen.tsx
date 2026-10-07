@@ -1,11 +1,11 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { WebView } from 'react-native-webview';
 
 import { apiRequest } from '../api/api-client';
+import { RegionalMap } from '../components/RegionalMap';
 import { Screen } from '../components/ui/Screen';
 import { ChoiceChips } from '../components/ui/ChoiceChips';
 import { SectionHeader } from '../components/ui/SectionHeader';
@@ -62,7 +62,7 @@ export function RegionalMapScreen() {
     }
   }
 
-  const mapHtml = buildRegionalMapHtml(mapRegion, markers.map(marker => ({ key: marker.key, city: marker.city, state: marker.state, latitude: marker.latitude, longitude: marker.longitude, professionalCount: marker.professionals.length })));
+  const mapHtml = useMemo(() => buildRegionalMapHtml(mapRegion, markers.map(marker => ({ key: marker.key, city: marker.city, state: marker.state, latitude: marker.latitude, longitude: marker.longitude, professionalCount: marker.professionals.length }))), [mapRegion, markers]);
 
   return <Screen>
     <SectionHeader eyebrow="Profissionais perto de você" title="Explore por região" description="Veja onde existem profissionais cadastrados e encontre todos os profissionais de cada cidade." />
@@ -71,16 +71,7 @@ export function RegionalMapScreen() {
     {loading && <StateView loading message="Preparando mapa..." />}{Boolean(error) && <StateView message={error} />}
     <ChoiceChips value={viewMode} onChange={setViewMode} options={[{ value: 'map', label: 'Mapa' }, { value: 'list', label: 'Lista de cidades' }]} />
     {!loading && !error && !markers.length && <StateView message="Nenhum profissional encontrado. Tente ampliar o raio da busca." />}
-    {!loading && viewMode === 'map' && <View style={styles.map}><WebView originWhitelist={['*']} source={{ html: mapHtml }} javaScriptEnabled onMessage={event => {
-      try {
-        const selectedRegion = JSON.parse(event.nativeEvent.data);
-        if (selectedRegion.type === 'SELECT_CITY' && typeof selectedRegion.city === 'string' && typeof selectedRegion.state === 'string') {
-          navigation.navigate('CityProfessionals', { city: selectedRegion.city, state: selectedRegion.state });
-        }
-      } catch {
-        setError('Não foi possível abrir a cidade selecionada. Use a lista de cidades.');
-      }
-    }} onError={() => setError('Não foi possível carregar o mapa. Verifique sua conexão.')} /></View>}
+    {!loading && viewMode === 'map' && <View style={styles.map}><RegionalMap html={mapHtml} onSelectCity={(city, state) => navigation.navigate('CityProfessionals', { city, state })} /></View>}
     {viewMode === 'list' && markers.map(marker => <View key={marker.key} style={styles.card}>
       <View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{formatProfessionalCount(marker.professionals.length)}</Text></View>
       <Pressable accessibilityRole="button" onPress={() => navigation.navigate('CityProfessionals', { city: marker.city, state: marker.state })} style={styles.regionButton}>
