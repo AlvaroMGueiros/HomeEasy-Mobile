@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
+import { colors } from '../theme/colors';
 
 const notificationChannelId = 'default';
 const pushTokenKey = 'homeEasyExpoPushToken';
@@ -24,6 +25,8 @@ export async function registerPushNotifications(): Promise<void> {
     await Notifications.setNotificationChannelAsync(notificationChannelId, {
       name: 'Atualizações do Home Easy',
       importance: Notifications.AndroidImportance.HIGH,
+      lightColor: colors.primary,
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
       vibrationPattern: [0, 250, 250, 250]
     });
   }

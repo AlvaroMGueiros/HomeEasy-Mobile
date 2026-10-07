@@ -47,6 +47,11 @@ async function verifyRegionalMap() {
     await waitForMessage(page, RegionalMapMessageType.Ready);
     assert.equal(await evaluatePage(page, 'L.version'), '1.9.4');
     assert.equal(await evaluatePage(page, 'document.querySelectorAll(".professional-marker").length'), 1);
+    assert.equal(await evaluatePage(page, 'document.querySelectorAll(".professional-pin").length'), 1);
+    assert.equal(await evaluatePage(page, 'document.querySelectorAll(".location-dot").length'), 1);
+    assert.equal(await evaluatePage(page, 'document.querySelector(".professional-pin span").textContent'), '5');
+    assert.equal(await evaluatePage(page, 'getComputedStyle(document.querySelector(".professional-pin")).borderBottomRightRadius'), '8px');
+    assert.equal(await evaluatePage(page, 'getComputedStyle(document.querySelector(".professional-pin")).borderBottomLeftRadius'), '50%');
     await evaluatePage(page, 'document.querySelector(".professional-marker").click()');
     assert.equal(await evaluatePage(page, 'document.querySelector(".popup-title").textContent'), `${city}, PE`);
     await evaluatePage(page, 'document.querySelector(".popup-button").click()');
@@ -68,6 +73,14 @@ async function verifyRegionalMap() {
     await page.goto({ url, timeout: 30000 });
     await waitForMessage(page, RegionalMapMessageType.Ready);
     process.stdout.write('PASS: retry loads the map after network recovery.\n');
+    const compactHtml = buildRegionalMapHtml(region, [{ key: 'city', city, state: 'PE', professionalCount: 12, latitude: -8.06, longitude: -34.88 }], false, true);
+    await page.goto({ url: `data:text/html;charset=utf-8,${encodeURIComponent(compactHtml.replace('<head>', '<head><script>window.mapMessages=[];window.ReactNativeWebView={postMessage:function(value){window.mapMessages.push(JSON.parse(value));}};</script>'))}`, timeout: 30000 });
+    await waitForMessage(page, RegionalMapMessageType.Ready);
+    assert.equal(await evaluatePage(page, 'document.querySelector(".professional-pin span").textContent'), '12');
+    assert.equal(await evaluatePage(page, 'document.querySelectorAll(".location-marker").length'), 1);
+    const compactScreenshot = await page._client().send('Page.captureScreenshot', { format: 'png' });
+    fs.writeFileSync(path.resolve(__dirname, '../.expo/mapPinsVerified.png'), Buffer.from(compactScreenshot.value.data, 'base64'));
+    process.stdout.write('PASS: home uses compact pins and location halo.\n');
   } finally {
     await browser.close({ silent: true });
   }

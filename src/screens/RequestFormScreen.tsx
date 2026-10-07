@@ -11,11 +11,13 @@ import { DatePickerField } from '../components/ui/DatePickerField';
 import { FormField } from '../components/ui/FormField';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
+import { TimePickerField } from '../components/ui/TimePickerField';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Service, ServiceRequest, UserProfile } from '../types/api';
 import { uploadMedia } from '../utils/media-upload';
 import { parseOptionalNumber } from '../utils/number';
+import { resolvePreferredAppointment } from '../utils/date';
 
 type SelectedImage = { uri: string; fileName: string; contentType: string };
 
@@ -26,12 +28,12 @@ export function RequestFormScreen() {
   const [description, setDescription] = useState(''); const [urgency, setUrgency] = useState('flexible');
   const [address, setAddress] = useState(''); const [city, setCity] = useState(''); const [state, setState] = useState('');
   const [budgetMinimum, setBudgetMinimum] = useState(''); const [budgetMaximum, setBudgetMaximum] = useState(''); const [preferredDate, setPreferredDate] = useState('');
+  const [preferredTime, setPreferredTime] = useState('');
   const [answers, setAnswers] = useState<Record<string, string>>({}); const [images, setImages] = useState<SelectedImage[]>([]); const [loading, setLoading] = useState(false);
   const minimumPreferredDate = useMemo(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    return tomorrow;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
   }, []);
 
   useEffect(() => { Promise.all([apiRequest<Service[]>('/services'), apiRequest<UserProfile>('/users/me')]).then(([services, profile]) => { setService(services.find(currentService => currentService.id === params.serviceId) || null); setAddress(profile.address || ''); setCity(profile.city || ''); setState(profile.state || ''); }); }, [params.serviceId]);
@@ -45,9 +47,12 @@ export function RequestFormScreen() {
 
   async function submit() {
     if (description.trim().length < 20 || address.trim().length < 5 || city.trim().length < 2 || state.trim().length !== 2) { Alert.alert('Revise os dados', 'Descreva o serviço e informe endereço, cidade e UF.'); return; }
+    let preferredAt: string | undefined;
+    try { preferredAt = resolvePreferredAppointment(preferredDate, preferredTime); }
+    catch (failure) { Alert.alert('Revise o horário', failure instanceof Error ? failure.message : 'Escolha uma data e um horário futuros.'); return; }
     setLoading(true);
     try {
-      const request = await apiRequest<ServiceRequest>('/marketplace/requests', { method: 'POST', body: JSON.stringify({ serviceId: params.serviceId, preferredProfessionalId: params.professionalId, description: description.trim(), urgency, answers, address: address.trim(), city: city.trim(), state: state.trim().toUpperCase(), budgetMinimum: parseOptionalNumber(budgetMinimum), budgetMaximum: parseOptionalNumber(budgetMaximum), preferredAt: preferredDate ? `${preferredDate}T12:00:00-03:00` : undefined }) });
+      const request = await apiRequest<ServiceRequest>('/marketplace/requests', { method: 'POST', body: JSON.stringify({ serviceId: params.serviceId, preferredProfessionalId: params.professionalId, description: description.trim(), urgency, answers, address: address.trim(), city: city.trim(), state: state.trim().toUpperCase(), budgetMinimum: parseOptionalNumber(budgetMinimum), budgetMaximum: parseOptionalNumber(budgetMaximum), preferredAt }) });
       for (const image of images) { const mediaId = await uploadMedia(image.uri, image.fileName, image.contentType, 'request_attachment'); await apiRequest(`/marketplace/requests/${request.id}/attachments/${mediaId}`, { method: 'POST' }); }
       Alert.alert('Solicitação enviada', params.professionalId ? 'O chamado foi direcionado ao profissional escolhido.' : 'Profissionais da região poderão enviar propostas.', [{ text: 'Ver solicitação', onPress: () => navigation.replace('RequestDetail', { requestId: request.id }) }]);
     } catch (error) { Alert.alert('Não foi possível enviar', error instanceof Error ? error.message : 'Revise os dados e tente novamente.'); } finally { setLoading(false); }
@@ -61,6 +66,8 @@ export function RequestFormScreen() {
     <FormField label="Endereço" value={address} onChangeText={setAddress} /><FormField label="Cidade" value={city} onChangeText={setCity} /><FormField label="UF" value={state} onChangeText={value => setState(value.slice(0, 2).toUpperCase())} autoCapitalize="characters" />
     <View style={styles.row}><View style={styles.grow}><FormField label="Orçamento mínimo" value={budgetMinimum} onChangeText={setBudgetMinimum} keyboardType="decimal-pad" /></View><View style={styles.grow}><FormField label="Orçamento máximo" value={budgetMaximum} onChangeText={setBudgetMaximum} keyboardType="decimal-pad" /></View></View>
     <DatePickerField label="Data preferida" value={preferredDate} onChange={setPreferredDate} minimumDate={minimumPreferredDate} />
+    {Boolean(preferredDate) && <TimePickerField label="Horário preferido" value={preferredTime} onChange={setPreferredTime} />}
+    <Text style={styles.descriptionHelp}>Pode ser hoje, desde que o horário ainda não tenha passado. Sem data, combine o atendimento pela conversa.</Text>
     <Pressable style={styles.photoButton} onPress={selectImages}><Text style={styles.photoLabel}>Adicionar fotos ({images.length}/8)</Text></Pressable><View style={styles.images}>{images.map(image => <Image key={image.uri} source={{ uri: image.uri }} style={styles.image} />)}</View>
     <AppButton label="Enviar solicitação" onPress={submit} loading={loading} />
   </Screen>;
