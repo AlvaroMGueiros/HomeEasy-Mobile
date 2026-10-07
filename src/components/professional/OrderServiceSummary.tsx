@@ -4,21 +4,21 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../theme/colors';
 import { OrderDetail } from '../../types/api';
 import { formatAppointmentDay, formatAppointmentTimeRange } from '../../utils/date';
+import { formatServiceAddress } from '../../utils/service-address';
 import { resolveServiceIcon } from '../../utils/service-icon';
 import { PrivateMediaImage } from '../ui/PrivateMediaImage';
 import { StatusBadge } from '../ui/StatusBadge';
 
-export function OrderServiceSummary({ order, onViewDetails }: { order: OrderDetail; onViewDetails(): void }) {
+export function OrderServiceSummary({ order, onViewDetails, onViewAddress }: { order: OrderDetail; onViewDetails(): void; onViewAddress(): void }) {
   const attachment = order.request.attachments?.find(photo => photo.contentType.startsWith('image/'));
   const serviceName = order.request.service?.name || 'Meu serviço';
   return <View style={styles.container}>
     <View style={styles.heading}><Text style={styles.title}>{serviceName}</Text><StatusBadge status={order.status} /></View>
     {attachment ? <PrivateMediaImage mediaId={attachment.mediaId} accessibilityLabel={`Foto da solicitação de ${serviceName}`} wide /> : <View style={styles.serviceIllustration}><View style={styles.serviceIcon}><Feather name={resolveServiceIcon(serviceName)} size={30} color={colors.primary} /></View><View style={styles.serviceCopy}><Text style={styles.serviceLabel}>Seu atendimento</Text><Text numberOfLines={2} style={styles.description}>{order.request.description}</Text></View></View>}
-    <Pressable accessibilityRole="button" accessibilityLabel="Ver horário e local do atendimento" onPress={onViewDetails} style={styles.appointment}>
+    <View style={styles.appointment}>
       <View style={styles.calendar}><Feather name="calendar" size={20} color={colors.primary} /></View>
-      <View style={styles.appointmentCopy}><Text style={styles.day}>{formatAppointmentDay(order.scheduledAt)}</Text><Text style={styles.hours}>{formatAppointmentTimeRange(order.scheduledAt, order.proposal.estimatedDurationMinutes)}</Text><View style={styles.location}><Feather name="map-pin" size={12} color={colors.textMuted} /><Text numberOfLines={1} style={styles.locationLabel}>{[order.request.address, order.request.city, order.request.state].filter(Boolean).join(', ')}</Text></View></View>
-      <Feather name="chevron-right" size={18} color={colors.textMuted} />
-    </Pressable>
+      <View style={styles.appointmentCopy}><Pressable accessibilityRole="button" accessibilityLabel="Ver horário do atendimento" onPress={onViewDetails}><Text style={styles.day}>{formatAppointmentDay(order.scheduledAt)}</Text><Text style={styles.hours}>{formatAppointmentTimeRange(order.scheduledAt, order.proposal.estimatedDurationMinutes)}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Ver endereço do serviço no mapa" onPress={onViewAddress} style={[styles.location, { minHeight: 44 }]}><Feather name="map-pin" size={16} color={colors.primary} /><Text numberOfLines={2} style={styles.locationLabel}>{formatServiceAddress(order.request)}</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
+    </View>
     {order.scheduledAt && <Text style={styles.help}>Término estimado conforme a duração informada na proposta.</Text>}
   </View>;
 }

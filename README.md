@@ -239,3 +239,12 @@ Evoluções possíveis incluem notificações push e atualização do chat por c
 ## Equipe
 
 - **Álvaro Miguel
+## Mapa e arquivos da marca
+
+O Leaflet 1.9.4 é empacotado localmente em `src/vendor/leaflet.ts`, com CSS, imagens auxiliares e licença BSD preservados. Não há download da biblioteca por CDN durante o uso. As imagens das ruas ainda são carregadas do OpenStreetMap pela internet. Falhas de carregamento mostram uma mensagem compreensível e permitem tentar novamente, mantendo o acesso à lista de profissionais.
+
+- `npm run bundle:leaflet`: regenera o bundle a partir da dependência com versão fixa.
+- `node scripts/verifyRegionalMap.cjs`: testa a biblioteca com CDN bloqueado, seleção de cidade, zoom, falha de tiles e recuperação (requer as dependências de `motion`).
+- `npm run assets:brand`: exporta os ícones e arquivos da marca a partir de `assets/brand`; consulte o README dessa pasta para origem e prompt do ícone.
+
+As telas usam `BrandLogo`, e a home e o mapa regional compartilham `RegionalMap`. Ícones e splash nativa só chegam ao aparelho após instalar um novo APK.

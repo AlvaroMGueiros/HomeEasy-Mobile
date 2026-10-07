@@ -1,4 +1,5 @@
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { BrandLogo } from '../components/ui/BrandLogo';
 import { colors } from '../theme/colors';
-export function SplashScreen() { return <View style={styles.container}><Image source={require('../../assets/home-easy-logo-v2.png')} style={styles.logo} resizeMode="contain" accessibilityLabel="Home Easy" /><ActivityIndicator color={colors.white} /></View>; }
+export function SplashScreen() { return <View style={styles.container}><BrandLogo light style={styles.logo} /><ActivityIndicator color={colors.white} /></View>; }
 const styles = StyleSheet.create({ container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24, backgroundColor: colors.primary }, logo: { width: 230, height: 210 } });

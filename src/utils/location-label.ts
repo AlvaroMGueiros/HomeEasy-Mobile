@@ -19,7 +19,7 @@ export async function resolveLocationLabel(latitude: number, longitude: number) 
   return region ? `${city}, ${region}` : city;
 }
 
-function resolveRegionLabel(region: string | null, countryCode: string | null) {
+export function resolveRegionLabel(region: string | null, countryCode: string | null) {
   if (!region) return null;
   if (countryCode?.toUpperCase() !== 'BR') return region;
   const normalizedRegion = region.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
