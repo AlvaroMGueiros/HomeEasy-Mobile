@@ -11,6 +11,19 @@ export function formatIsoDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+export function resolvePreferredAppointment(dateValue: string, timeValue: string, now = new Date()) {
+  if (!dateValue) return undefined;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeValue)) {
+    throw new Error('Escolha uma data e um horário válidos para o atendimento.');
+  }
+  const appointment = parseIsoDate(dateValue);
+  if (!appointment || formatIsoDate(appointment) !== dateValue) throw new Error('Escolha uma data válida para o atendimento.');
+  const [hours, minutes] = timeValue.split(':').map(Number);
+  appointment.setHours(hours, minutes, 0, 0);
+  if (appointment.getTime() <= now.getTime()) throw new Error('Esse horário já passou. Escolha um horário futuro, inclusive hoje.');
+  return appointment.toISOString();
+}
+
 export function parseIsoDate(dateValue: string) {
   const [year, month, day] = dateValue.split('-').map(Number);
   if (!year || !month || !day) return null;

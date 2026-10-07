@@ -48,9 +48,12 @@ export function buildRegionalMapHtml(region: RegionalMapRegion, points: Regional
       .popup-title { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
       .popup-count { font-size: 12px; color: ${colors.textMuted}; margin-bottom: 6px; }
       .popup-button { border: none; background: ${colors.primary}; color: ${colors.white}; font-weight: 700; font-size: 12px; padding: 10px 16px; border-radius: 20px; cursor: pointer; }
-      .professional-marker { box-sizing: border-box; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border: 3px solid ${colors.white}; border-radius: 50%; color: ${colors.white}; background: ${colors.primary}; box-shadow: 0 3px 10px ${colors.mapShadow}; font-size: 16px; font-weight: 800; }
-      .professional-pin { border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); }
-      .professional-pin span { transform: rotate(45deg); }
+      .professional-marker { width: 44px; height: 52px; display: flex; align-items: flex-start; justify-content: center; cursor: pointer; }
+      .professional-pin { box-sizing: border-box; width: 36px; height: 36px; margin-top: 3px; display: flex; align-items: center; justify-content: center; border: 2px solid ${colors.white}; border-radius: 50% 50% 8px 50%; transform: rotate(45deg); color: ${colors.white}; background: ${colors.primary}; box-shadow: 0 3px 8px ${colors.mapShadow}; }
+      .professional-pin span { transform: rotate(-45deg); font-size: 13px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+      .professional-marker:focus-visible { outline: 2px solid ${colors.primaryStrong}; outline-offset: 3px; border-radius: 16px; }
+      .location-marker { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: ${colors.mapLocationHalo}; box-shadow: inset 0 0 0 1px ${colors.coverLine}; }
+      .location-dot { box-sizing: border-box; width: 22px; height: 22px; border: 3px solid ${colors.white}; border-radius: 50%; background: ${colors.accent}; box-shadow: 0 2px 6px ${colors.mapShadow}; }
       ${compactMarkers ? '.leaflet-bottom.leaflet-left .leaflet-control-attribution { margin: 0 0 26px 12px; border-radius: 4px; }' : ''}
     </style>
   </head>
@@ -93,8 +96,10 @@ export function buildRegionalMapHtml(region: RegionalMapRegion, points: Regional
         tiles.addTo(map);
         var centerPopup = document.createElement('div');
         centerPopup.textContent = payload.centerLabel;
-        L.circleMarker([payload.region.latitude, payload.region.longitude], {
-          radius: 7, color: '${colors.primary}', fillColor: '${colors.accent}', fillOpacity: 1, weight: 3
+        L.marker([payload.region.latitude, payload.region.longitude], {
+          icon: L.divIcon({ className: '', html: '<div class="location-marker"><span class="location-dot"></span></div>', iconSize: [64, 64], iconAnchor: [32, 32] }),
+          title: payload.centerLabel,
+          zIndexOffset: -100
         }).addTo(map).bindPopup(centerPopup);
         payload.points.forEach(function (point) {
           var popup = document.createElement('div');
@@ -114,15 +119,17 @@ export function buildRegionalMapHtml(region: RegionalMapRegion, points: Regional
           popup.appendChild(title);
           popup.appendChild(count);
           popup.appendChild(button);
-          var markerClass = 'professional-marker';
-          if (!${compactMarkers}) markerClass += ' professional-pin';
           var markerLabel = document.createElement('div');
-          markerLabel.className = markerClass;
+          markerLabel.className = 'professional-marker';
+          var markerPin = document.createElement('div');
+          markerPin.className = 'professional-pin';
           var markerCount = document.createElement('span');
           markerCount.textContent = String(point.professionalCount);
-          markerLabel.appendChild(markerCount);
+          markerPin.appendChild(markerCount);
+          markerLabel.appendChild(markerPin);
           L.marker([point.latitude, point.longitude], {
-            icon: L.divIcon({ className: '', html: markerLabel, iconSize: [42, 42], iconAnchor: [21, 21] })
+            title: point.city + ', ' + point.state + ': ' + point.professionalCount + ' profissionais',
+            icon: L.divIcon({ className: '', html: markerLabel, iconSize: [44, 52], iconAnchor: [22, 44], popupAnchor: [0, -42] })
           }).addTo(map).bindPopup(popup);
         });
         window.addEventListener('resize', function () { map.invalidateSize(); });

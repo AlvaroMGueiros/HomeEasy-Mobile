@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
 const { compositeImagesAsync, generateImageAsync, generateImageBackgroundAsync } = require('@expo/image-utils');
+const Jimp = require('jimp-compact');
 
 const projectRoot = path.resolve(__dirname, '..');
 const themeModule = { exports: {} };
@@ -30,6 +31,14 @@ async function prepareBrandAssets() {
   await exportImage('favicon.png', 'launcherSource.png', 64);
   const background = await generateImageBackgroundAsync({ width: 1024, height: 1024, backgroundColor: colors.primary, resizeMode: 'contain' });
   fs.writeFileSync(path.join(projectRoot, 'assets/android-icon-background.png'), background);
+  const notificationIcon = await Jimp.read(path.join(projectRoot, 'assets/brand/symbol.png'));
+  notificationIcon.autocrop().contain(96, 96);
+  notificationIcon.scan(0, 0, 96, 96, function (x, y, index) {
+    this.bitmap.data[index] = 255;
+    this.bitmap.data[index + 1] = 255;
+    this.bitmap.data[index + 2] = 255;
+  });
+  await notificationIcon.writeAsync(path.join(projectRoot, 'assets/notificationIcon.png'));
   fs.copyFileSync(path.join(projectRoot, 'assets/brand/symbol.png'), path.join(projectRoot, 'motion/public/brandSymbol.png'));
   fs.copyFileSync(path.join(projectRoot, 'assets/brand/wordmark.png'), path.join(projectRoot, 'motion/public/brandWordmark.png'));
 }
