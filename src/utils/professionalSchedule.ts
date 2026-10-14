@@ -32,9 +32,9 @@ export function validateProfessionalSchedule(schedule: Schedule) {
   let previousPeriod: Schedule['periods'][number] | undefined;
   for (const period of orderedPeriods) {
     const day = professionalWeekdays[period.weekday];
-    if (!day || !timePattern.test(period.startTime) || !timePattern.test(period.endTime)) return `Informe horários válidos em ${day || 'cada dia'}, no formato HH:MM.`;
+    if (!day || !timePattern.test(period.startTime) || !timePattern.test(period.endTime)) return `Informe horários válidos em ${day || 'cada dia'}, como 08:00 ou 14:30.`;
     if (period.startTime >= period.endTime) return `Em ${day}, o fim deve ser depois do início.`;
-    if (previousPeriod?.weekday === period.weekday && period.startTime < previousPeriod.endTime) return `Existem horários sobrepostos em ${day}.`;
+    if (previousPeriod?.weekday === period.weekday && period.startTime < previousPeriod.endTime) return `Em ${day}, um horário começa antes de o anterior terminar. Ajuste os horários para que não se cruzem.`;
     previousPeriod = period;
   }
   const exceptionDates = new Set<string>();

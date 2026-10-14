@@ -12,6 +12,12 @@ import { colors } from '../theme/colors';
 import { uploadMedia } from '../utils/media-upload';
 import { resolveEnumLabel, resolveStatusLabel } from '../utils/status';
 
+const documentInstructions = {
+  identity: 'Envie uma foto legível do seu documento com foto, como RG ou CNH. Deixe os dados e a foto visíveis.',
+  address_proof: 'Envie uma foto legível de um comprovante de endereço, como uma conta de água ou energia.',
+  professional_certificate: 'Envie uma foto legível de um certificado relacionado ao serviço que você oferece.'
+};
+
 interface VerificationDocument { id: string; type: string; status: string; reviewNotes?: string | null; createdAt: string; }
 
 export function VerificationScreen() {
@@ -47,9 +53,10 @@ export function VerificationScreen() {
   }
 
   return <Screen>
-    <SectionHeader eyebrow="Confiança e segurança" title="Verificação documental" description="Os arquivos são privados e acessíveis somente pela moderação." />
-    <ChoiceChips value={type} onChange={setType} options={[{ value: 'identity', label: 'Identidade' }, { value: 'address_proof', label: 'Endereço' }, { value: 'professional_certificate', label: 'Certificado' }]} />
-    <AppButton label="Selecionar e enviar documento" onPress={submit} loading={loading} />
+    <SectionHeader eyebrow="Confiança e segurança" title="Confirmar seus documentos" description="Escolha o tipo de documento e envie uma foto legível. Esses arquivos não aparecem no seu perfil público; nossa equipe fará a análise." />
+    <ChoiceChips value={type} onChange={setType} options={[{ value: 'identity', label: 'Documento com foto' }, { value: 'address_proof', label: 'Comprovante de endereço' }, { value: 'professional_certificate', label: 'Certificado de curso' }]} />
+    <Text style={styles.notes}>{documentInstructions[type]}</Text>
+    <AppButton label="Escolher foto e enviar documento" onPress={submit} loading={loading} />
     {!documents.length && <StateView message="Nenhum documento enviado." />}
     {documents.map(document => <View key={document.id} style={styles.card}>
       <Text style={styles.title}>{resolveEnumLabel(document.type)}</Text>

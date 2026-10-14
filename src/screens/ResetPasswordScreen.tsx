@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { FormField } from '../components/ui/FormField';
+import { formCopy } from '../config/formCopy';
 import { ApiError } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { AppButton } from '../components/ui/AppButton';
@@ -42,13 +44,10 @@ export function ResetPasswordScreen() {
   return <AuthLayout title="Crie uma nova senha." description="Escolha uma senha forte e diferente das anteriores.">
     <Text style={styles.title}>{changed ? 'Senha atualizada' : 'Proteja sua conta'}</Text>
     {!changed && <>
-      <Text style={styles.label}>Código do link</Text>
-      <TextInput autoCapitalize="none" value={token} onChangeText={setToken} style={styles.input} />
-      <Text style={styles.label}>Nova senha</Text>
-      <TextInput secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
-      <Text style={styles.label}>Confirmar senha</Text>
-      <TextInput secureTextEntry value={confirmation} onChangeText={setConfirmation} style={styles.input} />
-      <Text style={styles.help}>Use 8 ou mais caracteres, com maiúscula, minúscula e número.</Text>
+      {!route.params?.token && <FormField required label="Código de recuperação" autoCapitalize="none" autoCorrect={false} hint="Abra o link de recuperação recebido por e-mail. Se você recebeu um código de recuperação, informe-o aqui." value={token} onChangeText={setToken} />}
+      <FormField required label="Crie uma nova senha" hint={formCopy.passwordHint} secureTextEntry autoComplete="new-password" value={password} onChangeText={setPassword} />
+      <FormField required label="Digite a nova senha outra vez" hint="As duas senhas precisam ser iguais." secureTextEntry autoComplete="new-password" value={confirmation} onChangeText={setConfirmation} />
+      {Boolean(confirmation) && password !== confirmation && <Text accessibilityRole="alert" style={styles.error}>As senhas estão diferentes. Digite a mesma senha nos dois campos.</Text>}
       <AppButton label="Atualizar senha" onPress={submit} loading={loading} disabled={!valid} />
     </>}
     {Boolean(message) && <Text accessibilityRole="alert" style={changed ? styles.success : styles.error}>{message}</Text>}

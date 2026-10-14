@@ -15,6 +15,8 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { UserAvatar } from '../components/ui/UserAvatar';
 import { colors } from '../theme/colors';
 import { ProfileEditorSection, RootStackParamList } from '../navigation/types';
+import { StatePickerField } from '../components/ui/StatePickerField';
+import { formCopy } from '../config/formCopy';
 import { UserProfile } from '../types/api';
 import { uploadMedia } from '../utils/media-upload';
 
@@ -124,9 +126,9 @@ export function EditProfileScreen() {
         <Pressable style={styles.photoButton} onPress={choosePhoto}>
           <Text style={styles.photoLabel}>Alterar foto</Text>
         </Pressable>
-        <FormField label="Nome" value={profile.name} onChangeText={value => update('name', value)} />
+        <FormField {...formCopy.name} required value={profile.name} onChangeText={value => update('name', value)} />
         <FormField
-          label="Telefone"
+          {...formCopy.phone}
           value={profile.phone || ''}
           onChangeText={value => update('phone', value)}
           keyboardType="phone-pad"
@@ -138,32 +140,30 @@ export function EditProfileScreen() {
           maximumDate={new Date()}
         />
         <FormField
-          label="Endereço"
+          {...formCopy.address}
+          label={`${formCopy.address.label} (opcional)`}
           value={profile.address || ''}
           onChangeText={value => update('address', value)}
         />
         <FormField
-          label="Cidade"
+          {...formCopy.city}
+          label="Cidade (opcional)"
           value={profile.city || ''}
           onChangeText={value => update('city', value)}
         />
+        <StatePickerField value={profile.state || ''} onChange={value => update('state', value)} />
         <FormField
-          label="UF"
-          value={profile.state || ''}
-          onChangeText={value => update('state', value.slice(0, 2).toUpperCase())}
-        />
-        <FormField
-          label="Instagram"
+          label="Instagram (opcional)" placeholder="Ex.: @maria.servicos" hint="Informe seu usuário ou o link do seu perfil." autoCapitalize="none" autoCorrect={false}
           value={profile.instagram || ''}
           onChangeText={value => update('instagram', value)}
         />
         <FormField
-          label="Site"
+          label="Seu site (opcional)" placeholder="Ex.: https://meuservico.com.br" autoCapitalize="none" autoCorrect={false} keyboardType="url"
           value={profile.website || ''}
           onChangeText={value => update('website', value)}
         />
         <FormField
-          label="LinkedIn"
+          label="LinkedIn (opcional)" placeholder="Cole o link do seu perfil" autoCapitalize="none" autoCorrect={false} keyboardType="url"
           value={profile.linkedin || ''}
           onChangeText={value => update('linkedin', value)}
         />

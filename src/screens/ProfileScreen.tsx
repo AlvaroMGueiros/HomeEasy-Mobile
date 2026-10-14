@@ -55,6 +55,11 @@ export function ProfileScreen() {
     </View>
 
     <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Precisa de orientação?</Text>
+      <View style={styles.menuCard}><MenuRow icon="help-circle" title="Como usar o aplicativo" description="Passo a passo para contratar ou oferecer serviços" onPress={() => navigation.navigate('HowItWorks')} /></View>
+    </View>
+
+    <View style={styles.section}>
       <Text style={styles.sectionTitle}>Área profissional</Text>
       <View style={styles.menuCard}>
         <MenuRow icon="bar-chart-2" title="Painel profissional" description="Atendimentos e resultados" onPress={() => navigation.navigate('ProfessionalDashboard')} />
@@ -63,9 +68,9 @@ export function ProfileScreen() {
         <View style={styles.divider} />
         <MenuRow icon="calendar" title="Agenda" description="Organize sua disponibilidade" onPress={() => navigation.navigate('Schedule')} />
         <View style={styles.divider} />
-        <MenuRow icon="shield" title="Verificação documental" description="Acompanhe seus documentos" onPress={() => navigation.navigate('Verification')} />
+        <MenuRow icon="shield" title="Confirmar meus documentos" description="Envie documentos e acompanhe a análise" onPress={() => navigation.navigate('Verification')} />
         <View style={styles.divider} />
-        <MenuRow icon="search" title="Oportunidades" description="Encontre novas solicitações" onPress={() => navigation.navigate('Opportunities')} />
+        <MenuRow icon="search" title="Trabalhos disponíveis" description="Veja pedidos de clientes e envie orçamentos" onPress={() => navigation.navigate('Opportunities')} />
       </View>
     </View>
 

@@ -47,7 +47,7 @@ export function DeleteAccountScreen() {
       <Text style={styles.text}>Registros indispensáveis para segurança, disputas ou obrigações legais poderão ser mantidos com acesso restrito.</Text>
     </View>
     <Text style={styles.label}>Digite {confirmationText} para confirmar</Text>
-    <TextInput autoCapitalize="characters" value={confirmation} onChangeText={setConfirmation} style={styles.input} />
+    <TextInput accessibilityLabel={`Digite ${confirmationText} para confirmar a exclusão da conta`} placeholder="EXCLUIR" placeholderTextColor={colors.textMuted} autoCapitalize="characters" autoCorrect={false} value={confirmation} onChangeText={setConfirmation} style={styles.input} />
     <AppButton label="Excluir minha conta" variant="danger" disabled={!canDelete} loading={loading} onPress={confirmDeletion} />
   </Screen>;
 }

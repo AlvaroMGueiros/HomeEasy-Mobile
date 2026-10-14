@@ -12,9 +12,10 @@ interface DatePickerFieldProps {
   onChange(value: string): void;
   minimumDate?: Date;
   maximumDate?: Date;
+  clearable?: boolean;
 }
 
-export function DatePickerField({ label, value, onChange, minimumDate, maximumDate }: DatePickerFieldProps) {
+export function DatePickerField({ label, value, onChange, minimumDate, maximumDate, clearable = false }: DatePickerFieldProps) {
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const selectedDate = parseIsoDate(value) || minimumDate || new Date();
 
@@ -25,11 +26,12 @@ export function DatePickerField({ label, value, onChange, minimumDate, maximumDa
 
   return <View style={styles.field}>
     <Text style={styles.label}>{label}</Text>
-    <Pressable accessibilityRole="button" onPress={() => setIsPickerVisible(true)} style={styles.trigger}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`${label}: ${formatIsoDateForDisplay(value)}`} onPress={() => setIsPickerVisible(true)} style={styles.trigger}>
       <Feather name="calendar" size={19} color={colors.primary} />
       <Text style={[styles.value, !value && styles.placeholder]}>{formatIsoDateForDisplay(value)}</Text>
       <Feather name="chevron-down" size={18} color={colors.textMuted} />
     </Pressable>
+    {clearable && Boolean(value) && <Pressable accessibilityRole="button" onPress={() => onChange('')} style={styles.clear}><Text style={styles.clearLabel}>Deixar a data para combinar depois</Text></Pressable>}
     {isPickerVisible && <DateTimePicker
       value={selectedDate}
       mode="date"
@@ -51,5 +53,6 @@ const styles = StyleSheet.create({
   label: { color: colors.text, fontWeight: '800' },
   trigger: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   value: { flex: 1, color: colors.text, fontSize: 15 },
-  placeholder: { color: colors.textMuted }
+  placeholder: { color: colors.textMuted },
+  clear: { minHeight: 44, justifyContent: 'center' }, clearLabel: { color: colors.primary, fontSize: 13, fontWeight: '700' }
 });

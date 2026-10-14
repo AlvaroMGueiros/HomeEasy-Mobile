@@ -251,6 +251,7 @@ export function HomeScreen() {
           {professionals.slice(0, 6).map(professional => <ProfessionalDiscoveryCard key={professional.id} professional={professional} expanded={false} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })} />)}
         </ScrollView>}
         <View style={styles.shortcut}><MenuRow icon="file-text" title="Precisa de um orçamento?" description="Escolha o serviço e conte o que você precisa." onPress={() => navigation.navigate('Services')} /></View>
+        <View style={styles.shortcut}><MenuRow icon="briefcase" title="Quer oferecer seus serviços?" description="Cadastre seu trabalho e encontre pedidos de clientes." onPress={() => navigation.navigate('ProfessionalManager')} /></View>
       </ScrollView>
     </Animated.View>
   </View>;

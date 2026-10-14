@@ -10,6 +10,8 @@ import { useCallback, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "../auth/AuthContext";
+import { WelcomeGuideModal } from "../components/ui/WelcomeGuideModal";
+import { GettingStartedGoal } from "../config/gettingStarted";
 import { CityProfessionalsScreen } from "../screens/CityProfessionalsScreen";
 import { AboutScreen } from "../screens/AboutScreen";
 import { AdminScreen } from "../screens/AdminScreen";
@@ -96,7 +98,7 @@ function AppTabs() {
       <Tabs.Screen
         name="Requests"
         component={RequestsScreen}
-        options={{ title: "Pedidos" }}
+        options={{ title: "Meus serviços" }}
       />
       <Tabs.Screen
         name="Conversations"
@@ -261,7 +263,7 @@ export function AppNavigator() {
             <Stack.Screen
               name="RequestForm"
               component={RequestFormScreen}
-              options={{ title: "Nova solicitação" }}
+              options={{ title: "Pedir orçamento" }}
             />
             <Stack.Screen
               name="RequestDetail"
@@ -271,7 +273,7 @@ export function AppNavigator() {
             <Stack.Screen
               name="ProposalForm"
               component={ProposalFormScreen}
-              options={{ title: "Enviar proposta" }}
+              options={{ title: "Enviar orçamento" }}
             />
             <Stack.Screen
               name="OrderDetail"
@@ -321,7 +323,7 @@ export function AppNavigator() {
             <Stack.Screen
               name="Opportunities"
               component={OpportunitiesScreen}
-              options={{ title: "Oportunidades" }}
+              options={{ title: "Trabalhos disponíveis" }}
             />
             <Stack.Screen
               name="Report"
@@ -331,7 +333,7 @@ export function AppNavigator() {
             <Stack.Screen
               name="Dispute"
               component={DisputeScreen}
-              options={{ title: "Disputa" }}
+              options={{ title: "Problema com o serviço" }}
             />
             <Stack.Screen
               name="Notifications"
@@ -346,6 +348,11 @@ export function AppNavigator() {
           </>
         )}
       </Stack.Navigator>
+      {user && <WelcomeGuideModal key={user.id} userId={user.id} onStart={goal => {
+        if (!navigationRef.isReady()) return;
+        if (goal === GettingStartedGoal.FindProfessional) navigationRef.navigate("Services");
+        else navigationRef.navigate("ProfessionalManager");
+      }} />}
     </NavigationContainer>
   );
 }
