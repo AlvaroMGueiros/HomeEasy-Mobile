@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { FormField } from '../components/ui/FormField';
+import { formCopy } from '../config/formCopy';
 import { ApiError } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { AppButton } from '../components/ui/AppButton';
 import { AuthLayout } from '../components/ui/AuthLayout';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { isValidEmailAddress } from '../utils/formValidation';
 import { formatBrazilianBirthDate, isAdultBirthDate, parseBrazilianBirthDate } from '../utils/birth-date';
 
 type AuthMode = 'login' | 'register';
@@ -27,7 +30,7 @@ export function LoginScreen() {
   const [error, setError] = useState('');
 
   const parsedBirthDate = parseBrazilianBirthDate(birthDate);
-  const canSubmit = Boolean(email.trim() && password && (mode === 'login' || (name.trim() && isAdultBirthDate(parsedBirthDate) && passwordPattern.test(password))));
+  const canSubmit = Boolean(isValidEmailAddress(email) && password && (mode === 'login' || (name.trim().length >= 3 && isAdultBirthDate(parsedBirthDate) && passwordPattern.test(password))));
 
   async function submit() {
     if (!canSubmit || loading) return;
@@ -49,7 +52,7 @@ export function LoginScreen() {
   }
 
   const title = mode === 'login' ? 'Que bom ter você de volta.' : 'Crie sua conta Home Easy.';
-  const description = mode === 'login' ? 'Acesse seus pedidos, conversas e profissionais.' : 'Comece agora a encontrar profissionais para sua casa.';
+  const description = mode === 'login' ? 'Acesse seus pedidos, conversas e profissionais.' : 'Use a mesma conta para contratar profissionais ou oferecer seus serviços.';
 
   return <AuthLayout title={title} description={description}>
     <Text style={styles.cardTitle}>{mode === 'login' ? 'Entrar na sua conta' : 'Começar cadastro'}</Text>
@@ -58,17 +61,11 @@ export function LoginScreen() {
       <Pressable onPress={() => changeMode('register')} style={[styles.tab, mode === 'register' && styles.activeTab]}><Text style={[styles.tabText, mode === 'register' && styles.activeTabText]}>Criar conta</Text></Pressable>
     </View>
     {mode === 'register' && <>
-      <Text style={styles.label}>Nome</Text>
-      <TextInput autoComplete="name" value={name} onChangeText={setName} style={styles.input} />
-      <Text style={styles.label}>Data de nascimento</Text>
-      <TextInput keyboardType="number-pad" maxLength={10} placeholder="dd/mm/aaaa" placeholderTextColor={colors.textMuted} value={birthDate} onChangeText={value => setBirthDate(formatBrazilianBirthDate(value))} style={styles.input} />
-      <Text style={styles.help}>É necessário ter pelo menos 18 anos.</Text>
+      <FormField {...formCopy.name} required hint="Informe seu nome completo, com pelo menos 3 caracteres." value={name} onChangeText={setName} maxLength={160} />
+      <FormField required label="Data de nascimento" keyboardType="number-pad" maxLength={10} placeholder="Ex.: 15/03/1990" hint="Informe dia, mês e ano. Você precisa ter 18 anos ou mais." value={birthDate} onChangeText={value => setBirthDate(formatBrazilianBirthDate(value))} />
     </>}
-    <Text style={styles.label}>E-mail</Text>
-    <TextInput autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
-    <Text style={styles.label}>Senha</Text>
-    <TextInput secureTextEntry autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChangeText={setPassword} style={styles.input} />
-    {mode === 'register' && <Text style={styles.help}>Use 8 ou mais caracteres, com maiúscula, minúscula e número.</Text>}
+    <FormField {...formCopy.email} required hint={email.trim() && !isValidEmailAddress(email) ? 'Confira o e-mail. Exemplo: maria@email.com' : undefined} value={email} onChangeText={setEmail} />
+    <FormField required label={mode === 'login' ? 'Senha da sua conta' : 'Crie uma senha'} secureTextEntry autoComplete={mode === 'login' ? 'current-password' : 'new-password'} hint={mode === 'register' ? formCopy.passwordHint : undefined} value={password} onChangeText={setPassword} />
     {Boolean(error) && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
     <AppButton label={mode === 'login' ? 'Entrar' : 'Criar conta'} onPress={submit} loading={loading} disabled={!canSubmit} />
     {mode === 'login' && <Pressable onPress={() => navigation.navigate('ForgotPassword')}><Text style={styles.recovery}>Esqueci minha senha</Text></Pressable>}

@@ -15,6 +15,7 @@ import { ProfessionalReputation } from '../components/professional/ProfessionalR
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Conversation, Order, Proposal, ServiceRequest } from '../types/api';
+import { formatOrderPaymentMethods, formatServiceDuration } from '../utils/orderDetails';
 import { formatCurrency } from '../utils/currency';
 import { calculateProposalTotal, ProposalSort, resolveProposalStatusLabel, resolveProposalValidity, sortProposals } from '../utils/proposal';
 import { resolveEnumLabel, resolveStatusLabel } from '../utils/status';
@@ -85,31 +86,31 @@ export function RequestDetailScreen() {
     <SectionHeader eyebrow={resolveStatusLabel(request.status)} title={request.service?.name || 'Solicitação'} description={request.description} />
     <View style={styles.card}>
       <Text style={styles.line}>Local: {request.address}, {request.city}/{request.state}</Text>
-      <Text style={styles.line}>Urgência: {resolveEnumLabel(request.urgency || 'flexible')}</Text>
-      <Text style={styles.line}>Propostas: {request.proposalCount} de {request.maximumProposals}</Text>
+      <Text style={styles.line}>Quando precisa do serviço: {resolveEnumLabel(request.urgency || 'flexible')}</Text>
+      <Text style={styles.line}>Orçamentos recebidos: {request.proposalCount} de {request.maximumProposals}</Text>
       {Boolean(request.preferredAt) && <Text style={styles.line}>Preferência: {new Date(request.preferredAt || '').toLocaleString('pt-BR')}</Text>}
     </View>
     {Boolean(request.attachments?.length) && <View style={styles.attachmentsSection}><Text style={styles.heading}>Fotos anexadas pelo cliente</Text><View style={styles.attachments}>{request.attachments?.map(attachment => <PrivateMediaImage key={attachment.mediaId} mediaId={attachment.mediaId} accessibilityLabel={`Anexo ${attachment.fileName}`} compact />)}</View></View>}
-    {conversation && <AppButton label={conversation.isWritable ? 'Abrir chat' : 'Ver histórico da conversa'} onPress={openConversation} />}
-    {!isOwner && !request.hasSubmittedProposal && <AppButton label="Enviar proposta" onPress={() => navigation.navigate('ProposalForm', { requestId: request.id, serviceName: request.service?.name || 'Serviço' })} />}
+    {conversation && <AppButton label={conversation.isWritable ? 'Abrir conversa' : 'Ver histórico da conversa'} onPress={openConversation} />}
+    {!isOwner && !request.hasSubmittedProposal && <AppButton label="Enviar meu orçamento" onPress={() => navigation.navigate('ProposalForm', { requestId: request.id, serviceName: request.service?.name || 'Serviço' })} />}
     {isOwner && <>
-      <Text style={styles.heading}>Propostas recebidas</Text>
+      <Text style={styles.heading}>Orçamentos recebidos</Text>
       {proposals.length > 1 && <ChoiceChips value={proposalSort} onChange={setProposalSort} options={[
         { value: ProposalSort.LowestPrice, label: 'Menor preço' },
         { value: ProposalSort.BestRated, label: 'Melhor avaliação' },
         { value: ProposalSort.FastestResponse, label: 'Resposta mais rápida' }
       ]} />}
-      {!proposals.length && <StateView message="Nenhuma proposta recebida ainda." />}
+      {!proposals.length && <StateView message="Você ainda não recebeu orçamentos. Os profissionais poderão responder ao seu pedido." />}
       {sortedProposals.map(proposal => <View key={proposal.id} style={styles.card}>
         <View style={styles.comparisonHeader}><Text style={styles.status}>{resolveProposalStatusLabel(proposal.status)}</Text><Text style={styles.validity}>{resolveProposalValidity(proposal.validUntil, proposal.status)}</Text></View>
         <View style={styles.professional}><UserAvatar name={proposal.professional?.name || 'Profissional'} mediaId={proposal.professional?.profilePhotoMediaId} /><View style={styles.grow}><Text style={styles.name}>{proposal.professional?.name}</Text>{proposal.professional && <ProfessionalReputation professional={proposal.professional} compact />}<Text style={styles.price}>{formatCurrency(calculateProposalTotal(proposal))}</Text></View></View>
         <Text style={styles.line}>{proposal.message}</Text>
         <View style={styles.costs}><Text style={styles.line}>Serviço: {formatCurrency(Number(proposal.price))}</Text><Text style={styles.line}>Deslocamento: {formatCurrency(Number(proposal.travelFee))}</Text></View>
-        <Text style={styles.line}>{proposal.estimatedDurationMinutes} min · Materiais {proposal.materialsIncluded ? 'incluídos' : 'não incluídos'}</Text>
-        <Text style={styles.line}>Pagamento: {proposal.paymentMethods.map(resolveEnumLabel).join(', ')}</Text>
+        <Text style={styles.line}>Tempo previsto: {formatServiceDuration(proposal.estimatedDurationMinutes)} · Materiais {proposal.materialsIncluded ? 'incluídos' : 'não incluídos'}</Text>
+        <Text style={styles.line}>Pagamento: {formatOrderPaymentMethods(proposal.paymentMethods)}</Text>
         {proposal.professional?.metrics?.averageResponseMinutes && <Text style={styles.line}>Responde em cerca de {proposal.professional.metrics.averageResponseMinutes} min</Text>}
         {proposal.professional?.id && <AppButton label="Ver perfil e avaliações" variant="secondary" onPress={() => navigation.navigate('Professional', { professionalId: proposal.professional!.id })} />}
-        {proposal.status === 'sent' && request.status !== 'accepted' && <AppButton label="Aceitar proposta" onPress={() => accept(proposal.id)} />}
+        {proposal.status === 'sent' && request.status !== 'accepted' && <AppButton label="Aceitar orçamento e contratar" onPress={() => accept(proposal.id)} />}
       </View>)}
     </>}
   </Screen>;

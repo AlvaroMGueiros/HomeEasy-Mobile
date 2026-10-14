@@ -20,10 +20,10 @@ export function ProfessionalScheduleDay({ label, periods, disabled, onChange, we
   return <View style={styles.card}>
     <View style={styles.header}><View style={styles.heading}><Text style={styles.day}>{label}</Text><Text style={styles.hint}>{periods.length ? 'Disponível para atender' : 'Folga · sem atendimento'}</Text></View><Switch accessibilityLabel={`Atendimento em ${label}`} disabled={disabled} value={periods.length > 0} trackColor={{ false: colors.border, true: colors.primary }} thumbColor={colors.white} onValueChange={available => onChange(available ? [{ weekday, startTime: '08:00', endTime: '18:00' }] : [])} /></View>
     {periods.map((period, index) => <View key={index} style={styles.interval}>
-      <View style={styles.times}><View style={styles.time}><TimePickerField label="Das" value={period.startTime} onChange={value => updateTime(index, 'startTime', value)} disabled={disabled} /></View><View style={styles.time}><TimePickerField label="Até" value={period.endTime} onChange={value => updateTime(index, 'endTime', value)} disabled={disabled} /></View></View>
-      {periods.length > 1 && <AppButton label="Remover intervalo" variant="secondary" disabled={disabled} onPress={() => onChange(periods.filter((_, periodIndex) => periodIndex !== index))} />}
+      <View style={styles.times}><View style={styles.time}><TimePickerField label="Começa às" value={period.startTime} onChange={value => updateTime(index, 'startTime', value)} disabled={disabled} /></View><View style={styles.time}><TimePickerField label="Termina às" value={period.endTime} onChange={value => updateTime(index, 'endTime', value)} disabled={disabled} /></View></View>
+      {periods.length > 1 && <AppButton label="Remover este horário" variant="secondary" disabled={disabled} onPress={() => onChange(periods.filter((_, periodIndex) => periodIndex !== index))} />}
     </View>)}
-    {periods.length > 0 && periods.length < 6 && <AppButton label="Adicionar intervalo" variant="secondary" disabled={disabled} onPress={() => onChange([...periods, { weekday, startTime: '', endTime: '' }])} />}
+    {periods.length > 0 && periods.length < 6 && <AppButton label="Adicionar outro horário neste dia" variant="secondary" disabled={disabled} onPress={() => onChange([...periods, { weekday, startTime: '', endTime: '' }])} />}
   </View>;
 }
 

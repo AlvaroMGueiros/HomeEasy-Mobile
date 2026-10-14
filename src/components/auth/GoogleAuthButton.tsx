@@ -50,7 +50,7 @@ export function GoogleAuthButton({
         return;
       }
       if (!isSuccessResponse(response) || !response.data.idToken) {
-        onError('O Google não retornou uma credencial de identidade. Tente novamente.');
+        onError('Não foi possível confirmar sua conta Google. Tente novamente ou entre com seu e-mail e senha.');
         return;
       }
       onIdToken(response.data.idToken);
@@ -72,7 +72,7 @@ export function GoogleAuthButton({
           variant="secondary"
         />
         <Text style={styles.configurationMessage}>
-          Login Google aguardando a configuração OAuth do aplicativo.
+          A entrada com Google está indisponível no momento. Use seu e-mail e senha.
         </Text>
       </View>
     );
@@ -99,7 +99,7 @@ function resolveGoogleSignInError(error: unknown) {
       return 'O Google Play Services não está disponível ou precisa ser atualizado.';
     }
     if (error.code === statusCodes.DEVELOPER_ERROR) {
-      return 'O login Google não está configurado para esta assinatura do aplicativo.';
+      return 'A entrada com Google está indisponível nesta versão do aplicativo. Use seu e-mail e senha.';
     }
     if (error.code === statusCodes.IN_PROGRESS) {
       return 'Já existe um login Google em andamento.';

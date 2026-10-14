@@ -134,7 +134,7 @@ export function ChatScreen() {
         onContentSizeChange={() => messageList.current?.scrollToEnd({ animated: true })}
       />
       {params.isWritable
-        ? <View style={styles.composer}><Pressable onPress={sendImage} style={styles.attachment}><Text style={styles.attachmentText}>＋</Text></Pressable><TextInput value={content} onChangeText={updateContent} multiline placeholder="Escreva uma mensagem" placeholderTextColor={colors.textMuted} style={styles.input} /><Pressable onPress={send} style={styles.send}><Text style={styles.sendText}>Enviar</Text></Pressable></View>
+        ? <View style={styles.composer}><Pressable accessibilityRole="button" accessibilityLabel="Escolher uma foto para enviar na conversa" onPress={sendImage} style={styles.attachment}><Text style={styles.attachmentText}>＋</Text></Pressable><TextInput value={content} onChangeText={updateContent} multiline accessibilityLabel="Mensagem para a conversa do serviço" placeholder="Escreva uma mensagem" placeholderTextColor={colors.textMuted} style={styles.input} /><Pressable accessibilityRole="button" accessibilityLabel="Enviar mensagem" onPress={send} style={styles.send}><Text style={styles.sendText}>Enviar</Text></Pressable></View>
         : <View style={styles.closedNotice}><Text style={styles.closedNoticeText}>Serviço encerrado. A conversa está disponível somente para consulta.</Text></View>}
     </Screen>
   </KeyboardAvoidingView>;

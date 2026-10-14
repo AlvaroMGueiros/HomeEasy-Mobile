@@ -58,7 +58,7 @@ export function RegionalMapScreen() {
       setMarkers(await buildProfessionalRegionMarkers(response.professionals));
       setError('');
     } catch {
-      Alert.alert('Localização indisponível', 'Não foi possível obter sua posição. No emulador, defina uma localização nas configurações de GPS.');
+      Alert.alert('Localização indisponível', 'Não foi possível encontrar sua localização. Confira se a localização do aparelho está ligada e tente novamente.');
     }
   }
 
@@ -66,11 +66,12 @@ export function RegionalMapScreen() {
 
   return <Screen>
     <SectionHeader eyebrow="Profissionais perto de você" title="Explore por região" description="Veja onde existem profissionais cadastrados e encontre todos os profissionais de cada cidade." />
+    <Text style={styles.city}>Até que distância você quer buscar?</Text>
     <ChoiceChips value={radiusKm} onChange={setRadiusKm} options={[{ value: 10, label: '10 km' }, { value: 25, label: '25 km' }, { value: 50, label: '50 km' }, { value: 100, label: '100 km' }]} />
     <Pressable style={styles.locationButton} onPress={centerOnUser}><Feather name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>
     {loading && <StateView loading message="Preparando mapa..." />}{Boolean(error) && <StateView message={error} />}
     <ChoiceChips value={viewMode} onChange={setViewMode} options={[{ value: 'map', label: 'Mapa' }, { value: 'list', label: 'Lista de cidades' }]} />
-    {!loading && !error && !markers.length && <StateView message="Nenhum profissional encontrado. Tente ampliar o raio da busca." />}
+    {!loading && !error && !markers.length && <StateView message="Nenhum profissional encontrado. Tente aumentar a distância da busca." />}
     {!loading && viewMode === 'map' && <View style={styles.map}><RegionalMap html={mapHtml} onSelectCity={(city, state) => navigation.navigate('CityProfessionals', { city, state })} /></View>}
     {viewMode === 'list' && markers.map(marker => <View key={marker.key} style={styles.card}>
       <View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{formatProfessionalCount(marker.professionals.length)}</Text></View>

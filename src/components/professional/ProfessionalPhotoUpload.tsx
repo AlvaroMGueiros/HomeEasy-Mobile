@@ -33,7 +33,7 @@ export function ProfessionalPhotoUpload({ description, disabled = false, onPubli
 
   return <View style={styles.container}>
     <View style={styles.heading}><View style={styles.icon}><Feather name="camera" size={22} color={colors.primary} /></View><View style={styles.copy}><Text style={styles.title}>Mostre seu trabalho</Text><Text style={styles.description}>{description}</Text></View></View>
-    <FormField label="Legenda (opcional)" value={caption} onChangeText={setCaption} maxLength={200} editable={!publishing && !disabled} placeholder="Descreva o serviço mostrado na foto" />
+    <FormField label="O que aparece nesta foto? (opcional)" value={caption} onChangeText={setCaption} maxLength={200} editable={!publishing && !disabled} placeholder="Descreva o serviço mostrado na foto" />
     <AppButton label="Escolher e publicar foto" icon={<Feather name="plus" size={18} color={colors.white} />} loading={publishing} disabled={disabled} onPress={() => void publishPhoto()} />
     <Text style={styles.help}>A foto será publicada no seu perfil profissional.</Text>
   </View>;

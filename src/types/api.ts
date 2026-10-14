@@ -1,6 +1,7 @@
 export interface AuthenticatedUser { id: string; name: string; email: string; role: 'user' | 'admin'; }
 export interface AuthResponse { accessToken: string; refreshToken: string; user: AuthenticatedUser; }
-export interface ServiceRequestField { key: string; label: string; type: string; required?: boolean; options?: string[]; }
+export enum ServiceRequestFieldType { Text = 'text', Number = 'number', Select = 'select' }
+export interface ServiceRequestField { key: string; label: string; type: ServiceRequestFieldType; required?: boolean; minimum?: number; unit?: string; options?: Array<{ value: string; label: string }>; }
 export interface Service { id: string; name: string; category: string; requestForm?: ServiceRequestField[]; }
 export interface ProfessionalService { id: string; name: string; category: string; basePrice?: number | null; description?: string | null; isActive: boolean; }
 export interface ProfessionalMetrics { averageRating?: number | null; verifiedReviewCount?: number; completedServices?: number; responseRate?: number | null; cancellationRate?: number | null; averageResponseMinutes?: number | null; }

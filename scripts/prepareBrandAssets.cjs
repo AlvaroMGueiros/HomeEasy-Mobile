@@ -23,21 +23,30 @@ async function exportImage(filename, sourceName, size, padding = 0) {
   fs.writeFileSync(path.join(projectRoot, 'assets', filename), exportedImage);
 }
 
+async function createWhiteSymbol(size, padding = 0) {
+  const symbol = await Jimp.read(path.join(projectRoot, 'assets/brand/symbol.png'));
+  const contentSize = size - padding * 2;
+  symbol.autocrop().contain(contentSize, contentSize);
+  const white = Jimp.intToRGBA(Jimp.cssColorToHex(colors.white));
+  symbol.scan(0, 0, contentSize, contentSize, function (x, y, index) {
+    this.bitmap.data[index] = white.r;
+    this.bitmap.data[index + 1] = white.g;
+    this.bitmap.data[index + 2] = white.b;
+  });
+  if (!padding) return symbol;
+  return new Jimp(size, size, colors.transparent).composite(symbol, padding, padding);
+}
+
 async function prepareBrandAssets() {
   await exportImage('icon.png', 'launcherSource.png', 1024);
-  await exportImage('android-icon-foreground.png', 'launcherSource.png', 1024, 112);
-  await exportImage('android-icon-monochrome.png', 'symbol.png', 1024, 96);
+  const launcherForeground = await createWhiteSymbol(1024, 242);
+  await launcherForeground.writeAsync(path.join(projectRoot, 'assets/android-icon-foreground.png'));
+  await launcherForeground.writeAsync(path.join(projectRoot, 'assets/android-icon-monochrome.png'));
   await exportImage('splash-icon.png', 'symbol.png', 512);
   await exportImage('favicon.png', 'launcherSource.png', 64);
   const background = await generateImageBackgroundAsync({ width: 1024, height: 1024, backgroundColor: colors.primary, resizeMode: 'contain' });
   fs.writeFileSync(path.join(projectRoot, 'assets/android-icon-background.png'), background);
-  const notificationIcon = await Jimp.read(path.join(projectRoot, 'assets/brand/symbol.png'));
-  notificationIcon.autocrop().contain(96, 96);
-  notificationIcon.scan(0, 0, 96, 96, function (x, y, index) {
-    this.bitmap.data[index] = 255;
-    this.bitmap.data[index + 1] = 255;
-    this.bitmap.data[index + 2] = 255;
-  });
+  const notificationIcon = await createWhiteSymbol(96);
   await notificationIcon.writeAsync(path.join(projectRoot, 'assets/notificationIcon.png'));
   fs.copyFileSync(path.join(projectRoot, 'assets/brand/symbol.png'), path.join(projectRoot, 'motion/public/brandSymbol.png'));
   fs.copyFileSync(path.join(projectRoot, 'assets/brand/wordmark.png'), path.join(projectRoot, 'motion/public/brandWordmark.png'));

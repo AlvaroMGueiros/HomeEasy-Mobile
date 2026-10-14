@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { FormField } from '../components/ui/FormField';
+import { formCopy } from '../config/formCopy';
+import { isValidEmailAddress } from '../utils/formValidation';
 import { ApiError } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { AppButton } from '../components/ui/AppButton';
@@ -19,7 +22,7 @@ export function ForgotPasswordScreen() {
   const [isError, setIsError] = useState(false);
 
   async function submit() {
-    if (!email.trim() || loading) return;
+    if (!isValidEmailAddress(email) || loading) return;
     setLoading(true);
     setMessage('');
     try {
@@ -36,10 +39,9 @@ export function ForgotPasswordScreen() {
 
   return <AuthLayout title="Recupere seu acesso." description="Enviaremos um link seguro para o e-mail da sua conta.">
     <Text style={styles.title}>Redefinir senha</Text>
-    <Text style={styles.label}>E-mail</Text>
-    <TextInput autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
+    <FormField {...formCopy.email} required hint="Use o mesmo e-mail que você informou ao criar a conta." value={email} onChangeText={setEmail} />
     {Boolean(message) && <Text accessibilityRole="alert" style={isError ? styles.error : styles.success}>{message}</Text>}
-    <AppButton label="Enviar link" onPress={submit} loading={loading} disabled={!email.trim()} />
+    <AppButton label="Receber link para criar outra senha" onPress={submit} loading={loading} disabled={!isValidEmailAddress(email)} />
     <AppButton label="Voltar para entrar" variant="secondary" onPress={() => navigation.navigate('Login')} />
   </AuthLayout>;
 }

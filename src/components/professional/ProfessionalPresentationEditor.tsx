@@ -75,17 +75,17 @@ export function ProfessionalPresentationEditor() {
     <View style={styles.card}>
       <View style={styles.sectionHeading}><Feather name="edit-3" size={20} color={colors.primary} /><Text style={styles.heading}>Sobre meu trabalho</Text></View>
       <Text style={styles.description}>Apresente sua experiência, suas especialidades e o cuidado que você oferece em cada atendimento.</Text>
-      <FormField label="Sua apresentação" value={bio} onChangeText={setBio} multiline maxLength={2000} editable={!busy} placeholder="Conte aos clientes por que escolher seu trabalho..." />
+      <FormField label="Conte sobre seu trabalho" hint="Este texto ficará visível para os clientes. Conte o que você faz e sua experiência." value={bio} onChangeText={setBio} multiline maxLength={2000} editable={!busy} placeholder="Conte aos clientes por que escolher seu trabalho..." />
       <View style={styles.characterCount}><Text style={styles.help}>Mínimo de 40 caracteres</Text><Text style={styles.help}>{bio.trim().length}/2.000</Text></View>
       <AppButton label="Salvar apresentação" loading={saving} disabled={uploading || bio.trim().length < 40 || bio.trim() === professional.bio?.trim()} onPress={() => void persistChanges({ bio: bio.trim() }, true)} />
     </View>
     <View style={styles.card}>
-      <View style={styles.sectionHeading}><Feather name="grid" size={20} color={colors.primary} /><Text style={styles.heading}>Portfólio de serviços</Text><Text style={styles.counter}>{photos.length}/30</Text></View>
+      <View style={styles.sectionHeading}><Feather name="grid" size={20} color={colors.primary} /><Text style={styles.heading}>Fotos dos seus trabalhos</Text><Text style={styles.counter}>{photos.length}/30</Text></View>
       <ProfessionalPhotoUpload description="Adicione exemplos dos serviços que você oferece." disabled={saving || photos.length >= 30} onBusyChange={setUploading} onPublish={(mediaId, caption) => savePresentation({ portfolioPhotos: [...photos, { mediaId, kind: ProfessionalPhotoKind.Offered, caption }] })} />
       <View style={styles.notice}><Feather name="check-circle" size={18} color={colors.success} /><Text style={styles.noticeText}>Fotos de serviços concluídos são adicionadas na página do pedido, depois de concluir o atendimento.</Text></View>
     </View>
-    {!photos.length && <View style={styles.empty}><Feather name="image" size={28} color={colors.textMuted} /><Text style={styles.heading}>Seu portfólio começa aqui</Text><Text style={styles.description}>Mostre seus serviços para ajudar os clientes a conhecer seu trabalho.</Text></View>}
-    {photos.map(photo => <View key={photo.mediaId} style={styles.card}><ProfessionalPortfolioPhoto photo={photo} /><AppButton label="Remover do portfólio" variant="secondary" disabled={busy} onPress={() => Alert.alert('Remover foto?', 'Esta foto deixará de aparecer no seu perfil público.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: () => void persistChanges({ portfolioPhotos: photos.filter(currentPhoto => currentPhoto.mediaId !== photo.mediaId) }) }])} /></View>)}
+    {!photos.length && <View style={styles.empty}><Feather name="image" size={28} color={colors.textMuted} /><Text style={styles.heading}>Mostre seu primeiro trabalho</Text><Text style={styles.description}>Mostre seus serviços para ajudar os clientes a conhecer seu trabalho.</Text></View>}
+    {photos.map(photo => <View key={photo.mediaId} style={styles.card}><ProfessionalPortfolioPhoto photo={photo} /><AppButton label="Remover esta foto do perfil" variant="secondary" disabled={busy} onPress={() => Alert.alert('Remover foto?', 'Esta foto deixará de aparecer no seu perfil público.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: () => void persistChanges({ portfolioPhotos: photos.filter(currentPhoto => currentPhoto.mediaId !== photo.mediaId) }) }])} /></View>)}
   </View>;
 }
 
