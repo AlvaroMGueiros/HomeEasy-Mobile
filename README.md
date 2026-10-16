@@ -1,250 +1,220 @@
 # Home Easy Mobile
 
-Aplicativo multiplataforma do Home Easy para Android e iOS. A plataforma aproxima clientes e profissionais de serviços domésticos e reformas, reunindo descoberta, contratação, comunicação e acompanhamento do atendimento em uma única experiência.
+Aplicativo para encontrar profissionais de serviços domésticos e reformas, pedir orçamentos e acompanhar atendimentos. A mesma conta pode contratar e oferecer serviços.
 
-O aplicativo foi desenvolvido com React Native, Expo e TypeScript e consome a API existente do Home Easy, construída com NestJS e PostgreSQL.
+Este repositório contém o aplicativo React Native e Expo. O backend NestJS é mantido separadamente.
 
-## Visão geral
+## Recursos
 
-O Home Easy atende três jornadas principais:
+### Busca e contratação
 
-- **Clientes:** encontram profissionais, criam solicitações, analisam propostas, acompanham pedidos e avaliam o atendimento.
-- **Profissionais:** publicam seus serviços, definem área de atendimento e disponibilidade, recebem oportunidades e enviam propostas.
-- **Administradores:** acompanham métricas e tratam filas de moderação e verificação.
+- Catálogo e pesquisa de serviços, mapa regional, localização atual e profissionais por cidade.
+- Perfis com serviços, apresentação, fotos, avaliações e opção de favoritar.
+- Pedidos de orçamento abertos à região ou direcionados a um profissional, com perguntas específicas do serviço e anexos.
+- Comparação de propostas com valor, duração, deslocamento, materiais e forma de pagamento combinada.
 
-O fluxo principal vai da busca por um serviço até sua conclusão:
+### Meus serviços
 
-1. O cliente encontra um serviço e compara profissionais.
-2. Cria uma solicitação aberta ou direcionada, com detalhes, orçamento e anexos.
-3. Profissionais compatíveis recebem a oportunidade e enviam propostas.
-4. O cliente aceita uma proposta e passa a acompanhar o pedido.
-5. Cliente e profissional conversam, combinam o atendimento e atualizam seu andamento.
-6. Após a conclusão, o cliente pode avaliar ou recontratar o profissional.
-
-## Funcionalidades
-
-### Acesso e conta
-
-- página inicial pública e navegação pelo catálogo sem autenticação;
-- cadastro e login;
-- recuperação e redefinição de senha;
-- sessão persistida com Expo SecureStore;
-- renovação automática do token de acesso;
-- edição de perfil e foto;
-- dados de contato, endereço e redes profissionais;
-- encerramento seguro da sessão.
-
-### Serviços e profissionais
-
-- catálogo de serviços por categoria;
-- pesquisa textual com normalização de acentos;
-- listagem de profissionais por serviço;
-- filtros por nome, cidade, faixa de preço e avaliação mínima;
-- perfil público com biografia, serviços, preços e métricas;
-- histórico de avaliações e respostas do profissional;
-- profissionais favoritos;
-- busca regional baseada na localização do usuário;
-- mapa com profissionais próximos usando OpenStreetMap.
-
-### Solicitações e propostas
-
-- criação de solicitação aberta ou direcionada a um profissional;
-- formulário dinâmico conforme o serviço selecionado;
-- urgência, data preferencial, endereço e faixa de orçamento;
-- envio de até oito imagens como anexos;
-- acompanhamento das solicitações e quantidade de propostas;
-- oportunidades compatíveis com os serviços, região e raio do profissional;
-- envio de proposta com preço, mensagem, duração estimada, taxa de deslocamento, materiais e forma de pagamento;
-- comparação e aceite de propostas.
-
-### Pedidos e atendimento
-
-- acompanhamento separado de solicitações e pedidos contratados;
-- confirmação de agendamento;
-- início e conclusão do serviço;
-- cancelamento com registro no histórico;
-- chat vinculado ao pedido;
-- histórico da conversa após o encerramento;
-- avaliação do profissional ao concluir o serviço;
-- recontratação;
-- abertura de disputa para mediação.
+- **Contratei:** atendimentos contratados e orçamentos pedidos pelo cliente.
+- **Meu trabalho:** atendimentos a prestar, propostas enviadas e oportunidades da região.
+- Resumos de serviços que precisam de atenção e serviços concluídos.
+- Detalhes do atendimento com participantes, endereço, valor combinado e histórico do andamento.
+- Agendamento, início, conclusão, cancelamento, registro de problemas, fotos do resultado, avaliação e recontratação, conforme o estado do serviço e o papel do usuário.
 
 ### Conversas e notificações
 
-- lista de conversas com mensagens não lidas;
-- mensagens de texto e imagens;
-- diferentes tipos de mensagem, incluindo orçamento e eventos do sistema;
-- confirmação de leitura;
-- presença online e indicador de digitação;
-- restrição de escrita conforme o estado do pedido;
-- central de notificações;
-- marcação individual como lida;
-- redirecionamento contextual a partir da notificação.
+- Conversa vinculada a cada atendimento, com texto, imagens, confirmação de leitura e indicadores de presença e digitação.
+- Abas **Em andamento** e **Encerradas**; conversas encerradas mantêm o histórico e não recebem novas mensagens.
+- Notificações push, lista de avisos e abertura do pedido, atendimento ou conversa correspondente.
+- Leitura individual ao abrir uma notificação e botão **Marcar todas como lidas** para atualizar também as notificações fora das 50 exibidas na lista.
 
 ### Área profissional
 
-- criação e atualização do perfil profissional;
-- configuração de biografia, telefone, cidade e experiência;
-- geocodificação da região atendida;
-- definição do raio de atendimento;
-- seleção de serviços oferecidos;
-- preço-base, descrição e disponibilidade por serviço;
-- agenda semanal;
-- envio e acompanhamento de documentos de verificação;
-- consulta de oportunidades disponíveis.
+- Cadastro de serviços, preços iniciais, apresentação, experiência e dados de contato.
+- Cidade, estado e raio de atendimento, com localização necessária para definir a região profissional.
+- Agenda semanal, disponibilidade e consulta de pedidos compatíveis com a região e os serviços oferecidos.
+- Fotos dos trabalhos, envio de documentos para verificação e acompanhamento das avaliações.
 
-### Segurança e administração
+### Conta, segurança e moderação
 
-- envio de denúncias por fraude, assédio, conteúdo impróprio ou outros motivos;
-- abertura de disputas relacionadas a pedidos;
-- painel administrativo com métricas operacionais;
-- filas de moderação;
-- análise de documentos e verificação de profissionais.
+- Login com senha ou Google, recuperação de senha, edição do perfil e exclusão de conta.
+- Bloqueio e desbloqueio pelo perfil profissional ou conversa. O bloqueio impede novas mensagens nos dois sentidos, preserva o histórico e não cancela atendimentos.
+- Denúncia de usuário ou de uma mensagem recebida, mantendo a referência para análise da equipe.
+- Regras de uso versionadas, com aceite por conta neste aparelho. Esse aceite local não equivale a um registro de consentimento no servidor.
+- Área administrativa para consultar métricas, analisar documentos e tratar denúncias e disputas, sujeita à autorização do backend.
+- Logout com revogação do refresh token e proteção contra respostas de renovação que cheguem após sair ou trocar de conta.
+
+### Interface e primeiro acesso
+
+- Boas-vindas com opções diretas para buscar um profissional ou cadastrar serviços; o guia completo continua disponível no perfil.
+- Campos com exemplos, indicação de obrigatoriedade e seleção de estado pelo nome.
+- Splash com fundo da marca e entrada curta da logo; respeita a preferência do aparelho por reduzir movimento.
+- Cabeçalhos simplificados e apresentação profissional sem pedidos ou avaliações fictícias.
+
+### Compatibilidade com a API
+
+As funcionalidades dependem de uma versão compatível do backend. Publique os endpoints necessários antes de distribuir o aplicativo:
+
+| Recurso | Endpoint |
+| --- | --- |
+| Marcar todas as notificações da conta como lidas | `PATCH /notifications/read-all` |
+| Consultar bloqueio nos dois sentidos | `GET /blocks/:userId` |
+| Bloquear ou desbloquear uma pessoa | `PUT /blocks/:userId` e `DELETE /blocks/:userId` |
+| Denunciar uma mensagem | `POST /reports`, com `messageId` opcional |
+| Revogar o refresh token ao sair | `POST /auth/logout` |
+
+Na `master`, informar uma forma de pagamento na proposta registra o combinado com o profissional; não realiza uma cobrança automática.
 
 ## Tecnologias
 
-- React 19;
-- React Native 0.86;
-- Expo SDK 57;
-- TypeScript 6;
-- React Navigation 7;
-- Expo SecureStore;
-- Expo Location;
-- Expo ImagePicker;
-- Expo FileSystem;
-- React Native WebView;
-- OpenStreetMap.
+Expo SDK 57, React Native 0.86, React 19, TypeScript 6 e React Navigation 7. Tokens são armazenados com Expo SecureStore. Os mapas usam Leaflet local e imagens do OpenStreetMap.
 
-## Arquitetura
+## Requisitos
 
-```text
-src/
-├── api/          # Cliente HTTP, tratamento de erros e renovação de sessão
-├── auth/         # Estado de autenticação e sessão persistida
-├── components/   # Componentes visuais reutilizáveis
-├── config/       # Configurações por ambiente
-├── navigation/   # Pilhas, abas e parâmetros de rotas tipados
-├── screens/      # Telas organizadas por responsabilidade
-├── theme/        # Tokens de cores compartilhados
-├── types/        # Contratos TypeScript consumidos da API
-└── utils/        # Formatação, pesquisa, mídia, datas e mapa
-```
+- Node.js 22.13 ou superior compatível com o Expo SDK 57 e npm.
+- Backend do Home Easy configurado e acessível.
+- Para Android local: Android Studio, SDK, JDK compatível e emulador ou aparelho com depuração USB.
+- Para iOS local: macOS, Xcode e as ferramentas exigidas pelo Expo.
 
-A aplicação possui navegação pública e autenticada. Depois do login, a área principal é dividida nas abas **Início**, **Pedidos**, **Mensagens** e **Perfil**, enquanto os demais fluxos são acessados por uma pilha de rotas tipadas.
+O aplicativo usa módulos nativos, incluindo login Google. Utilize um **development build**, não o Expo Go.
 
-O cliente HTTP centraliza:
+## Configuração local
 
-- URL da API por ambiente;
-- envio do access token;
-- renovação de sessão após respostas `401`;
-- prevenção de múltiplas renovações simultâneas;
-- serialização JSON e envio de formulários;
-- propagação das mensagens específicas retornadas pela API.
-
-## Permissões utilizadas
-
-- **Localização:** encontra profissionais dentro do raio escolhido e geocodifica a região do profissional.
-- **Fotos:** permite anexar imagens às solicitações e conversas, enviar documentos e alterar a foto do perfil.
-- **Armazenamento seguro:** mantém tokens e dados mínimos da sessão no dispositivo.
-
-## Configuração do ambiente
-
-### Pré-requisitos
-
-- Node.js compatível com o Expo SDK 57;
-- npm;
-- Android Studio com um emulador configurado ou um aparelho Android com depuração USB;
-- API do Home Easy em execução.
-
-Instale as dependências:
+Instale as versões registradas no lockfile:
 
 ```bash
-npm install
+npm ci
 ```
 
-Defina o endereço da API em um arquivo `.env.local`. Para trabalhar contra a
-API de produção:
+Copie `.env.example` para `.env.local`. No PowerShell:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+Exemplo para o emulador Android, com a API executada no computador:
 
 ```env
-EXPO_PUBLIC_API_URL=https://homeeasy-api-8uw9.onrender.com/api
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=636779212416-1hck1h1n3r4taskcarjlv3ss9pr17ai3.apps.googleusercontent.com
+EXPO_PUBLIC_API_URL=http://10.0.2.2:3000/api
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=
 ```
 
-O login com Google usa código nativo e deve ser testado em um development build,
-não no Expo Go:
+| Ambiente de desenvolvimento | Endereço da API |
+| --- | --- |
+| Emulador Android padrão | `http://10.0.2.2:3000/api` |
+| Simulador iOS | `http://localhost:3000/api` |
+| Aparelho físico | IP do computador na mesma rede local, com a porta da API acessível |
 
-```bash
-npx eas-cli@latest build --profile development --platform android
-```
+Para habilitar o login Google, configure seu próprio OAuth Client ID e os certificados e identificadores de aplicativo correspondentes. Builds em outra conta também precisam da configuração Firebase e do vínculo EAS apropriados.
 
-No emulador Android, o endereço padrão é:
+**Variáveis `EXPO_PUBLIC_*` ficam acessíveis no aplicativo compilado.** Use-as apenas para configuração pública. Nunca coloque senhas, tokens privados, chaves de servidor ou segredos JWT nesses campos.
 
-```text
-http://10.0.2.2:3000/api
-```
+URLs e identificadores reais dos ambientes devem ser fornecidos pelos responsáveis pelo projeto, fora deste README. Arquivos `.env*` são ignorados pelo Git, com exceção de `.env.example`.
 
-Em um dispositivo físico, use o endereço IPv4 do computador na mesma rede local.
+## Executar
 
-Em builds distribuídos pelo EAS, configure `EXPO_PUBLIC_API_URL` no ambiente
-`preview` ou `production` com a URL HTTPS pública da API. Endereços como
-`localhost` e `10.0.2.2` não funcionam em um aparelho físico fora do ambiente
-de desenvolvimento.
-
-## Execução
-
-Compile, instale e abra o aplicativo no emulador ativo do Android Studio:
+Compile e instale o development build no Android:
 
 ```bash
 npm run android
 ```
 
-Para instalar em um aparelho conectado por USB, habilite a depuração USB e use:
+Para escolher um aparelho conectado:
 
 ```bash
 npx expo run:android --device
 ```
 
-O comando gera automaticamente o projeto nativo quando necessário. Depois da
-primeira compilação, execute `npm start` para iniciar o Metro e abra o development
-build já instalado. O login Google não é compatível com o Expo Go.
-
-## Builds com EAS
-
-O perfil `preview` gera um APK para instalação direta e testes internos. O
-perfil `production` gera o artefato destinado às lojas, com incremento remoto
-da versão de build.
-
-Depois de autenticar e vincular o projeto à conta Expo, execute:
+Depois da instalação inicial, inicie o Metro:
 
 ```bash
-npx eas-cli@latest build --platform android --profile preview
+npm start
 ```
 
-Quando o build terminar, abra o link exibido pelo EAS no próprio Android,
-baixe o arquivo `.apk`, permita a instalação de aplicativos dessa origem e
-instale. Esse APK usa a API de produção configurada no ambiente `preview`.
-
-Para gerar um build de produção Android:
+Se uma atualização de dependências causar erros de resolução de módulos, encerre o Metro e reinicie com cache limpo:
 
 ```bash
-npx eas-cli@latest build --platform android --profile production
+npm start -- --clear
 ```
 
-## Estado atual
+Mudanças em plugins, permissões e módulos nativos exigem nova compilação; recarregar o JavaScript não atualiza o aplicativo nativo instalado.
 
-O projeto possui um MVP mobile funcional com as jornadas principais de cliente, profissional e administração conectadas ao backend. A configuração está preparada para builds Android e iOS pelo EAS.
+## Verificações
 
-Evoluções possíveis incluem notificações push e atualização do chat por conexão em tempo real.
+```bash
+npx tsc --noEmit
+npm run verify:forms
+npm run verify:permissions
+node scripts/verifySessionSecurity.cjs
+node scripts/verifySecrets.cjs
+npm audit
+```
 
-## Equipe
+O workflow [Security](.github/workflows/security.yml) verifica os projetos mobile e motion com suas configurações TypeScript separadas, executa as verificações de segurança e consulta vulnerabilidades das dependências. O scanner de padrões de credenciais não substitui uma auditoria completa.
 
-- **Álvaro Miguel
-## Mapa e arquivos da marca
+## Builds Android com EAS
 
-O Leaflet 1.9.4 é empacotado localmente em `src/vendor/leaflet.ts`, com CSS, imagens auxiliares e licença BSD preservados. Não há download da biblioteca por CDN durante o uso. As imagens das ruas ainda são carregadas do OpenStreetMap pela internet. Falhas de carregamento mostram uma mensagem compreensível e permitem tentar novamente, mantendo o acesso à lista de profissionais.
+Os perfis estão em [eas.json](eas.json). Antes de compilar, confira os valores efetivos no perfil e no ambiente EAS; valores definidos no perfil têm precedência sobre os mesmos nomes no ambiente.
 
-- `npm run bundle:leaflet`: regenera o bundle a partir da dependência com versão fixa.
-- `node scripts/verifyRegionalMap.cjs`: testa a biblioteca com CDN bloqueado, seleção de cidade, zoom, falha de tiles e recuperação (requer as dependências de `motion`).
-- `npm run assets:brand`: exporta os ícones e arquivos da marca a partir de `assets/brand`; consulte o README dessa pasta para origem e prompt do ícone.
+| Perfil | Uso |
+| --- | --- |
+| `development` | Development build para usar com o Metro |
+| `preview` | APK para testes internos |
+| `production-apk` | APK assinado para instalação direta, sem depender do Metro |
+| `production` | AAB para envio ao Google Play, com incremento remoto da versão de build |
 
-As telas usam `BrandLogo`, e a home e o mapa regional compartilham `RegionalMap`. Ícones e splash nativa só chegam ao aparelho após instalar um novo APK.
+Após autenticar na conta Expo autorizada e conferir o vínculo do projeto:
+
+```bash
+npx eas-cli build --platform android --profile production-apk
+```
+
+Para gerar o pacote destinado ao Google Play:
+
+```bash
+npx eas-cli build --platform android --profile production
+```
+
+Builds distribuídos exigem uma URL de API **HTTPS** explícita. O EAS envia o código para compilação remota; [.easignore](.easignore) exclui arquivos de ambiente, ferramentas locais e o projeto motion.
+
+Gerar um APK ou AAB não publica o aplicativo. A publicação também exige validar assinatura, permissões, funcionamento em aparelhos reais, páginas legais e os requisitos do Play Console.
+
+## Organização
+
+```text
+src/
+  api/            Cliente HTTP e persistência da sessão
+  auth/           Contexto de autenticação
+  components/     Componentes compartilhados
+  config/         Configurações, textos e regras
+  navigation/     Rotas e parâmetros tipados
+  notifications/  Registro e tratamento de notificações push
+  screens/        Telas
+  theme/          Cores do aplicativo
+  types/          Contratos consumidos da API
+  utils/          Validação, formatação e outras funções compartilhadas
+```
+
+As cores são centralizadas em `src/theme/colors.ts`. Antes de alterar uma tela, reutilize os componentes e padrões existentes. Autorização e validação de acesso a recursos são responsabilidade do backend, mesmo quando há restrições visuais no app.
+
+## Permissões e dados
+
+- **Localização:** solicitada na entrada; usada na descoberta e na região de atendimento.
+- **Fotos:** selecionadas pelo seletor do sistema para perfil, documentos e anexos. Não há pedido de acesso amplo à biblioteca no Android.
+- **Notificações:** dependem da autorização do sistema e do registro do aparelho na API.
+- **Microfone e câmera:** bloqueados na configuração do aplicativo.
+- **Consulta de endereço:** solicita autorização antes de enviar o endereço ao Photon/Komoot. Mapas carregam imagens do OpenStreetMap.
+
+Consulte [a revisão de segurança](docs/securityHardening.md) e [as regras de moderação e permissões](docs/mobileSafetyReview.md) para limitações e requisitos operacionais. Esses documentos não certificam conformidade legal nem substituem testes do ambiente publicado.
+
+## Mapas, marca e motion
+
+- `npm run bundle:leaflet`: atualiza o bundle local do Leaflet, preservando sua licença.
+- `npm run assets:brand`: gera arquivos da marca; veja [assets/brand/README.md](assets/brand/README.md).
+- `node scripts/verifyRegionalMap.cjs`: verifica o mapa em navegador; requer as dependências de `motion`.
+
+O projeto de vídeos fica em [motion/](motion/README.md), tem dependências próprias e não integra o build mobile. Para instalar suas dependências separadamente:
+
+```bash
+npm ci --prefix motion
+```
