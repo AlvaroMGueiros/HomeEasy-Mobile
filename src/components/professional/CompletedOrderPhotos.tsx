@@ -24,7 +24,6 @@ export function CompletedOrderPhotos({ orderId }: { orderId: string }) {
 
   return <View style={styles.card}>
     <View style={styles.heading}><Feather name="check-circle" size={22} color={colors.success} /><Text style={styles.title}>Fotos do serviço concluído</Text></View>
-    <Text style={styles.description}>Registre o resultado deste atendimento. As fotos serão vinculadas a este pedido e exibidas nas fotos do seu perfil profissional.</Text>
     {!professional ? <StateView loading={loading} message={error || 'Carregando fotos...'} onAction={error ? loadPhotos : undefined} /> : <>
       <ProfessionalPhotoUpload description="Adicione uma foto do resultado do serviço." disabled={(professional.portfolioPhotos?.length || 0) >= 30} onPublish={async (mediaId, caption) => { setProfessional(await apiRequest<Professional>(`/professionals/me/orders/${orderId}/photos`, { method: 'POST', body: JSON.stringify({ mediaId, caption }) })); }} />
       {(professional.portfolioPhotos?.length || 0) >= 30 && <Text style={styles.description}>Seu perfil já tem 30 fotos. Remova uma foto em Editar perfil para publicar outra.</Text>}

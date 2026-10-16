@@ -44,7 +44,7 @@ export function CityProfessionalsScreen() {
   }, [professionals, searchTerm, selectedCategory]);
 
   return <Screen>
-    <SectionHeader eyebrow="Profissionais da cidade" title={`${params.city}, ${params.state}`} description="Busque pelo nome ou filtre pela categoria de serviço." />
+    <SectionHeader eyebrow="Profissionais da cidade" title={`${params.city}, ${params.state}`} />
     <View style={styles.searchBox}><Feather name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar profissional pelo nome" placeholderTextColor={colors.textMuted} style={styles.searchInput} returnKeyType="search" accessibilityLabel="Buscar profissional pelo nome" /></View>
     <Text style={styles.filterLabel}>Categorias</Text>
     <View style={styles.chips}>{categories.map(category => <Pressable key={category} onPress={() => setSelectedCategory(category)} style={[styles.chip, selectedCategory === category && styles.selectedChip]}><Text style={[styles.chipText, selectedCategory === category && styles.selectedChipText]}>{category}</Text></Pressable>)}</View>

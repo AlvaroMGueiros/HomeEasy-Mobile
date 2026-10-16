@@ -37,9 +37,9 @@ export function ForgotPasswordScreen() {
     }
   }
 
-  return <AuthLayout title="Recupere seu acesso." description="Enviaremos um link seguro para o e-mail da sua conta.">
+  return <AuthLayout title="Recuperar senha">
     <Text style={styles.title}>Redefinir senha</Text>
-    <FormField {...formCopy.email} required hint="Use o mesmo e-mail que você informou ao criar a conta." value={email} onChangeText={setEmail} />
+    <FormField {...formCopy.email} required value={email} onChangeText={setEmail} />
     {Boolean(message) && <Text accessibilityRole="alert" style={isError ? styles.error : styles.success}>{message}</Text>}
     <AppButton label="Receber link para criar outra senha" onPress={submit} loading={loading} disabled={!isValidEmailAddress(email)} />
     <AppButton label="Voltar para entrar" variant="secondary" onPress={() => navigation.navigate('Login')} />

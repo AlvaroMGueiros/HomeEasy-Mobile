@@ -65,7 +65,7 @@ export function RegionalMapScreen() {
   const mapHtml = useMemo(() => buildRegionalMapHtml(mapRegion, markers.map(marker => ({ key: marker.key, city: marker.city, state: marker.state, latitude: marker.latitude, longitude: marker.longitude, professionalCount: marker.professionals.length }))), [mapRegion, markers]);
 
   return <Screen>
-    <SectionHeader eyebrow="Profissionais perto de você" title="Explore por região" description="Veja onde existem profissionais cadastrados e encontre todos os profissionais de cada cidade." />
+    <SectionHeader eyebrow="Profissionais perto de você" title="Explore por região" />
     <Text style={styles.city}>Até que distância você quer buscar?</Text>
     <ChoiceChips value={radiusKm} onChange={setRadiusKm} options={[{ value: 10, label: '10 km' }, { value: 25, label: '25 km' }, { value: 50, label: '50 km' }, { value: 100, label: '100 km' }]} />
     <Pressable style={styles.locationButton} onPress={centerOnUser}><Feather name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>

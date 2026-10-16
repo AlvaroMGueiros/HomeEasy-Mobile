@@ -1,5 +1,4 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
-import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 
@@ -19,6 +18,7 @@ import { StatePickerField } from '../components/ui/StatePickerField';
 import { formCopy } from '../config/formCopy';
 import { UserProfile } from '../types/api';
 import { uploadMedia } from '../utils/media-upload';
+import { choosePhotos } from '../utils/photo-picker';
 
 export function EditProfileScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'EditProfile'>>();
@@ -36,13 +36,7 @@ export function EditProfileScreen() {
 
   async function choosePhoto() {
     if (!profile) return;
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert('Permissão necessária', 'Autorize o acesso às fotos.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+    const result = await choosePhotos({
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8
@@ -118,7 +112,6 @@ export function EditProfileScreen() {
       <SectionHeader
         eyebrow="Minha conta"
         title="Editar perfil"
-        description="Cuide dos seus dados pessoais e da apresentação do seu trabalho."
       />
       <ChoiceChips value={section} onChange={setSection} options={[{ value: ProfileEditorSection.Personal, label: 'Dados pessoais' }, { value: ProfileEditorSection.Professional, label: 'Perfil profissional' }]} />
       {section === ProfileEditorSection.Professional ? <ProfessionalPresentationEditor /> : <>
@@ -153,7 +146,7 @@ export function EditProfileScreen() {
         />
         <StatePickerField value={profile.state || ''} onChange={value => update('state', value)} />
         <FormField
-          label="Instagram (opcional)" placeholder="Ex.: @maria.servicos" hint="Informe seu usuário ou o link do seu perfil." autoCapitalize="none" autoCorrect={false}
+          label="Instagram (opcional)" placeholder="Ex.: @maria.servicos" autoCapitalize="none" autoCorrect={false}
           value={profile.instagram || ''}
           onChangeText={value => update('instagram', value)}
         />

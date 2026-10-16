@@ -30,7 +30,7 @@ export function ProfileScreen() {
   const locationLabel = [profile?.city, profile?.state].filter(Boolean).join(', ');
 
   return <Screen>
-    <SectionHeader eyebrow="Minha conta" title="Perfil" description="Seus dados e sua área profissional." />
+    <SectionHeader eyebrow="Minha conta" title="Perfil" />
     <View style={styles.profileCard}>
       <View style={styles.identity}>
         <UserAvatar name={profileName} mediaId={profile?.profilePhotoMediaId} size={64} />
@@ -51,26 +51,26 @@ export function ProfileScreen() {
 
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Minha atividade</Text>
-      <View style={styles.menuCard}><MenuRow icon="heart" title="Favoritos" description="Profissionais que você salvou" onPress={() => navigation.navigate('Favorites')} /></View>
+      <View style={styles.menuCard}><MenuRow icon="heart" title="Favoritos" onPress={() => navigation.navigate('Favorites')} /></View>
     </View>
 
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Precisa de orientação?</Text>
-      <View style={styles.menuCard}><MenuRow icon="help-circle" title="Como usar o aplicativo" description="Passo a passo para contratar ou oferecer serviços" onPress={() => navigation.navigate('HowItWorks')} /></View>
+      <View style={styles.menuCard}><MenuRow icon="help-circle" title="Como usar o aplicativo" onPress={() => navigation.navigate('HowItWorks')} /></View>
     </View>
 
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Área profissional</Text>
       <View style={styles.menuCard}>
-        <MenuRow icon="bar-chart-2" title="Painel profissional" description="Atendimentos e resultados" onPress={() => navigation.navigate('ProfessionalDashboard')} />
+        <MenuRow icon="bar-chart-2" title="Painel profissional" onPress={() => navigation.navigate('ProfessionalDashboard')} />
         <View style={styles.divider} />
-        <MenuRow icon="briefcase" title="Perfil e serviços" description="Sua apresentação e serviços oferecidos" onPress={() => navigation.navigate('ProfessionalManager')} />
+        <MenuRow icon="briefcase" title="Perfil e serviços" onPress={() => navigation.navigate('ProfessionalManager')} />
         <View style={styles.divider} />
-        <MenuRow icon="calendar" title="Agenda" description="Organize sua disponibilidade" onPress={() => navigation.navigate('Schedule')} />
+        <MenuRow icon="calendar" title="Agenda" onPress={() => navigation.navigate('Schedule')} />
         <View style={styles.divider} />
-        <MenuRow icon="shield" title="Confirmar meus documentos" description="Envie documentos e acompanhe a análise" onPress={() => navigation.navigate('Verification')} />
+        <MenuRow icon="shield" title="Confirmar meus documentos" onPress={() => navigation.navigate('Verification')} />
         <View style={styles.divider} />
-        <MenuRow icon="search" title="Trabalhos disponíveis" description="Veja pedidos de clientes e envie orçamentos" onPress={() => navigation.navigate('Opportunities')} />
+        <MenuRow icon="search" title="Trabalhos disponíveis" onPress={() => navigation.navigate('Opportunities')} />
       </View>
     </View>
 
@@ -82,6 +82,8 @@ export function ProfileScreen() {
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Conta e privacidade</Text>
       <View style={styles.menuCard}>
+        <MenuRow icon="shield" title="Regras de uso e moderação" onPress={() => navigation.navigate('CommunityRules')} />
+        <View style={styles.divider} />
         <MenuRow icon="lock" title="Política de privacidade" onPress={() => navigation.navigate('PrivacyPolicy')} />
         <View style={styles.divider} />
         <MenuRow icon="log-out" title="Sair da conta" onPress={logout} />

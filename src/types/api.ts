@@ -1,4 +1,5 @@
 export interface AuthenticatedUser { id: string; name: string; email: string; role: 'user' | 'admin'; }
+export enum ReportCategory { Fraud = 'fraud', Harassment = 'harassment', InappropriateContent = 'inappropriate_content', Other = 'other' }
 export interface AuthResponse { accessToken: string; refreshToken: string; user: AuthenticatedUser; }
 export enum ServiceRequestFieldType { Text = 'text', Number = 'number', Select = 'select' }
 export interface ServiceRequestField { key: string; label: string; type: ServiceRequestFieldType; required?: boolean; minimum?: number; unit?: string; options?: Array<{ value: string; label: string }>; }

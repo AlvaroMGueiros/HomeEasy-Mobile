@@ -1,6 +1,5 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements';
-import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -10,10 +9,12 @@ import { Screen } from '../components/ui/Screen';
 import { PrivateMediaImage } from '../components/ui/PrivateMediaImage';
 import { StateView } from '../components/ui/StateView';
 import { UserAvatar } from '../components/ui/UserAvatar';
+import { UserBlockStatus, UserSafetyActions } from '../components/ui/UserSafetyActions';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { ChatMessage, UserProfile } from '../types/api';
 import { uploadMedia } from '../utils/media-upload';
+import { choosePhotos } from '../utils/photo-picker';
 
 function resolveMessageContent(message: ChatMessage) {
   if (message.type === 'budget') return `Orçamento: R$ ${message.budgetAmount}`;
@@ -27,6 +28,7 @@ function resolvePresenceLabel(isTyping: boolean, isOnline: boolean) {
 
 export function ChatScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Chat'>>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user } = useAuth();
   const headerHeight = useHeaderHeight();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -34,6 +36,8 @@ export function ChatScreen() {
   const [content, setContent] = useState('');
   const [presence, setPresence] = useState({ isOnline: false, isTyping: false });
   const [error, setError] = useState('');
+  const [blockStatus, setBlockStatus] = useState<UserBlockStatus | null>(null);
+  const canSend = params.isWritable && Boolean(blockStatus?.canMessage);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messageList = useRef<FlatList<ChatMessage>>(null);
 
@@ -67,7 +71,7 @@ export function ChatScreen() {
   }
 
   function updateContent(value: string) {
-    if (!params.isWritable) return;
+    if (!canSend) return;
     setContent(value);
     apiRequest('/presence', { method: 'PUT', body: JSON.stringify({ conversationId: params.conversationId, isTyping: Boolean(value) }) }).catch(() => undefined);
     if (typingTimer.current) clearTimeout(typingTimer.current);
@@ -79,7 +83,7 @@ export function ChatScreen() {
   }
 
   async function send() {
-    if (!params.isWritable || !content.trim()) return;
+    if (!canSend || !content.trim()) return;
     const message = content.trim();
     setContent('');
     try {
@@ -92,13 +96,8 @@ export function ChatScreen() {
   }
 
   async function sendImage() {
-    if (!params.isWritable) return;
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert('Permissão necessária', 'Autorize o acesso às fotos.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+    if (!canSend) return;
+    const result = await choosePhotos({ quality: 0.8 });
     if (result.canceled) return;
     try {
       const asset = result.assets[0];
@@ -110,9 +109,13 @@ export function ChatScreen() {
     }
   }
 
-  const presenceLabel = params.isWritable
+  const presenceLabel = canSend
     ? resolvePresenceLabel(presence.isTyping, presence.isOnline)
-    : 'serviço encerrado';
+    : 'somente consulta';
+  let closedNotice = 'Serviço encerrado. A conversa está disponível somente para consulta.';
+  if (params.isWritable) closedNotice = 'Conferindo se o envio de mensagens está disponível...';
+  if (blockStatus && !blockStatus.canMessage) closedNotice = 'Novas mensagens estão indisponíveis nesta conversa. O histórico e o atendimento são mantidos.';
+  if (blockStatus?.isBlocked) closedNotice = 'Você bloqueou esta pessoa. Para desbloquear, toque em Segurança. O bloqueio não cancela o serviço.';
 
   return <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={headerHeight}>
     <Screen scroll={false} header={<View style={styles.header}>
@@ -120,22 +123,23 @@ export function ChatScreen() {
       <View><Text style={styles.serviceName}>{params.serviceName}</Text><Text style={styles.name}>{params.otherUserName}</Text><Text style={styles.presence}>{presenceLabel}</Text></View>
     </View>}>
       {Boolean(error) && <StateView message={error} />}
+      <UserSafetyActions key={params.otherUserId} targetUserId={params.otherUserId} conversationId={params.conversationId} onStatusChange={setBlockStatus} />
       <FlatList
         ref={messageList}
         data={messages}
         keyExtractor={message => message.id}
         renderItem={({ item: message }) => {
           const ownMessage = message.senderId === user?.id;
-          return <View style={[styles.bubble, message.type === 'image' && styles.imageBubble, ownMessage ? styles.ownBubble : styles.otherBubble]}>{message.type === 'image' && message.attachment?.mediaId ? <PrivateMediaImage mediaId={message.attachment.mediaId} accessibilityLabel={`Imagem enviada por ${ownMessage ? 'você' : params.otherUserName}`} /> : <Text style={[styles.messageText, ownMessage && styles.ownText]}>{resolveMessageContent(message)}</Text>}<Text style={[styles.time, ownMessage && styles.ownTime]}>{new Date(message.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}{ownMessage && message.readAt ? '  ✓✓' : ''}</Text></View>;
+          return <Pressable accessibilityHint={ownMessage ? undefined : 'Pressione e segure para denunciar esta mensagem'} onLongPress={ownMessage ? undefined : () => navigation.navigate('Report', { targetUserId: params.otherUserId, conversationId: params.conversationId, messageId: message.id })} style={[styles.bubble, message.type === 'image' && styles.imageBubble, ownMessage ? styles.ownBubble : styles.otherBubble]}>{message.type === 'image' && message.attachment?.mediaId ? <PrivateMediaImage mediaId={message.attachment.mediaId} accessibilityLabel={`Imagem enviada por ${ownMessage ? 'você' : params.otherUserName}`} /> : <Text style={[styles.messageText, ownMessage && styles.ownText]}>{resolveMessageContent(message)}</Text>}<Text style={[styles.time, ownMessage && styles.ownTime]}>{new Date(message.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}{ownMessage && message.readAt ? '  ✓✓' : ''}</Text></Pressable>;
         }}
         contentContainerStyle={styles.messageListContent}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         onContentSizeChange={() => messageList.current?.scrollToEnd({ animated: true })}
       />
-      {params.isWritable
+      {canSend
         ? <View style={styles.composer}><Pressable accessibilityRole="button" accessibilityLabel="Escolher uma foto para enviar na conversa" onPress={sendImage} style={styles.attachment}><Text style={styles.attachmentText}>＋</Text></Pressable><TextInput value={content} onChangeText={updateContent} multiline accessibilityLabel="Mensagem para a conversa do serviço" placeholder="Escreva uma mensagem" placeholderTextColor={colors.textMuted} style={styles.input} /><Pressable accessibilityRole="button" accessibilityLabel="Enviar mensagem" onPress={send} style={styles.send}><Text style={styles.sendText}>Enviar</Text></Pressable></View>
-        : <View style={styles.closedNotice}><Text style={styles.closedNoticeText}>Serviço encerrado. A conversa está disponível somente para consulta.</Text></View>}
+        : <View style={styles.closedNotice}><Text style={styles.closedNoticeText}>{closedNotice}</Text></View>}
     </Screen>
   </KeyboardAvoidingView>;
 }
