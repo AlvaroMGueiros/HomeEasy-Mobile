@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { RegionalMap } from '../components/RegionalMap';
 import { AppButton } from '../components/ui/AppButton';
@@ -23,13 +23,20 @@ export function ServiceAddressMapScreen() {
     setCoordinate(null);
     setMatches([]);
     setError('');
-    resolveServiceAddress(params).then(resolvedMatches => {
+    function loadAddress() {
       if (!active) return;
-      setMatches(resolvedMatches);
-      if (resolvedMatches.length === 1) setCoordinate(resolvedMatches[0]);
-    }).catch(failure => {
-      if (active) setError(failure instanceof ServiceAddressError ? failure.message : 'Não foi possível consultar o endereço do serviço. Tente novamente.');
-    });
+      void resolveServiceAddress(params).then(resolvedMatches => {
+        if (!active) return;
+        setMatches(resolvedMatches);
+        if (resolvedMatches.length === 1) setCoordinate(resolvedMatches[0]);
+      }).catch(failure => {
+        if (active) setError(failure instanceof ServiceAddressError ? failure.message : 'Não foi possível consultar o endereço do serviço. Tente novamente.');
+      });
+    }
+    Alert.alert('Consultar endereço no mapa?', 'O endereço será enviado ao Photon/Komoot para localizar o atendimento. O mapa usa imagens do OpenStreetMap; esses serviços também recebem seu endereço IP.', [
+      { text: 'Agora não', style: 'cancel', onPress: () => { if (active) setError('Consulta de endereço não autorizada.'); } },
+      { text: 'Consultar', onPress: loadAddress }
+    ], { cancelable: false });
     return () => { active = false; };
   }, [params.address, params.city, params.state, attempt]);
 

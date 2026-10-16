@@ -23,6 +23,7 @@ const policySections = [
   {
     title: '3. Compartilhamento',
     paragraphs: [
+      'Para consultar o endereço de um atendimento, após sua autorização, enviamos o endereço informado ao serviço de geocodificação Photon/Komoot. Os mapas carregam imagens do OpenStreetMap. Esses provedores recebem seu endereço IP e informações sobre a região consultada; evite incluir complementos pessoais no campo de endereço.',
       'Não vendemos dados pessoais. Compartilhamos apenas o necessário com participantes de uma contratação e com fornecedores que operam serviços de infraestrutura, banco de dados, armazenamento, e-mail e entrega de notificações em nosso nome.',
       'Também poderemos compartilhar informações quando houver obrigação legal, solicitação de autoridade competente ou necessidade de proteger direitos e prevenir atividades ilícitas.'
     ]
@@ -62,7 +63,7 @@ const policySections = [
 
 export function FullPrivacyPolicyScreen() {
   return <Screen>
-    <SectionHeader eyebrow="Política de privacidade" title="Política completa" description="Última atualização: 18 de setembro de 2026." />
+    <SectionHeader eyebrow="Política de privacidade" title="Política completa" description="Última atualização: 16 de outubro de 2026." />
     <View style={styles.introduction}>
       <Text style={styles.text}>Esta política explica como o Home Easy coleta, utiliza, compartilha, protege e elimina dados pessoais durante o uso do aplicativo e de seus serviços.</Text>
     </View>

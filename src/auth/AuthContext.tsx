@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { Alert } from 'react-native';
 
-import { apiRequest, clearSession, readStoredUser, storeSession, storeUser } from '../api/api-client';
+import { apiRequest, clearSession, endSession, readStoredUser, storeSession, storeUser } from '../api/api-client';
 import { unregisterPushNotifications } from '../notifications/push-notifications';
 import { AuthenticatedUser, AuthResponse } from '../types/api';
 
@@ -58,8 +59,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
     async logout() {
       await unregisterPushNotifications().catch(() => undefined);
-      await clearSession();
-      setUser(null);
+      try { await endSession(); }
+      catch { Alert.alert('Conta desconectada neste aparelho', 'Não foi possível confirmar a revogação no servidor. Conecte-se à internet e entre novamente para gerenciar sua sessão.'); }
+      finally { setUser(null); }
     }
   }), [user, loading]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

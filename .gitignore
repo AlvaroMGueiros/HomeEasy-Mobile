@@ -39,8 +39,8 @@ expo.err.log
 .tools/
 
 # local env files
-.env
-.env*.local
+.env*
+!.env.example
 
 # local build artifacts
 *.apk
