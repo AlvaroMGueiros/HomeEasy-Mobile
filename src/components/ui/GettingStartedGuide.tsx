@@ -7,7 +7,7 @@ import { ChoiceChips } from './ChoiceChips';
 export function GettingStartedGuide({ goal, onChange }: { goal: GettingStartedGoal; onChange(goal: GettingStartedGoal): void }) {
   return <View style={styles.container}>
     <ChoiceChips value={goal} onChange={onChange} options={[{ value: GettingStartedGoal.FindProfessional, label: 'Quero contratar' }, { value: GettingStartedGoal.OfferServices, label: 'Quero trabalhar' }]} />
-    <Text style={styles.help}>Você pode usar a mesma conta para contratar e oferecer serviços. Essa escolha não limita sua conta.</Text>
+    <Text style={styles.help}>A mesma conta serve para contratar e oferecer serviços.</Text>
     {gettingStartedGuides[goal].steps.map((step, index) => <View key={step.title} style={styles.step}>
       <View style={styles.number}><Text style={styles.numberLabel}>{index + 1}</Text></View>
       <View style={styles.copy}><Text style={styles.title}>{step.title}</Text><Text style={styles.description}>{step.description}</Text></View>

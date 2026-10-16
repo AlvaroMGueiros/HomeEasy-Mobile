@@ -39,8 +39,8 @@ expo.err.log
 .tools/
 
 # local env files
-.env
-.env*.local
+.env*
+!.env.example
 
 # local build artifacts
 *.apk
@@ -52,6 +52,7 @@ expo.err.log
 /ios
 /android
 
-# Motion assets are not part of the mobile app
-/motion/
-/scripts/generate_audio_sfx.js
+# Build only the mobile application
+motion/
+.vscode/
+scripts/generate_audio_sfx.js

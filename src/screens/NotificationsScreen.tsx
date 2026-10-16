@@ -1,8 +1,9 @@
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
+import { AppButton } from '../components/ui/AppButton';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
@@ -17,20 +18,41 @@ export function NotificationsScreen() {
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [markingAll, setMarkingAll] = useState(false);
+  const mutationVersion = useRef(0);
 
   useFocusEffect(
     useCallback(() => {
+      let active = true;
+      const version = mutationVersion.current;
       apiRequest<Notification[]>('/notifications')
-        .then(setItems)
-        .catch(currentError => setError(currentError.message))
-        .finally(() => setLoading(false));
+        .then(notifications => { if (active && version === mutationVersion.current) { setItems(notifications); setError(''); } })
+        .catch(currentError => { if (active && version === mutationVersion.current) setError(currentError.message); })
+        .finally(() => { if (active) setLoading(false); });
+      return () => { active = false; };
     }, [])
   );
+
+  async function markAllRead() {
+    if (markingAll || loading) return;
+    setMarkingAll(true);
+    mutationVersion.current += 1;
+    try {
+      const response = await apiRequest<{ readAt: string }>('/notifications/read-all', { method: 'PATCH' });
+      setItems(current => current.map(notification => notification.readAt ? notification : { ...notification, readAt: response.readAt }));
+      setError('');
+    } catch (currentError) {
+      Alert.alert('Não foi possível marcar as notificações', currentError instanceof Error ? currentError.message : 'Confira sua conexão e tente novamente.');
+    } finally {
+      setMarkingAll(false);
+    }
+  }
 
   async function open(item: Notification) {
     if (!item.readAt) {
       try {
         const updated = await apiRequest<Notification>(`/notifications/${item.id}/read`, { method: 'PATCH' });
+        mutationVersion.current += 1;
         setItems(current => current.map(notification => (notification.id === item.id ? updated : notification)));
       } catch {
         // ignora erro ao marcar como lida
@@ -54,9 +76,9 @@ export function NotificationsScreen() {
   return (
     <Screen>
       <SectionHeader
-        eyebrow="Atualizações"
         title="Notificações"
       />
+      {items.some(notification => !notification.readAt) && <AppButton label="Marcar todas como lidas" variant="secondary" loading={markingAll} disabled={loading} onPress={() => void markAllRead()} />}
       {loading && <StateView loading message="Carregando notificações..." />}
       {Boolean(error) && <StateView message={error} />}
       {!loading && !error && !items.length && (

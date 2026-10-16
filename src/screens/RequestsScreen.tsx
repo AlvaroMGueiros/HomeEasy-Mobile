@@ -78,7 +78,7 @@ export function RequestsScreen() {
   const sectionCount = { requests: requests.length, opportunities: opportunities.length, proposals: proposals.length, orders: hiredOrders.length, jobs: acceptedJobs.length }[section];
 
   return <Screen>
-    <SectionHeader eyebrow="Acompanhamento" title="Meus serviços" />
+    <SectionHeader title="Meus serviços" />
     <ChoiceChips value={isProfessionalSection ? 'professional' : 'client'} onChange={role => setSection(role === 'professional' ? 'jobs' : 'orders')} options={roleOptions} segmented />
     <ChoiceChips value={section} onChange={setSection} options={visibleSectionOptions} />
     {!loading && !error && (section === 'orders' || section === 'jobs') && <ServiceActivitySummary {...orderSummary} />}
