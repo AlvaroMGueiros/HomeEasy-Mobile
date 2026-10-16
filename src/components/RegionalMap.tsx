@@ -42,8 +42,12 @@ export function RegionalMap({ html, onSelectCity, failureMessage = 'Confira sua 
       key={attempt}
       source={source}
       originWhitelist={['*']}
+      onShouldStartLoadWithRequest={request => request.url === 'about:blank' || request.url === source.baseUrl}
+      mixedContentMode="never"
+      allowFileAccess={false}
+      javaScriptCanOpenWindowsAutomatically={false}
       javaScriptEnabled
-      domStorageEnabled
+      domStorageEnabled={false}
       overScrollMode="never"
       setBuiltInZoomControls={false}
       applicationNameForUserAgent="HomeEasy/1.0"
