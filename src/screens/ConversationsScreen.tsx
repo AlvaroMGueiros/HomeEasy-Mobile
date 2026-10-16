@@ -39,7 +39,7 @@ export function ConversationsScreen() {
   const visibleConversations = section === 'active' ? activeConversations : closedConversations;
 
   return <Screen>
-    <SectionHeader eyebrow="Central de contato" title="Conversas" />
+    <SectionHeader title="Conversas" />
     <ChoiceChips value={section} onChange={setSection} options={sectionOptions} segmented />
     {loading && <StateView loading message="Carregando conversas..." />}
     {Boolean(error) && <StateView message={error} />}

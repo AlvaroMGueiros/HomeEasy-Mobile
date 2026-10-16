@@ -30,7 +30,7 @@ export function ProfileScreen() {
   const locationLabel = [profile?.city, profile?.state].filter(Boolean).join(', ');
 
   return <Screen>
-    <SectionHeader eyebrow="Minha conta" title="Perfil" />
+    <SectionHeader title="Perfil" />
     <View style={styles.profileCard}>
       <View style={styles.identity}>
         <UserAvatar name={profileName} mediaId={profile?.profilePhotoMediaId} size={64} />
