@@ -10,14 +10,14 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
@@ -27,4 +27,5 @@ jobs:
       - run: npm run verify:forms && npm run verify:permissions
       - run: npm audit --audit-level=critical
       - run: npm ci --ignore-scripts --prefix motion
+      - run: node motion/node_modules/typescript/bin/tsc --project motion/tsconfig.json --noEmit
       - run: npm audit --audit-level=high --prefix motion
