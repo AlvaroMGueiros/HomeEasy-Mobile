@@ -61,7 +61,7 @@ export function ServiceProfessionalsScreen() {
   function clearFilters() { setSearchTerm(''); setSelectedCity(''); setMinimumPrice(''); setMaximumPrice(''); setMinimumRating(0); }
 
   return <Screen>
-    <SectionHeader eyebrow="Profissionais disponíveis" title={params.serviceName} description="Compare localização, preço e reputação antes de escolher." />
+    <SectionHeader eyebrow="Profissionais disponíveis" title={params.serviceName} />
     <AppButton label={user ? 'Pedir orçamentos nesta região' : 'Entrar para solicitar'} onPress={() => user ? navigation.navigate('RequestForm', { serviceId: params.serviceId, serviceName: params.serviceName }) : navigation.navigate('Login')} />
     <View style={styles.searchBox}><Feather name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar por nome ou cidade" placeholderTextColor={colors.textMuted} style={styles.searchInput} accessibilityLabel="Buscar profissional" /></View>
     <Pressable style={styles.filterButton} onPress={() => setIsFilterOpen(currentValue => !currentValue)}><Feather name="sliders" size={18} color={colors.primary} /><Text style={styles.filterButtonText}>{isFilterOpen ? 'Ocultar filtros' : 'Mais filtros'}</Text></Pressable>

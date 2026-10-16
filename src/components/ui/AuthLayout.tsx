@@ -6,7 +6,7 @@ import { BrandPanel } from './BrandPanel';
 
 interface AuthLayoutProps extends PropsWithChildren {
   title: string;
-  description: string;
+  description?: string;
 }
 
 export function AuthLayout({ title, description, children }: AuthLayoutProps) {

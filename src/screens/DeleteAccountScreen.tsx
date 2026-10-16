@@ -40,7 +40,7 @@ export function DeleteAccountScreen() {
   }
 
   return <Screen>
-    <SectionHeader eyebrow="Privacidade e dados" title="Excluir minha conta" description="Revise com atenção antes de continuar." />
+    <SectionHeader eyebrow="Privacidade e dados" title="Excluir minha conta" />
     <View style={styles.warning}>
       <Text style={styles.title}>O que acontece depois?</Text>
       <Text style={styles.text}>Seu acesso será revogado e seus dados pessoais, documentos, fotos e anexos serão apagados ou anonimizados.</Text>

@@ -17,6 +17,8 @@ import { AboutScreen } from "../screens/AboutScreen";
 import { AdminScreen } from "../screens/AdminScreen";
 import { BecomeProfessionalScreen } from "../screens/BecomeProfessionalScreen";
 import { ChatScreen } from "../screens/ChatScreen";
+import { CommunityRulesScreen } from "../screens/CommunityRulesScreen";
+import { CommunityRulesGate } from "../components/ui/CommunityRulesGate";
 import { ContactScreen } from "../screens/ContactScreen";
 import { ConversationsScreen } from "../screens/ConversationsScreen";
 import { DeleteAccountScreen } from "../screens/DeleteAccountScreen";
@@ -115,7 +117,7 @@ function AppTabs() {
 }
 
 export function AppNavigator() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const openNotification = useCallback(
     (actionUrl?: string) => {
       if (!user || !navigationRef.isReady()) return;
@@ -134,9 +136,12 @@ export function AppNavigator() {
   );
 
   useEffect(() => {
+    if (!loading) void requestLocationAccess().catch(() => undefined);
+  }, [loading]);
+
+  useEffect(() => {
     if (!user) return;
-    void requestLocationAccess();
-    void registerPushNotifications().catch(() => undefined);
+    void requestLocationAccess().catch(() => false).then(() => registerPushNotifications()).catch(() => undefined);
 
     const responseSubscription =
       Notifications.addNotificationResponseReceivedListener((response) => {
@@ -223,6 +228,7 @@ export function AppNavigator() {
           component={FullPrivacyPolicyScreen}
           options={{ title: "Política de privacidade" }}
         />
+        <Stack.Screen name="CommunityRules" component={CommunityRulesScreen} options={{ title: "Regras de uso e moderação" }} />
         <Stack.Screen
           name="Services"
           component={ServicesScreen}
@@ -348,11 +354,11 @@ export function AppNavigator() {
           </>
         )}
       </Stack.Navigator>
-      {user && <WelcomeGuideModal key={user.id} userId={user.id} onStart={goal => {
+      {user && <CommunityRulesGate key={user.id} userId={user.id} onDecline={() => void logout()}><WelcomeGuideModal userId={user.id} onStart={goal => {
         if (!navigationRef.isReady()) return;
         if (goal === GettingStartedGoal.FindProfessional) navigationRef.navigate("Services");
         else navigationRef.navigate("ProfessionalManager");
-      }} />}
+      }} /></CommunityRulesGate>}
     </NavigationContainer>
   );
 }

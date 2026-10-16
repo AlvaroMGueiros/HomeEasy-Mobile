@@ -40,7 +40,7 @@ export function ServicesScreen() {
   function clearFilters() { setSearchTerm(''); setSelectedCategory(allCategories); }
 
   return <Screen>
-    <SectionHeader eyebrow="Serviços para sua casa" title="O que você precisa resolver?" description="Busque pelo serviço ou pelo problema e encontre profissionais compatíveis." />
+    <SectionHeader eyebrow="Serviços para sua casa" title="O que você precisa resolver?" />
     <View style={styles.searchBox}><Feather name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Ex.: vazamento, roupa, pintura" placeholderTextColor={colors.textMuted} style={styles.searchInput} returnKeyType="search" accessibilityLabel="Buscar serviço ou problema" /></View>
     <Pressable style={styles.filterButton} onPress={() => setIsFilterOpen(currentValue => !currentValue)} accessibilityRole="button"><Feather name="sliders" size={18} color={colors.primary} /><Text style={styles.filterButtonText}>{isFilterOpen ? 'Ocultar filtros' : 'Mais filtros'}</Text></Pressable>
     {isFilterOpen && <View style={styles.filterPanel}><Text style={styles.filterLabel}>Categoria</Text><View style={styles.chips}>{categories.map(category => <Pressable key={category} onPress={() => setSelectedCategory(category)} style={[styles.chip, selectedCategory === category && styles.selectedChip]}><Text style={[styles.chipText, selectedCategory === category && styles.selectedChipText]}>{category}</Text></Pressable>)}</View><Pressable onPress={clearFilters}><Text style={styles.clearText}>Limpar busca e filtros</Text></Pressable></View>}

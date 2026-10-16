@@ -43,13 +43,13 @@ export function ServiceAddressMapScreen() {
     <Text style={styles.address}>{formatServiceAddress(params)}</Text>
     {!mapHtml && matches.length === 0 && <StateView loading={!error} title={error ? 'Endereço não confirmado' : undefined} message={error || 'Localizando o endereço do serviço...'} onAction={error ? () => setAttempt(currentAttempt => currentAttempt + 1) : undefined} />}
     {!coordinate && matches.length > 1 && <>
-      <Text style={styles.help}>Encontramos mais de um local. Escolha o endereço correspondente ao pedido.</Text>
+      <Text style={styles.help}>Escolha o endereço do pedido.</Text>
       {matches.map(match => <AppButton key={`${match.latitude}:${match.longitude}:${match.label}`} label={match.label} variant="secondary" onPress={() => setCoordinate(match)} />)}
     </>}
     {mapHtml && <>
       <Text style={styles.address}>Encontrado: {coordinate?.label}</Text>
       <View style={styles.map}><RegionalMap html={mapHtml} onSelectCity={() => undefined} failureMessage="O endereço foi localizado, mas o mapa não carregou. Confira sua conexão e tente novamente." /></View>
-      <Text style={styles.help}>Localização aproximada do endereço encontrado. Confirme o número e o ponto de referência pela conversa.</Text>
+      <Text style={styles.help}>Localização aproximada. Confirme o endereço na conversa.</Text>
       {matches.length > 1 && <AppButton label="Escolher outro resultado" variant="secondary" onPress={() => setCoordinate(null)} />}
     </>}
   </Screen>;

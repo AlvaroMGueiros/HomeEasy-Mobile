@@ -25,7 +25,7 @@ export function ProfessionalReviewsScreen() {
   if (!reviewResponse) return <Screen><StateView loading={!error} message={error || 'Carregando avaliações...'} /></Screen>;
 
   return <Screen>
-    <SectionHeader eyebrow="Reputação" title={`Avaliações de ${params.professionalName}`} description="Experiências verificadas de clientes que concluíram um serviço." />
+    <SectionHeader eyebrow="Reputação" title={`Avaliações de ${params.professionalName}`} />
     <View style={styles.summary}><Text style={styles.average}>{reviewResponse.ratingAverage ? reviewResponse.ratingAverage.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—'}</Text><View><Text style={styles.summaryLabel}>Avaliação média</Text><Text style={styles.total}>{reviewResponse.total} {reviewResponse.total === 1 ? 'avaliação' : 'avaliações'}</Text></View></View>
     {!reviewResponse.reviews.length && <View style={styles.empty}><Text style={styles.emptyTitle}>Ainda não há avaliações</Text><Text style={styles.emptyText}>As experiências dos clientes aparecerão depois dos primeiros serviços concluídos.</Text></View>}
     {reviewResponse.reviews.map(review => <ProfessionalReviewCard key={review.id} review={review} />)}

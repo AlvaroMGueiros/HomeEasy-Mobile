@@ -5,7 +5,7 @@ import { BrandLogo } from './BrandLogo';
 
 interface BrandPanelProps {
   title: string;
-  description: string;
+  description?: string;
   compact?: boolean;
   landing?: boolean;
   landingMinHeight?: number;
@@ -21,7 +21,7 @@ export function BrandPanel({ title, description, compact = false, landing = fals
     />
     <View style={styles.copy}>
       <Text style={[styles.title, compact && styles.compactTitle, landing && styles.landingTitle]}>{title}</Text>
-      <Text style={[styles.description, landing && styles.landingDescription]}>{description}</Text>
+      {description && <Text style={[styles.description, landing && styles.landingDescription]}>{description}</Text>}
     </View>
   </View>;
 }

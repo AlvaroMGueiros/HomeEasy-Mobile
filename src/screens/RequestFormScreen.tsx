@@ -1,4 +1,3 @@
-import * as ImagePicker from 'expo-image-picker';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState } from 'react';
@@ -21,6 +20,7 @@ import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Service, ServiceRequest, UserProfile } from '../types/api';
 import { uploadMedia } from '../utils/media-upload';
+import { choosePhotos } from '../utils/photo-picker';
 import { parseOptionalNumber } from '../utils/number';
 import { resolvePreferredAppointment } from '../utils/date';
 
@@ -59,9 +59,7 @@ export function RequestFormScreen() {
   }, [params.serviceId]);
 
   async function selectImages() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) { Alert.alert('Permissão necessária', 'Permita o acesso às fotos para adicionar imagens.'); return; }
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, selectionLimit: 8, quality: 0.8 });
+    const result = await choosePhotos({ allowsMultipleSelection: true, selectionLimit: 8, quality: 0.8 });
     if (!result.canceled) setImages(result.assets.slice(0, 8).map((asset, index) => ({ uri: asset.uri, fileName: asset.fileName || `solicitacao-${index + 1}.jpg`, contentType: asset.mimeType || 'image/jpeg' })));
   }
 
@@ -88,23 +86,21 @@ export function RequestFormScreen() {
     } catch (error) { Alert.alert('Não foi possível enviar', error instanceof Error ? error.message : 'Revise os dados e tente novamente.'); } finally { setLoading(false); }
   }
 
-  return <Screen><SectionHeader eyebrow={params.professionalId ? 'Pedir orçamento a este profissional' : 'Pedir orçamentos'} title={params.serviceName} description="Conte o que precisa ser feito e onde será o serviço. Enviar este pedido ainda não confirma uma contratação." />
+  return <Screen><SectionHeader eyebrow={params.professionalId ? 'Pedir orçamento a este profissional' : 'Pedir orçamentos'} title={params.serviceName} description="Enviar o pedido não confirma a contratação." />
     {formError && <StateView title="Perguntas indisponíveis" message={formError} />}
     {loadingForm && <StateView loading message="Carregando as perguntas do serviço..." />}
     <FormField required label="O que você precisa que seja feito?" value={description} onChangeText={setDescription} multiline placeholder="Explique o problema, o ambiente e o resultado esperado." />
-    <Text style={styles.descriptionHelp}>Escreva pelo menos 20 caracteres para ajudar o profissional a entender o serviço. ({description.trim().length}/20)</Text>
+    <Text style={styles.descriptionHelp}>Mínimo de 20 caracteres · {description.trim().length}/20</Text>
     <Text style={styles.label}>Quando você precisa do serviço?</Text><ChoiceChips value={urgency} onChange={setUrgency} options={[{ value: 'flexible', label: 'Posso combinar a data' }, { value: 'this_week', label: 'Esta semana' }, { value: 'urgent', label: 'O quanto antes' }]} />
     <ServiceRequestFields fields={service?.requestForm || []} answers={answers} onChange={(key, value) => setAnswers(current => ({ ...current, [key]: value }))} />
     <FormField {...formCopy.address} required value={address} onChangeText={setAddress} />
     <FormField {...formCopy.city} required value={city} onChangeText={setCity} />
     <StatePickerField value={state} onChange={setState} required />
     <Text style={styles.label}>Quanto você pretende gastar?</Text>
-    <Text style={styles.descriptionHelp}>Os dois valores são opcionais. Se não souber, deixe em branco e compare os orçamentos recebidos.</Text>
     <FormField label="A partir de quanto? (R$, opcional)" placeholder="Ex.: 100,00" value={budgetMinimum} onChangeText={setBudgetMinimum} keyboardType="decimal-pad" />
     <FormField label="Até quanto? (R$, opcional)" placeholder="Ex.: 300,00" value={budgetMaximum} onChangeText={setBudgetMaximum} keyboardType="decimal-pad" />
     <DatePickerField clearable label="Dia de preferência (opcional)" value={preferredDate} onChange={setPreferredDate} minimumDate={minimumPreferredDate} />
     {Boolean(preferredDate) && <TimePickerField label="Horário de sua preferência" value={preferredTime} onChange={setPreferredTime} />}
-    <Text style={styles.descriptionHelp}>Pode ser hoje, desde que o horário ainda não tenha passado. Sem data, combine o atendimento pela conversa.</Text>
     <Pressable style={styles.photoButton} onPress={selectImages}><Text style={styles.photoLabel}>Adicionar fotos ({images.length}/8)</Text></Pressable><View style={styles.images}>{images.map(image => <Image key={image.uri} source={{ uri: image.uri }} style={styles.image} />)}</View>
     <AppButton label="Pedir orçamento" onPress={submit} loading={loading} disabled={loadingForm || Boolean(formError)} />
   </Screen>;

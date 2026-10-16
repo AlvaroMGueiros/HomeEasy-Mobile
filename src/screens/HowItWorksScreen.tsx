@@ -22,7 +22,7 @@ export function HowItWorksScreen() {
   }
 
   return <Screen>
-    <SectionHeader eyebrow="Passo a passo" title="Como usar o aplicativo" description="Escolha o que você quer fazer e veja por onde começar." />
+    <SectionHeader eyebrow="Passo a passo" title="Como usar o aplicativo" />
     <GettingStartedGuide goal={goal} onChange={setGoal} />
     <AppButton label={gettingStartedGuides[goal].action} onPress={start} />
   </Screen>;

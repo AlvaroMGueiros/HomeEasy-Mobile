@@ -1,4 +1,3 @@
-import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
@@ -10,6 +9,7 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
 import { colors } from '../theme/colors';
 import { uploadMedia } from '../utils/media-upload';
+import { choosePhotos } from '../utils/photo-picker';
 import { resolveEnumLabel, resolveStatusLabel } from '../utils/status';
 
 const documentInstructions = {
@@ -31,12 +31,7 @@ export function VerificationScreen() {
   }
 
   async function submit() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert('Permissão necessária', 'Autorize o acesso aos arquivos de imagem.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.9 });
+    const result = await choosePhotos({ quality: 0.9 });
     if (result.canceled) return;
     setLoading(true);
     try {
@@ -53,7 +48,7 @@ export function VerificationScreen() {
   }
 
   return <Screen>
-    <SectionHeader eyebrow="Confiança e segurança" title="Confirmar seus documentos" description="Escolha o tipo de documento e envie uma foto legível. Esses arquivos não aparecem no seu perfil público; nossa equipe fará a análise." />
+    <SectionHeader eyebrow="Confiança e segurança" title="Confirmar seus documentos" description="Documentos privados, visíveis apenas à nossa equipe." />
     <ChoiceChips value={type} onChange={setType} options={[{ value: 'identity', label: 'Documento com foto' }, { value: 'address_proof', label: 'Comprovante de endereço' }, { value: 'professional_certificate', label: 'Certificado de curso' }]} />
     <Text style={styles.notes}>{documentInstructions[type]}</Text>
     <AppButton label="Escolher foto e enviar documento" onPress={submit} loading={loading} />

@@ -37,7 +37,7 @@ export function resolveOrderStatusDescription(status: OrderStatus, isClient: boo
     case OrderStatus.Completed: return isClient ? 'Serviço concluído. Confira os detalhes e avalie seu atendimento.' : 'Serviço concluído. Publique as fotos do resultado na seção abaixo.';
     case OrderStatus.CancelledByClient: return 'Este pedido foi cancelado pelo cliente. Consulte o motivo nos detalhes.';
     case OrderStatus.CancelledByProfessional: return 'Este pedido foi cancelado pelo profissional. Consulte o motivo nos detalhes.';
-    case OrderStatus.Disputed: return 'Foi registrado um problema com o serviço. Acompanhe seu relato e a resposta da nossa equipe nesta página.';
+    case OrderStatus.Disputed: return 'Problema em análise. Acompanhe a resposta da nossa equipe.';
   }
 }
 

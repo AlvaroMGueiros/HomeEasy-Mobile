@@ -51,29 +51,27 @@ export function LoginScreen() {
     setError('');
   }
 
-  const title = mode === 'login' ? 'Que bom ter você de volta.' : 'Crie sua conta Home Easy.';
-  const description = mode === 'login' ? 'Acesse seus pedidos, conversas e profissionais.' : 'Use a mesma conta para contratar profissionais ou oferecer seus serviços.';
+  const title = mode === 'login' ? 'Entrar na sua conta' : 'Criar conta';
 
-  return <AuthLayout title={title} description={description}>
-    <Text style={styles.cardTitle}>{mode === 'login' ? 'Entrar na sua conta' : 'Começar cadastro'}</Text>
+  return <AuthLayout title={title}>
     <View style={styles.tabs}>
       <Pressable onPress={() => changeMode('login')} style={[styles.tab, mode === 'login' && styles.activeTab]}><Text style={[styles.tabText, mode === 'login' && styles.activeTabText]}>Entrar</Text></Pressable>
       <Pressable onPress={() => changeMode('register')} style={[styles.tab, mode === 'register' && styles.activeTab]}><Text style={[styles.tabText, mode === 'register' && styles.activeTabText]}>Criar conta</Text></Pressable>
     </View>
     {mode === 'register' && <>
-      <FormField {...formCopy.name} required hint="Informe seu nome completo, com pelo menos 3 caracteres." value={name} onChangeText={setName} maxLength={160} />
-      <FormField required label="Data de nascimento" keyboardType="number-pad" maxLength={10} placeholder="Ex.: 15/03/1990" hint="Informe dia, mês e ano. Você precisa ter 18 anos ou mais." value={birthDate} onChangeText={value => setBirthDate(formatBrazilianBirthDate(value))} />
+      <FormField {...formCopy.name} required value={name} onChangeText={setName} maxLength={160} />
+      <FormField required label="Data de nascimento" keyboardType="number-pad" maxLength={10} placeholder="Ex.: 15/03/1990" hint="A partir de 18 anos." value={birthDate} onChangeText={value => setBirthDate(formatBrazilianBirthDate(value))} />
     </>}
     <FormField {...formCopy.email} required hint={email.trim() && !isValidEmailAddress(email) ? 'Confira o e-mail. Exemplo: maria@email.com' : undefined} value={email} onChangeText={setEmail} />
     <FormField required label={mode === 'login' ? 'Senha da sua conta' : 'Crie uma senha'} secureTextEntry autoComplete={mode === 'login' ? 'current-password' : 'new-password'} hint={mode === 'register' ? formCopy.passwordHint : undefined} value={password} onChangeText={setPassword} />
     {Boolean(error) && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
     <AppButton label={mode === 'login' ? 'Entrar' : 'Criar conta'} onPress={submit} loading={loading} disabled={!canSubmit} />
+    {mode === 'register' && <Pressable accessibilityRole="link" onPress={() => navigation.navigate('CommunityRules')}><Text style={styles.recovery}>Leia as regras de uso e moderação</Text></Pressable>}
     {mode === 'login' && <Pressable onPress={() => navigation.navigate('ForgotPassword')}><Text style={styles.recovery}>Esqueci minha senha</Text></Pressable>}
   </AuthLayout>;
 }
 
 const styles = StyleSheet.create({
-  cardTitle: { color: colors.text, fontSize: 22, fontWeight: '800' },
   tabs: { flexDirection: 'row', padding: 4, borderRadius: 14, backgroundColor: colors.background },
   tab: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
   activeTab: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },

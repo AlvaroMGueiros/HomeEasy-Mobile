@@ -56,7 +56,6 @@ export function NotificationsScreen() {
       <SectionHeader
         eyebrow="Atualizações"
         title="Notificações"
-        description="Acompanhe propostas, mensagens e alterações dos pedidos."
       />
       {loading && <StateView loading message="Carregando notificações..." />}
       {Boolean(error) && <StateView message={error} />}

@@ -16,6 +16,7 @@ import { ProfessionalServiceList } from '../components/professional/Professional
 import { AppButton } from '../components/ui/AppButton';
 import { Screen } from '../components/ui/Screen';
 import { StateView } from '../components/ui/StateView';
+import { UserSafetyActions } from '../components/ui/UserSafetyActions';
 import { ProfileEditorSection, RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Conversation, Favorite, Professional, ProfessionalReviewsResponse, ProfessionalService, Schedule } from '../types/api';
@@ -180,6 +181,7 @@ export function ProfessionalScreen() {
         {activeTab === ProfessionalProfileTab.Reviews && <ProfessionalProfileReviews response={reviews} loading={reviewsLoading} error={reviewsError} onRetry={refreshProfile} onViewAll={viewAllReviews} />}
         {activeTab === ProfessionalProfileTab.Photos && <ProfessionalProfilePhotos professional={professional} />}
         {!isOwnProfile && <Pressable accessibilityRole="button" onPress={() => user ? navigation.navigate('Report', { targetUserId: professional.id }) : navigation.navigate('Login')} style={styles.report}><Feather name="flag" size={14} color={colors.textMuted} /><Text style={styles.reportText}>Denunciar este perfil</Text></Pressable>}
+        {!isOwnProfile && user && <UserSafetyActions key={professional.id} targetUserId={professional.id} />}
       </View>
     </ScrollView>
     <View style={styles.footer}>

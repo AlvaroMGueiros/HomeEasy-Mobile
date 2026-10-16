@@ -19,7 +19,7 @@ export function OrderServiceSummary({ order, onViewDetails, onViewAddress }: { o
       <View style={styles.calendar}><Feather name="calendar" size={20} color={colors.primary} /></View>
       <View style={styles.appointmentCopy}><Pressable accessibilityRole="button" accessibilityLabel="Ver horário do atendimento" onPress={onViewDetails}><Text style={styles.day}>{formatAppointmentDay(order.scheduledAt)}</Text><Text style={styles.hours}>{formatAppointmentTimeRange(order.scheduledAt, order.proposal.estimatedDurationMinutes)}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Ver endereço do serviço no mapa" onPress={onViewAddress} style={[styles.location, { minHeight: 44 }]}><Feather name="map-pin" size={16} color={colors.primary} /><Text numberOfLines={2} style={styles.locationLabel}>{formatServiceAddress(order.request)}</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
     </View>
-    {order.scheduledAt && <Text style={styles.help}>Término estimado conforme a duração informada na proposta.</Text>}
+    {order.scheduledAt && <Text style={styles.help}>Horário de término estimado.</Text>}
   </View>;
 }
 

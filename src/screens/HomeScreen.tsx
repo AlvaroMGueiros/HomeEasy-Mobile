@@ -8,7 +8,6 @@ import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { RegionalMap } from '../components/RegionalMap';
 import { ProfessionalDiscoveryCard } from '../components/professional/ProfessionalDiscoveryCard';
-import { ChoiceChips } from '../components/ui/ChoiceChips';
 import { MenuRow } from '../components/ui/MenuRow';
 import { StateView } from '../components/ui/StateView';
 import { RootStackParamList } from '../navigation/types';
@@ -182,8 +181,8 @@ export function HomeScreen() {
         Alert.alert('Localização desativada', 'Ative a localização do aparelho para encontrar profissionais próximos.');
         return;
       }
-      const permission = await Location.requestForegroundPermissionsAsync();
-      if (!permission.granted) {
+      const granted = await requestLocationAccess(true);
+      if (!granted) {
         Alert.alert('Permissão necessária', 'Permita o acesso à localização para encontrar profissionais próximos.');
         return;
       }
@@ -230,7 +229,6 @@ export function HomeScreen() {
     <Animated.View style={[styles.sheet, { top: sheetTop }]}>
       <View style={styles.dragArea} {...sheetPanResponder.panHandlers}><View style={styles.dragHandle} /></View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
-        <ChoiceChips value={isExpanded ? 'list' : 'map'} options={[{ value: 'map', label: 'Mapa' }, { value: 'list', label: 'Lista' }]} onChange={viewMode => animateSheet(viewMode === 'list' ? 'expanded' : 'default')} />
         {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet('default')} accessibilityRole="button"><Feather name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
         <Text style={styles.greeting}>Olá, {firstName}!</Text><Text style={styles.question}>Como podemos te ajudar hoje?</Text>
         <Pressable style={styles.search} onPress={() => navigation.navigate('Services')} accessibilityRole="button"><Feather name="search" size={22} color={colors.text} /><Text style={styles.searchText}>Buscar serviço ou profissional</Text></Pressable>
@@ -244,14 +242,14 @@ export function HomeScreen() {
             <Feather name="chevron-right" size={18} color={colors.primary} />
           </Pressable>
         </View>
-        {!loading && !professionals.length && <StateView message="Nenhum profissional encontrado nesta região. Explore o mapa ou escolha um serviço." />}
+        {!loading && !professionals.length && <StateView message="Nenhum profissional nesta região." />}
         {isExpanded ? <View style={styles.verticalList}>
           {professionals.map(professional => <ProfessionalDiscoveryCard key={professional.id} professional={professional} expanded onPress={() => navigation.navigate('Professional', { professionalId: professional.id })} />)}
         </View> : <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList} contentContainerStyle={styles.horizontalContent}>
           {professionals.slice(0, 6).map(professional => <ProfessionalDiscoveryCard key={professional.id} professional={professional} expanded={false} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })} />)}
         </ScrollView>}
-        <View style={styles.shortcut}><MenuRow icon="file-text" title="Precisa de um orçamento?" description="Escolha o serviço e conte o que você precisa." onPress={() => navigation.navigate('Services')} /></View>
-        <View style={styles.shortcut}><MenuRow icon="briefcase" title="Quer oferecer seus serviços?" description="Cadastre seu trabalho e encontre pedidos de clientes." onPress={() => navigation.navigate('ProfessionalManager')} /></View>
+        <View style={styles.shortcut}><MenuRow icon="file-text" title="Precisa de um orçamento?" onPress={() => navigation.navigate('Services')} /></View>
+        <View style={styles.shortcut}><MenuRow icon="briefcase" title="Quer oferecer seus serviços?" onPress={() => navigation.navigate('ProfessionalManager')} /></View>
       </ScrollView>
     </Animated.View>
   </View>;

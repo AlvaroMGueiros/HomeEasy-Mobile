@@ -33,7 +33,6 @@ export function OpportunitiesScreen() {
       <SectionHeader
         eyebrow="Para profissionais"
         title="Trabalhos disponíveis"
-        description="Veja o que os clientes precisam na sua região. Abra um pedido, confira os detalhes e envie seu orçamento."
       />
       {loading && <StateView loading message="Buscando oportunidades..." />}
       {Boolean(error) && <StateView message={error} />}

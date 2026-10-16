@@ -5,11 +5,11 @@ import { colors } from '../../theme/colors';
 
 export function ServiceActivitySummary({ attentionCount, completedCount }: { attentionCount: number; completedCount: number }) {
   return <View style={styles.row}>{[
-    { key: 'attention', title: 'Precisam de atenção', description: 'Em andamento ou em análise', count: attentionCount, icon: 'clock' as const, success: false },
-    { key: 'completed', title: 'Concluídos', description: 'Atendimentos finalizados', count: completedCount, icon: 'check-circle' as const, success: true }
+    { key: 'attention', title: 'Precisam de atenção', count: attentionCount, icon: 'clock' as const, success: false },
+    { key: 'completed', title: 'Concluídos', count: completedCount, icon: 'check-circle' as const, success: true }
   ].map(summary => <View key={summary.key} style={[styles.card, summary.success && styles.successCard]}>
     <View style={styles.top}><View style={[styles.icon, summary.success && styles.successIcon]}><Feather name={summary.icon} size={22} color={summary.success ? colors.success : colors.warning} /></View><Text style={[styles.count, summary.success && styles.successCount]}>{summary.count}</Text></View>
-    <Text style={styles.title}>{summary.title}</Text><Text style={styles.description}>{summary.description}</Text>
+    <Text style={styles.title}>{summary.title}</Text>
   </View>)}</View>;
 }
 
@@ -22,6 +22,5 @@ const styles = StyleSheet.create({
   successIcon: { backgroundColor: colors.successSoft },
   count: { color: colors.warning, fontSize: 17, fontWeight: '800' },
   successCount: { color: colors.success },
-  title: { color: colors.text, fontSize: 13, fontWeight: '800' },
-  description: { color: colors.textMuted, fontSize: 12, lineHeight: 17 }
+  title: { color: colors.text, fontSize: 13, fontWeight: '800' }
 });

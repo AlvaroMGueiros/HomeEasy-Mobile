@@ -14,6 +14,7 @@ export type RootStackParamList = {
   Contact: undefined;
   PrivacyPolicy: undefined;
   FullPrivacyPolicy: undefined;
+  CommunityRules: undefined;
   App: NavigatorScreenParams<AppTabParamList>;
   Services: undefined;
   ServiceProfessionals: { serviceId: string; serviceName: string };
@@ -34,7 +35,7 @@ export type RootStackParamList = {
   Schedule: undefined;
   Verification: undefined;
   Admin: undefined;
-  Report: { targetUserId?: string; conversationId?: string };
+  Report: { targetUserId?: string; conversationId?: string; messageId?: string };
   Dispute: { orderId: string };
   Opportunities: undefined;
   Notifications: undefined;

@@ -39,7 +39,7 @@ export function ProfessionalDashboardScreen() {
   const nextOrder = upcomingOrders[0];
 
   return <Screen>
-    <SectionHeader eyebrow="Área profissional" title="Seu trabalho, organizado" description="Seu próximo atendimento, oportunidades e resultados em um só lugar." />
+    <SectionHeader eyebrow="Área profissional" title="Seu trabalho, organizado" />
     {loading && <StateView loading message="Calculando seus resultados..." />}
     {Boolean(error) && <StateView message={error} />}
     {!loading && !error && <>

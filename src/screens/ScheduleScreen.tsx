@@ -61,12 +61,11 @@ export function ScheduleScreen() {
   if (!schedule) return <Screen><StateView loading={loading} title="Agenda indisponível" message={error || 'Carregando disponibilidade...'} onAction={error ? loadSchedule : undefined} /></Screen>;
   const availableDays = new Set(schedule.periods.map(period => period.weekday)).size;
   return <Screen>
-    <SectionHeader eyebrow="Disponibilidade" title="Sua semana de trabalho" description="Ative os dias em que atende e ajuste os horários de cada um. Se faz uma pausa no almoço, cadastre um horário de manhã e outro à tarde." />
-    <View style={styles.summary}><Text style={styles.heading}>{availableDays} dias disponíveis por semana</Text><Text style={styles.help}>Dias desligados são folgas. As mudanças só entram em vigor ao salvar.</Text></View>
+    <SectionHeader eyebrow="Disponibilidade" title="Sua semana de trabalho" />
+    <View style={styles.summary}><Text style={styles.heading}>{availableDays} dias disponíveis por semana</Text></View>
     <AppButton label="Usar segunda a sexta · 08h às 18h" variant="secondary" disabled={saving} onPress={applyBusinessHours} />
     {professionalWeekdays.map((label, weekday) => <ProfessionalScheduleDay key={weekday} label={label} weekday={weekday} periods={schedule.periods.filter(period => period.weekday === weekday)} disabled={saving} onChange={periods => updateDay(weekday, periods)} />)}
     <Text style={styles.heading}>Folgas e datas especiais</Text>
-    <Text style={styles.help}>Bloqueie um dia inteiro para férias ou compromissos. Os horários especiais já cadastrados são preservados.</Text>
     {!saving && <DatePickerField label="Dia sem atendimento" value={blockedDate} onChange={setBlockedDate} minimumDate={new Date()} />}
     <AppButton label="Bloquear esta data" variant="secondary" disabled={!blockedDate || saving} onPress={blockDate} />
     {schedule.exceptions.map(exception => <View key={exception.date} style={styles.summary}><Text style={styles.heading}>{formatIsoDateForDisplay(exception.date.slice(0, 10))}</Text><Text style={styles.help}>{exception.isUnavailable ? 'Sem atendimento' : `${exception.startTime?.slice(0, 5)} às ${exception.endTime?.slice(0, 5)}`}</Text><AppButton label="Remover esta data da agenda" variant="secondary" disabled={saving} onPress={() => setSchedule(current => current ? { ...current, exceptions: current.exceptions.filter(currentException => currentException.date !== exception.date) } : current)} /></View>)}
