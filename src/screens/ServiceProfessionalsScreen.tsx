@@ -6,6 +6,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText as Text } from '../components/ui/AppText';
 import { AppTextInput as TextInput } from '../components/ui/AppTextInput';
 import { apiRequest } from '../api/api-client';
+import { Alert } from 'react-native';
+import { DatePickerField } from '../components/ui/DatePickerField';
+import { TimePickerField } from '../components/ui/TimePickerField';
+import { resolveAvailabilityQuery } from '../utils/professionalAvailability';
 import { AppButton } from '../components/ui/AppButton';
 import { useAuth } from '../auth/AuthContext';
 import { UserAvatar } from '../components/ui/UserAvatar';
@@ -24,6 +28,9 @@ export function ServiceProfessionalsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ServiceProfessionals'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user } = useAuth();
+  const [availableDate, setAvailableDate] = useState('');
+  const [availableTime, setAvailableTime] = useState('');
+  const [availabilityQuery, setAvailabilityQuery] = useState('');
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
@@ -35,12 +42,16 @@ export function ServiceProfessionalsScreen() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const query = new URLSearchParams({ serviceId: params.serviceId, limit: '50' });
+    let active = true;
+    setLoading(true); setError(''); setProfessionals([]);
+    const query = new URLSearchParams(availabilityQuery);
+    query.set('serviceId', params.serviceId); query.set('limit', '50');
     apiRequest<ProfessionalsResponse>(`/professionals?${query.toString()}`)
-      .then(response => setProfessionals(response.professionals.filter(professional => professional.id !== user?.id)))
-      .catch(currentError => setError(currentError instanceof Error ? currentError.message : 'Não foi possível carregar os profissionais.'))
-      .finally(() => setLoading(false));
-  }, [params.serviceId, user?.id]);
+      .then(response => { if (active) setProfessionals(response.professionals.filter(professional => professional.id !== user?.id)); })
+      .catch(currentError => { if (active) setError(currentError instanceof Error ? currentError.message : 'Não foi possível carregar os profissionais.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [params.serviceId, user?.id, availabilityQuery]);
 
   const cities = useMemo(() => Array.from(new Set(professionals.map(professional => professional.city).filter((city): city is string => Boolean(city)))).sort(), [professionals]);
   const parsedMinimumPrice = parseOptionalNumber(minimumPrice);
@@ -60,14 +71,23 @@ export function ServiceProfessionalsScreen() {
     });
   }, [hasInvalidPriceRange, minimumRating, params.serviceId, parsedMaximumPrice, parsedMinimumPrice, professionals, searchTerm, selectedCity]);
 
-  function clearFilters() { setSearchTerm(''); setSelectedCity(''); setMinimumPrice(''); setMaximumPrice(''); setMinimumRating(0); }
+  function applyAvailability() {
+    try { setAvailabilityQuery(resolveAvailabilityQuery(availableDate, availableTime)); }
+    catch (failure) { Alert.alert('Revise a disponibilidade', (failure as Error).message); }
+  }
+
+  function clearFilters() { setAvailableDate(''); setAvailableTime(''); setAvailabilityQuery(''); setSearchTerm(''); setSelectedCity(''); setMinimumPrice(''); setMaximumPrice(''); setMinimumRating(0); }
 
   return <Screen>
     <SectionHeader eyebrow="Profissionais disponíveis" title={params.serviceName} />
     <AppButton label={user ? 'Pedir orçamentos nesta região' : 'Entrar para solicitar'} onPress={() => user ? navigation.navigate('RequestForm', { serviceId: params.serviceId, serviceName: params.serviceName }) : navigation.navigate('Login')} />
     <View style={styles.searchBox}><Feather name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar por nome ou cidade" placeholderTextColor={colors.textMuted} style={styles.searchInput} accessibilityLabel="Buscar profissional" /></View>
     <Pressable style={styles.filterButton} onPress={() => setIsFilterOpen(currentValue => !currentValue)}><Feather name="sliders" size={18} color={colors.primary} /><Text style={styles.filterButtonText}>{isFilterOpen ? 'Ocultar filtros' : 'Mais filtros'}</Text></Pressable>
+    {Boolean(availabilityQuery) && <Text style={styles.resultCount}>Agenda livre para até 1 hora no período escolhido · horário de Brasília</Text>}
     {isFilterOpen && <View style={styles.filterPanel}>
+      <DatePickerField clearable label="Dia do atendimento" value={availableDate} onChange={setAvailableDate} minimumDate={new Date()} />
+      <TimePickerField label="Horário de Brasília" value={availableTime} onChange={setAvailableTime} />
+      <AppButton label="Buscar com horário livre" variant="secondary" onPress={applyAvailability} />
       <Text style={styles.filterLabel}>Cidade</Text><View style={styles.chips}><Pressable onPress={() => setSelectedCity('')} style={[styles.chip, !selectedCity && styles.selectedChip]}><Text style={[styles.chipText, !selectedCity && styles.selectedChipText]}>Todas</Text></Pressable>{cities.map(city => <Pressable key={city} onPress={() => setSelectedCity(city)} style={[styles.chip, selectedCity === city && styles.selectedChip]}><Text style={[styles.chipText, selectedCity === city && styles.selectedChipText]}>{city}</Text></Pressable>)}</View>
       <Text style={styles.filterLabel}>Preço de referência (R$)</Text><View style={styles.priceFields}><TextInput value={minimumPrice} onChangeText={setMinimumPrice} keyboardType="decimal-pad" placeholder="A partir de (R$)" accessibilityLabel="Preço mínimo em reais" placeholderTextColor={colors.textMuted} style={styles.priceInput} /><TextInput value={maximumPrice} onChangeText={setMaximumPrice} keyboardType="decimal-pad" placeholder="Até (R$)" accessibilityLabel="Preço máximo em reais" placeholderTextColor={colors.textMuted} style={styles.priceInput} /></View><Text style={styles.resultCount}>Você pode deixar os valores em branco. O preço final será combinado no orçamento.</Text>
       <Text style={styles.filterLabel}>Nota mínima dos clientes (de 1 a 5)</Text><View style={styles.chips}>{[0, 3, 4, 4.5].map(rating => <Pressable key={rating} onPress={() => setMinimumRating(rating)} style={[styles.chip, minimumRating === rating && styles.selectedChip]}><Text style={[styles.chipText, minimumRating === rating && styles.selectedChipText]}>{rating ? `${rating.toLocaleString('pt-BR')} estrelas ou mais` : 'Qualquer'}</Text></Pressable>)}</View>

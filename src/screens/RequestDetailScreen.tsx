@@ -12,6 +12,7 @@ import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
 import { UserAvatar } from '../components/ui/UserAvatar';
+import { ProposalComparison } from '../components/professional/ProposalComparison';
 import { ProfessionalReputation } from '../components/professional/ProfessionalReputation';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
@@ -28,6 +29,7 @@ export function RequestDetailScreen() {
   const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [comparing, setComparing] = useState(false);
   const [proposalSort, setProposalSort] = useState(ProposalSort.LowestPrice);
   const [error, setError] = useState('');
 
@@ -96,13 +98,15 @@ export function RequestDetailScreen() {
     {!isOwner && !request.hasSubmittedProposal && <AppButton label="Enviar meu orçamento" onPress={() => navigation.navigate('ProposalForm', { requestId: request.id, serviceName: request.service?.name || 'Serviço' })} />}
     {isOwner && <>
       <Text style={styles.heading}>Orçamentos recebidos</Text>
+      {proposals.length > 1 && <AppButton label={comparing ? 'Ver propostas em lista' : 'Comparar lado a lado'} variant="secondary" onPress={() => setComparing(current => !current)} />}
+      {comparing && proposals.length > 1 && <ProposalComparison proposals={sortedProposals} canAccept={request.status !== 'accepted'} onAccept={accept} />}
       {proposals.length > 1 && <ChoiceChips value={proposalSort} onChange={setProposalSort} options={[
         { value: ProposalSort.LowestPrice, label: 'Menor preço' },
         { value: ProposalSort.BestRated, label: 'Melhor avaliação' },
         { value: ProposalSort.FastestResponse, label: 'Resposta mais rápida' }
       ]} />}
       {!proposals.length && <StateView message="Você ainda não recebeu orçamentos. Os profissionais poderão responder ao seu pedido." />}
-      {sortedProposals.map(proposal => <View key={proposal.id} style={styles.card}>
+      {!comparing && sortedProposals.map(proposal => <View key={proposal.id} style={styles.card}>
         <View style={styles.comparisonHeader}><Text style={styles.status}>{resolveProposalStatusLabel(proposal.status)}</Text><Text style={styles.validity}>{resolveProposalValidity(proposal.validUntil, proposal.status)}</Text></View>
         <View style={styles.professional}><UserAvatar name={proposal.professional?.name || 'Profissional'} mediaId={proposal.professional?.profilePhotoMediaId} /><View style={styles.grow}><Text style={styles.name}>{proposal.professional?.name}</Text>{proposal.professional && <ProfessionalReputation professional={proposal.professional} compact />}<Text style={styles.price}>{formatCurrency(calculateProposalTotal(proposal))}</Text></View></View>
         <Text style={styles.line}>{proposal.message}</Text>

@@ -4,32 +4,21 @@ import { StyleSheet, View } from 'react-native';
 import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { Professional, ProfessionalVerificationStatus } from '../../types/api';
+import { resolveProfessionalVerification } from '../../utils/professionalVerification';
 
 interface ProfessionalReputationProps {
   professional: Professional;
   compact?: boolean;
 }
 
-const verifiedStatuses = new Set([
-  ProfessionalVerificationStatus.IdentityVerified,
-  ProfessionalVerificationStatus.ProfessionalVerified,
-  ProfessionalVerificationStatus.Featured,
-  ProfessionalVerificationStatus.Verified
-]);
-
 export function ProfessionalReputation({ professional, compact = false }: ProfessionalReputationProps) {
   const metrics = professional.metrics;
-  const isVerified = Boolean(
-    professional.verificationStatus && verifiedStatuses.has(professional.verificationStatus)
-  );
-  const isProfessionallyVerified = professional.verificationStatus === ProfessionalVerificationStatus.ProfessionalVerified ||
-    professional.verificationStatus === ProfessionalVerificationStatus.Verified ||
-    professional.verificationStatus === ProfessionalVerificationStatus.Featured;
+  const checks = resolveProfessionalVerification(professional);
 
   return <View style={styles.container}>
     <View style={styles.badges}>
-      {isVerified && <View style={styles.badge}><Feather name="check-circle" size={14} color={colors.success} /><Text style={styles.badgeText}>Identidade verificada</Text></View>}
-      {isProfessionallyVerified && <View style={styles.badge}><Feather name="shield" size={14} color={colors.primary} /><Text style={styles.badgeText}>Profissional verificado</Text></View>}
+      {checks.identity && <View style={styles.badge}><Feather name="check-circle" size={14} color={colors.success} /><Text style={styles.badgeText}>Identidade verificada</Text></View>}
+      {checks.certificate && <View style={styles.badge}><Feather name="shield" size={14} color={colors.primary} /><Text style={styles.badgeText}>Certificado verificado</Text></View>}
       {professional.verificationStatus === ProfessionalVerificationStatus.Featured && <View style={styles.badge}><Feather name="award" size={14} color={colors.warning} /><Text style={styles.badgeText}>Destaque</Text></View>}
     </View>
     <View style={styles.metrics}>

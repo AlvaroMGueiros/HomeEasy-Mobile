@@ -85,6 +85,8 @@ export function ProfileScreen() {
       <View style={styles.menuCard}>
         <MenuRow icon="shield" title="Regras de uso e moderação" onPress={() => navigation.navigate('CommunityRules')} />
         <View style={styles.divider} />
+        <MenuRow icon="bell" title="Preferências de notificações" onPress={() => navigation.navigate('NotificationPreferences')} />
+        <View style={styles.divider} />
         <MenuRow icon="lock" title="Política de privacidade" onPress={() => navigation.navigate('PrivacyPolicy')} />
         <View style={styles.divider} />
         <MenuRow icon="log-out" title="Sair da conta" onPress={logout} />

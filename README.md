@@ -11,7 +11,11 @@ Este repositório contém o aplicativo React Native e Expo. O backend NestJS é 
 - Catálogo e pesquisa de serviços, mapa regional, localização atual e profissionais por cidade.
 - Perfis com serviços, apresentação, fotos, avaliações e opção de favoritar.
 - Pedidos de orçamento abertos à região ou direcionados a um profissional, com perguntas específicas do serviço e anexos.
-- Comparação de propostas com valor, duração, deslocamento, materiais e forma de pagamento combinada.
+- Pedido rápido em três etapas: serviço e fotos, local e data, revisão antes de enviar.
+- Comparação de propostas lado a lado com total, duração, materiais, pagamento, escopo e avaliações.
+- Busca de profissionais com horário livre e consulta de agenda no perfil (horário de Brasília; duração consultada de uma hora).
+- Verificações mostram somente documentos aprovados; telefone não é marcado como confirmado.
+- Compartilhamento de perfis com link `homeeasy://professionals/:id` para abrir no aplicativo instalado.
 
 ### Meus serviços
 
@@ -21,12 +25,17 @@ Este repositório contém o aplicativo React Native e Expo. O backend NestJS é 
 - Detalhes do atendimento com participantes, endereço, valor combinado e histórico do andamento.
 - Agendamento, início, conclusão, cancelamento, registro de problemas, fotos do resultado, avaliação e recontratação, conforme o estado do serviço e o papel do usuário.
 
+- **Contratar novamente** abre um pedido preenchido para revisão, mantendo o profissional. Data e fotos são escolhidas novamente.
+- Atraso e ausência podem ser relatados no próprio atendimento; o acompanhamento fica no histórico.
+
 ### Conversas e notificações
 
 - Conversa vinculada a cada atendimento, com texto, imagens, confirmação de leitura e indicadores de presença e digitação.
 - Abas **Em andamento** e **Encerradas**; conversas encerradas mantêm o histórico e não recebem novas mensagens.
 - Notificações push, lista de avisos e abertura do pedido, atendimento ou conversa correspondente.
 - Leitura individual ao abrir uma notificação e botão **Marcar todas como lidas** para atualizar também as notificações fora das 50 exibidas na lista.
+
+- Preferências de push por conta: mensagens, orçamentos, atendimentos/suporte, avaliações e novos pedidos. O histórico interno é preservado.
 
 ### Área profissional
 

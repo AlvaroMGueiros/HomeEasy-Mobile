@@ -30,6 +30,7 @@ import { FullPrivacyPolicyScreen } from "../screens/FullPrivacyPolicyScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { HowItWorksScreen } from "../screens/HowItWorksScreen";
 import { LoginScreen } from "../screens/LoginScreen";
+import { NotificationPreferencesScreen } from '../screens/NotificationPreferencesScreen';
 import { NotificationsScreen } from "../screens/NotificationsScreen";
 import { OpportunitiesScreen } from "../screens/OpportunitiesScreen";
 import { OrderDetailScreen } from "../screens/OrderDetailScreen";
@@ -159,7 +160,7 @@ export function AppNavigator() {
 
   if (loading) return <SplashScreen />;
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} linking={{ prefixes: ['homeeasy://'], config: { screens: { Professional: 'professionals/:professionalId', PublicHome: '' } } }}>
       <Stack.Navigator
         screenOptions={{
           headerTintColor: colors.primary,
@@ -343,6 +344,11 @@ export function AppNavigator() {
               name="Dispute"
               component={DisputeScreen}
               options={{ title: "Problema com o serviço" }}
+            />
+            <Stack.Screen
+              name="NotificationPreferences"
+              component={NotificationPreferencesScreen}
+              options={{ title: "Preferências de notificações" }}
             />
             <Stack.Screen
               name="Notifications"

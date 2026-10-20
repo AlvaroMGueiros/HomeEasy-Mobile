@@ -50,3 +50,18 @@ export function prepareServiceAnswers(fields: ServiceRequestField[], answers: Re
   }
   return prepared;
 }
+
+export function resolveServiceAnswerDetails(answers: Record<string, string | number | boolean> | undefined, requestForm: ServiceRequestField[] = []) {
+  if (!answers) return [];
+  const fields = new Map(requestForm.map(field => [field.key, field]));
+  return Object.entries(answers).map(([key, answer]) => {
+    const field = fields.get(key);
+    let value = String(answer);
+    if (typeof answer === 'boolean') value = answer ? 'Sim' : 'Não';
+    const selectedOption = field?.options?.find(option => option.value === value);
+    if (selectedOption) value = selectedOption.label;
+    else if (value === 'yes') value = 'Sim';
+    else if (value === 'no') value = 'Não';
+    return { key, label: field ? resolveServiceQuestion(field).label : 'Informação adicional do serviço', value };
+  });
+}

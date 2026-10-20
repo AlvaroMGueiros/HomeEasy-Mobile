@@ -79,6 +79,7 @@ export function NotificationsScreen() {
       <SectionHeader
         title="Notificações"
       />
+      <AppButton label="Configurar avisos" variant="secondary" onPress={() => navigation.navigate('NotificationPreferences')} />
       {items.some(notification => !notification.readAt) && <AppButton label="Marcar todas como lidas" variant="secondary" loading={markingAll} disabled={loading} onPress={() => void markAllRead()} />}
       {loading && <StateView loading message="Carregando notificações..." />}
       {Boolean(error) && <StateView message={error} />}
