@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { apiRequest } from '../../api/api-client';
 import { colors } from '../../theme/colors';
 

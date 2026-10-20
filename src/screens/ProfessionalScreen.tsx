@@ -2,9 +2,10 @@ import { Feather } from '@expo/vector-icons';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { ProfessionalProfileAbout } from '../components/professional/ProfessionalProfileAbout';
@@ -111,7 +112,7 @@ export function ProfessionalScreen() {
   const shareProfile = useCallback(async () => {
     if (!professional || !summary) return;
     try {
-      await Share.share({ title: professional.name, message: `${professional.name} — ${summary.specialty}\n${summary.location}\nConheça este profissional no Home Easy.` });
+      await Share.share({ title: professional.name, message: `${professional.name} — ${summary.specialty}\n${summary.location}\nConheça este profissional no HomeEasy.` });
     } catch {
       Alert.alert('Não foi possível compartilhar', 'Tente compartilhar o perfil novamente.');
     }

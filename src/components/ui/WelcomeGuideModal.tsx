@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppText as Text } from './AppText';
 import { GettingStartedGoal, gettingStartedGuides } from '../../config/gettingStarted';
 import { colors } from '../../theme/colors';
 import { hasSeenWelcomeGuide, markWelcomeGuideSeen } from '../../utils/welcomeGuide';

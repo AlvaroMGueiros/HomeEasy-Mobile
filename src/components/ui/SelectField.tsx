@@ -1,12 +1,14 @@
 import { Feather } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 import { normalizeSearchText } from '../../utils/service-search';
 import { ChoiceOption } from './ChoiceChips';
 import { SearchField } from './SearchField';
+import { FieldLabel } from './FieldLabel';
 
 interface SelectFieldProps {
   label: string;
@@ -35,7 +37,7 @@ export function SelectField({ label, value, options, onChange, placeholder = 'Se
   function close() { setVisible(false); setSearchTerm(''); }
 
   return <View style={styles.field}>
-    <Text style={styles.label}>{fieldLabel}</Text>
+    <FieldLabel label={label} required={required} style={styles.label} />
     <Pressable accessibilityRole="button" accessibilityLabel={`${fieldLabel}: ${selectedOption?.label || placeholder}`} accessibilityHint={hint} accessibilityState={{ expanded: visible, disabled }} disabled={disabled} onPress={() => setVisible(true)} style={styles.trigger}>
       <Text style={[styles.value, !selectedOption && styles.placeholder]}>{selectedOption?.label || placeholder}</Text>
       <Feather name="chevron-down" size={18} color={colors.textMuted} />

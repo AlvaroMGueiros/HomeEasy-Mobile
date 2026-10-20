@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 import { Order, ProfessionalReview } from '../../types/api';
 import { resolveOrderProgress } from '../../utils/order-progress';

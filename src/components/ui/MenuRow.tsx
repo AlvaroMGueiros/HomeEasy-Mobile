@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 
 export function MenuRow({ title, description, icon, onPress, destructive = false }: { title: string; description?: string; icon: keyof typeof Feather.glyphMap; onPress(): void; destructive?: boolean }) {

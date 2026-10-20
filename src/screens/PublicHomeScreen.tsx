@@ -1,7 +1,8 @@
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { AppButton } from '../components/ui/AppButton';
 import { BrandPanel } from '../components/ui/BrandPanel';
 import { RootStackParamList } from '../navigation/types';

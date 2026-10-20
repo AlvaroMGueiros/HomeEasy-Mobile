@@ -1,8 +1,9 @@
 import DateTimePicker from '@expo/ui/community/datetime-picker';
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 import { formatTime, parseTime } from '../../utils/professionalSchedule';
 

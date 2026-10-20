@@ -21,7 +21,7 @@ export function resolveProfessionalProfileSummary(professional: Professional) {
     activeServices,
     startingPrice,
     priceLabel: startingPrice === null ? 'Orçamento personalizado' : `A partir de ${formatCurrency(startingPrice)}`,
-    specialty: activeServices.length ? activeServices.map(service => service.name).join(' · ') : 'Profissional Home Easy',
+    specialty: activeServices.length ? activeServices.map(service => service.name).join(' · ') : 'Profissional HomeEasy',
     location: location || 'Localização não informada',
     coverage
   };

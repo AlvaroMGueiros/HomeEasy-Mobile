@@ -1,6 +1,6 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {
   GoogleOneTapSignIn,
   isCancelledResponse,
@@ -9,6 +9,7 @@ import {
   statusCodes,
 } from 'react-native-nitro-google-signin';
 
+import { AppText as Text } from '../ui/AppText';
 import { environment } from '../../config/environment';
 import { colors } from '../../theme/colors';
 import { PromiseTimeoutError, withTimeout } from '../../utils/promise-timeout';

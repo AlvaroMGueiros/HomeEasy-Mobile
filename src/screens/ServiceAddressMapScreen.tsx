@@ -1,7 +1,8 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { RegionalMap } from '../components/RegionalMap';
 import { AppButton } from '../components/ui/AppButton';
 import { Screen } from '../components/ui/Screen';

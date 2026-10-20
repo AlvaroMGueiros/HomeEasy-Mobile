@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { Professional } from '../../types/api';
 import { resolvePublicMediaUrl } from '../../utils/media-url';

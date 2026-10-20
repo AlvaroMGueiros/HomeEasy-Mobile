@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
+import { AppTextInput as TextInput } from '../components/ui/AppTextInput';
 import { ApiError } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { AppButton } from '../components/ui/AppButton';

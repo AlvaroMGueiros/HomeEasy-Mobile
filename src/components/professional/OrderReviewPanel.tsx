@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { apiRequest } from '../../api/api-client';
 import { colors } from '../../theme/colors';
 import { OrderDetail } from '../../types/api';

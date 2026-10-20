@@ -1,4 +1,5 @@
-import { useState } from 'react'; import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react'; import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { AppText as Text } from '../components/ui/AppText';
 import { FormField } from '../components/ui/FormField'; import { formCopy } from '../config/formCopy';
 import { isValidEmailAddress } from '../utils/formValidation';
 import { ApiError, apiRequest } from '../api/api-client'; import { AppButton } from '../components/ui/AppButton'; import { Screen } from '../components/ui/Screen'; import { SectionHeader } from '../components/ui/SectionHeader'; import { colors } from '../theme/colors';

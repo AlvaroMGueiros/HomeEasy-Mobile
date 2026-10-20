@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { ComponentProps } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 
 export interface ChoiceOption<T extends string | number> { value: T; label: string; icon?: ComponentProps<typeof Feather>['name']; }

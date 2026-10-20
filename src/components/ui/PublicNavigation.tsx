@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
+import { AppText as Text } from './AppText';
 import { RootStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';
 

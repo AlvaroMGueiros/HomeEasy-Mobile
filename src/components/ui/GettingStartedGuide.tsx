@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { GettingStartedGoal, gettingStartedGuides } from '../../config/gettingStarted';
 import { colors } from '../../theme/colors';
 import { ChoiceChips } from './ChoiceChips';
