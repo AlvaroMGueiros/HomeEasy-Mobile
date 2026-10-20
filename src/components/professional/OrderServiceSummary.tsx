@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { OrderDetail } from '../../types/api';
 import { formatAppointmentDay, formatAppointmentTimeRange } from '../../utils/date';

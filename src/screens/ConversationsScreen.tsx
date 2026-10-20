@@ -1,7 +1,8 @@
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { ChoiceChips, ChoiceOption } from '../components/ui/ChoiceChips';
 import { Screen } from '../components/ui/Screen';

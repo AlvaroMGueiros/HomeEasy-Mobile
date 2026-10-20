@@ -1,8 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { ApiError, apiRequest } from '../../api/api-client';
 import { RootStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';
@@ -69,7 +70,7 @@ export function ProfessionalPresentationEditor() {
         {professional.coverPhotoMediaId ? <Image key={professional.coverPhotoMediaId} source={{ uri: resolvePublicMediaUrl(professional.coverPhotoMediaId) }} style={StyleSheet.absoluteFill} /> : <View style={styles.coverPlaceholder}><Feather name="image" size={30} color={colors.primary} /><Text style={styles.coverHint}>Uma capa para valorizar seu trabalho</Text></View>}
         <View style={styles.coverAction}><Feather name="camera" size={15} color={colors.primary} /><Text style={styles.coverActionLabel}>{professional.coverPhotoMediaId ? 'Alterar capa' : 'Adicionar capa'}</Text></View>
       </Pressable>
-      <View style={styles.identity}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={60} /><View style={styles.identityCopy}><Text style={styles.name}>{professional.name}</Text><Text style={styles.help}>Seu perfil público no Home Easy</Text></View></View>
+      <View style={styles.identity}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={60} /><View style={styles.identityCopy}><Text style={styles.name}>{professional.name}</Text><Text style={styles.help}>Seu perfil público no HomeEasy</Text></View></View>
       {professional.coverPhotoMediaId && <AppButton label="Remover capa" variant="secondary" disabled={busy} onPress={() => void persistChanges({ coverPhotoMediaId: null })} />}
     </View>
     <View style={styles.card}>

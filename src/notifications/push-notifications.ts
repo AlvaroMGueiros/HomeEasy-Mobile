@@ -23,7 +23,7 @@ export async function registerPushNotifications(): Promise<void> {
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(notificationChannelId, {
-      name: 'Atualizações do Home Easy',
+      name: 'Atualizações do HomeEasy',
       importance: Notifications.AndroidImportance.HIGH,
       lightColor: colors.primary,
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,

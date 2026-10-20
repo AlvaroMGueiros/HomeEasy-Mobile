@@ -1,8 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { apiRequest } from '../../api/api-client';
 import { RootStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';

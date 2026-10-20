@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { Professional, Schedule } from '../../types/api';
 import { formatDate } from '../../utils/date';
@@ -18,10 +19,10 @@ export function ProfessionalProfileAbout({ professional, priceLabel, coverage, s
       <View style={styles.fact}><Feather name="calendar" size={17} color={colors.primary} /><Text style={styles.factText}>{professional.isAvailable === false ? 'Consulte a disponibilidade no orçamento' : 'Combine a data e o horário na solicitação'}</Text></View>
       {Boolean(professional.yearsOfExperience && professional.yearsOfExperience > 0) && <View style={styles.fact}><Feather name="briefcase" size={17} color={colors.primary} /><Text style={styles.factText}>{professional.yearsOfExperience} {professional.yearsOfExperience === 1 ? 'ano' : 'anos'} de experiência</Text></View>}
     </View>
-    {Boolean(professional.metrics?.completedServices && professional.metrics.completedServices > 0) && <View style={styles.history}><Feather name="check-circle" size={18} color={colors.success} /><Text style={styles.historyText}>{professional.metrics?.completedServices} serviços concluídos na Home Easy</Text></View>}
+    {Boolean(professional.metrics?.completedServices && professional.metrics.completedServices > 0) && <View style={styles.history}><Feather name="check-circle" size={18} color={colors.success} /><Text style={styles.historyText}>{professional.metrics?.completedServices} serviços concluídos na HomeEasy</Text></View>}
     {periods.length > 0 && <View style={styles.schedule}><Pressable accessibilityRole="button" accessibilityState={{ expanded: scheduleExpanded }} onPress={() => setScheduleExpanded(current => !current)} style={styles.scheduleHeader}><Text style={styles.heading}>Horários de atendimento</Text><Feather name={scheduleExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} /></Pressable>{scheduleExpanded && <>{periods.map(period => <View key={period.key} style={styles.period}><Text style={styles.day}>{period.day}</Text><Text style={styles.hours}>{period.hours}</Text></View>)}<Text style={styles.help}>Data a confirmar na contratação.</Text></>}
     </View>}
-    {professional.memberSince && <Text style={styles.member}>Na Home Easy desde {formatDate(professional.memberSince)}</Text>}
+    {professional.memberSince && <Text style={styles.member}>Na HomeEasy desde {formatDate(professional.memberSince)}</Text>}
   </View>;
 }
 

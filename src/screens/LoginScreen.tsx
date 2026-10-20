@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { FormField } from '../components/ui/FormField';
 import { formCopy } from '../config/formCopy';
 import { ApiError } from '../api/api-client';

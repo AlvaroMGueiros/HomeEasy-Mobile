@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { AppButton } from '../components/ui/AppButton';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
@@ -25,7 +26,7 @@ export function PrivacyPolicyScreen() {
     <SectionHeader eyebrow="Privacidade e dados" title="Como cuidamos das suas informações" description="Última atualização: 8 de setembro de 2026." />
     <View style={styles.card}>
       <Text style={styles.title}>Dados utilizados</Text>
-      <Text style={styles.text}>Tratamos os dados de cadastro, perfil, localização, solicitações, propostas, pedidos, mensagens, avaliações e arquivos necessários para prestar e proteger os serviços do Home Easy.</Text>
+      <Text style={styles.text}>Tratamos os dados de cadastro, perfil, localização, solicitações, propostas, pedidos, mensagens, avaliações e arquivos necessários para prestar e proteger os serviços do HomeEasy.</Text>
     </View>
     <View style={styles.card}>
       <Text style={styles.title}>Uso e compartilhamento</Text>

@@ -1,5 +1,6 @@
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { Schedule } from '../../types/api';
 import { AppButton } from '../ui/AppButton';

@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { ProfessionalReview } from '../../types/api';
 import { formatDate } from '../../utils/date';

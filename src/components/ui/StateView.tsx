@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 import { AppButton } from './AppButton';
 

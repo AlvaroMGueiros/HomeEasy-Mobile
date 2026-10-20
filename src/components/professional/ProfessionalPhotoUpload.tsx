@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { chooseProfessionalImage } from '../../utils/professionalMedia';
 import { AppButton } from '../ui/AppButton';

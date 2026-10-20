@@ -54,6 +54,7 @@ import { ServicesScreen } from "../screens/ServicesScreen";
 import { SplashScreen } from "../screens/SplashScreen";
 import { VerificationScreen } from "../screens/VerificationScreen";
 import { colors } from "../theme/colors";
+import { fontFamilies } from "../theme/typography";
 import { requestLocationAccess } from "../utils/location-permission";
 import {
   readNotificationActionUrl,
@@ -78,6 +79,7 @@ function AppTabs() {
     <Tabs.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarLabelStyle: { fontFamily: fontFamilies.semiBold },
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
@@ -161,6 +163,7 @@ export function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerTintColor: colors.primary,
+          headerTitleStyle: { fontFamily: fontFamilies.bold },
           headerShadowVisible: false,
           headerStyle: { backgroundColor: colors.background },
           contentStyle: { backgroundColor: colors.background },

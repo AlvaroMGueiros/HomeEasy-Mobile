@@ -2,8 +2,9 @@ import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, PanResponder, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Animated, PanResponder, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { RegionalMap } from '../components/RegionalMap';

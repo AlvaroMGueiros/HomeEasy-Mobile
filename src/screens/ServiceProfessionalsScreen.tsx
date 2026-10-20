@@ -1,8 +1,10 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
+import { AppTextInput as TextInput } from '../components/ui/AppTextInput';
 import { apiRequest } from '../api/api-client';
 import { AppButton } from '../components/ui/AppButton';
 import { useAuth } from '../auth/AuthContext';

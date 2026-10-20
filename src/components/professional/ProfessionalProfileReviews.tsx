@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
 import { ProfessionalReviewsResponse } from '../../types/api';
 import { StateView } from '../ui/StateView';
@@ -12,7 +13,7 @@ export function ProfessionalProfileReviews({ response, loading, error, preview =
     <View style={styles.header}><Text style={styles.title}>{preview ? 'Avaliações de clientes' : 'Avaliações'}</Text>{Boolean(response?.total) && <Pressable onPress={onViewAll} style={styles.link} accessibilityRole="button"><Text style={styles.linkText}>Ver todas</Text><Feather name="chevron-right" size={15} color={colors.primary} /></Pressable>}</View>
     {loading && !response && <StateView loading message="Carregando avaliações..." />}
     {Boolean(error) && <StateView icon="wifi-off" message={error} onAction={onRetry} />}
-    {!loading && !error && response && !response.reviews.length && <View style={styles.empty}><Feather name="star" size={22} color={colors.warning} /><View style={styles.emptyContent}><Text style={styles.emptyTitle}>As primeiras avaliações estão por vir</Text><Text style={styles.emptyText}>Clientes podem avaliar após concluir um serviço pela Home Easy.</Text></View></View>}
+    {!loading && !error && response && !response.reviews.length && <View style={styles.empty}><Feather name="star" size={22} color={colors.warning} /><View style={styles.emptyContent}><Text style={styles.emptyTitle}>As primeiras avaliações estão por vir</Text><Text style={styles.emptyText}>Clientes podem avaliar após concluir um serviço pela HomeEasy.</Text></View></View>}
     {!error && visibleReviews?.map(review => <ProfessionalReviewCard key={review.id} review={review} />)}
   </View>;
 }

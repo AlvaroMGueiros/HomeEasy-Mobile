@@ -1,7 +1,8 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
-import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 import { acceptCommunityRules, hasAcceptedCommunityRules } from '../../utils/communityRules';
 import { AppButton } from './AppButton';
@@ -31,7 +32,7 @@ export function CommunityRulesGate({ userId, onDecline, children }: PropsWithChi
   return <Modal visible animationType="slide" onRequestClose={() => undefined}>
     <View style={[styles.sheet, { paddingTop: Math.max(insets.top, 20), paddingBottom: Math.max(insets.bottom, 20) }]}>
       {accepted === null ? <StateView loading message="Conferindo as regras de uso..." /> : <>
-        <ScrollView contentContainerStyle={styles.content}><Text style={styles.title}>Antes de continuar</Text><Text style={styles.description}>Leia e aceite as regras para usar o Home Easy e publicar conteúdo.</Text><CommunityRulesContent /><AppButton label="Li e aceito as regras" onPress={() => void accept()} loading={saving} /><AppButton label="Não aceitar e sair" variant="secondary" onPress={onDecline} disabled={saving} /></ScrollView>
+        <ScrollView contentContainerStyle={styles.content}><Text style={styles.title}>Antes de continuar</Text><Text style={styles.description}>Leia e aceite as regras para usar o HomeEasy e publicar conteúdo.</Text><CommunityRulesContent /><AppButton label="Li e aceito as regras" onPress={() => void accept()} loading={saving} /><AppButton label="Não aceitar e sair" variant="secondary" onPress={onDecline} disabled={saving} /></ScrollView>
       </>}
     </View>
   </Modal>;

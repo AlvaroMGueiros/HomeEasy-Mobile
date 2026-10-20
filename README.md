@@ -1,4 +1,4 @@
-# Home Easy Mobile
+# HomeEasy Mobile
 
 Aplicativo para encontrar profissionais de serviços domésticos e reformas, pedir orçamentos e acompanhar atendimentos. A mesma conta pode contratar e oferecer serviços.
 
@@ -72,7 +72,7 @@ Expo SDK 57, React Native 0.86, React 19, TypeScript 6 e React Navigation 7. Tok
 ## Requisitos
 
 - Node.js 22.13 ou superior compatível com o Expo SDK 57 e npm.
-- Backend do Home Easy configurado e acessível.
+- Backend do HomeEasy configurado e acessível.
 - Para Android local: Android Studio, SDK, JDK compatível e emulador ou aparelho com depuração USB.
 - Para iOS local: macOS, Xcode e as ferramentas exigidas pelo Expo.
 

@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { communityRules, communityRulesVersion } from '../../config/communityRules';
 import { colors } from '../../theme/colors';
 

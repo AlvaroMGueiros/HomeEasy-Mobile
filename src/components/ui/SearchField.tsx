@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppTextInput as TextInput } from './AppTextInput';
 import { colors } from '../../theme/colors';
 
 export function SearchField({ value, onChangeText, placeholder }: { value: string; onChangeText(value: string): void; placeholder: string }) {

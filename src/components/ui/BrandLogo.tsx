@@ -10,8 +10,8 @@ interface BrandLogoProps {
 }
 
 export function BrandLogo({ light = false, horizontal = false, style }: BrandLogoProps) {
-  const tintColor = light ? colors.white : colors.primary;
-  return <View style={[styles.container, horizontal && styles.horizontal, style]} accessible accessibilityLabel="Home Easy" accessibilityRole="image">
+  const tintColor = light ? colors.white : undefined;
+  return <View style={[styles.container, horizontal && styles.horizontal, style]} accessible accessibilityLabel="HomeEasy" accessibilityRole="image">
     <Image source={require('../../../assets/brand/symbol.png')} style={[styles.symbol, horizontal && styles.horizontalSymbol, { tintColor }]} resizeMode="contain" />
     <Image source={require('../../../assets/brand/wordmark.png')} style={[styles.wordmark, horizontal && styles.horizontalWordmark, { tintColor }]} resizeMode="contain" />
   </View>;

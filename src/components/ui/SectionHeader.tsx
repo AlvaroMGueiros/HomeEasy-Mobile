@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 export function SectionHeader({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {
   return <View style={styles.container}>{eyebrow && <Text style={styles.eyebrow}>{eyebrow}</Text>}<Text style={styles.title}>{title}</Text>{description && <Text style={styles.description}>{description}</Text>}</View>;

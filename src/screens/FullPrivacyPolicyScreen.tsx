@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { colors } from '../theme/colors';
@@ -10,7 +11,7 @@ const policySections = [
     paragraphs: [
       'Podemos tratar dados de cadastro e autenticação, como nome, e-mail, data de nascimento e credenciais protegidas.',
       'Também tratamos informações de perfil, como telefone, endereço, cidade, estado, foto, documentos e dados profissionais fornecidos por você.',
-      'Durante o uso do Home Easy, podemos tratar localização, solicitações, propostas, pedidos, agenda, mensagens, avaliações, denúncias, disputas, fotos e arquivos enviados.',
+      'Durante o uso do HomeEasy, podemos tratar localização, solicitações, propostas, pedidos, agenda, mensagens, avaliações, denúncias, disputas, fotos e arquivos enviados.',
       'Dados técnicos e de segurança, como identificadores de sessão, registros de acesso, informações do dispositivo e token de notificação, podem ser usados para proteger sua conta, operar a plataforma e entregar avisos solicitados.'
     ]
   },
@@ -50,7 +51,7 @@ const policySections = [
   {
     title: '7. Público do aplicativo',
     paragraphs: [
-      'O Home Easy é destinado a pessoas com 18 anos ou mais. Não coletamos intencionalmente dados de crianças.'
+      'O HomeEasy é destinado a pessoas com 18 anos ou mais. Não coletamos intencionalmente dados de crianças.'
     ]
   },
   {
@@ -65,7 +66,7 @@ export function FullPrivacyPolicyScreen() {
   return <Screen>
     <SectionHeader eyebrow="Política de privacidade" title="Política completa" description="Última atualização: 16 de outubro de 2026." />
     <View style={styles.introduction}>
-      <Text style={styles.text}>Esta política explica como o Home Easy coleta, utiliza, compartilha, protege e elimina dados pessoais durante o uso do aplicativo e de seus serviços.</Text>
+      <Text style={styles.text}>Esta política explica como o HomeEasy coleta, utiliza, compartilha, protege e elimina dados pessoais durante o uso do aplicativo e de seus serviços.</Text>
     </View>
     {policySections.map((section) => <View key={section.title} style={styles.section}>
       <Text style={styles.title}>{section.title}</Text>

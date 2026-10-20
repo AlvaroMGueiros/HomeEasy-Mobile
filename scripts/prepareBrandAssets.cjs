@@ -1,8 +1,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
-const { compositeImagesAsync, generateImageAsync, generateImageBackgroundAsync } = require('@expo/image-utils');
-const Jimp = require('jimp-compact');
+const sharp = require('sharp');
+const opentype = require('opentype.js');
 
 const projectRoot = path.resolve(__dirname, '..');
 const themeModule = { exports: {} };
@@ -10,46 +10,50 @@ const themeSource = fs.readFileSync(path.join(projectRoot, 'src/theme/colors.ts'
 new Function('exports', ts.transpileModule(themeSource, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText)(themeModule.exports);
 const { colors } = themeModule.exports;
 
-async function exportImage(filename, sourceName, size, padding = 0) {
-  const { source } = await generateImageAsync({ projectRoot }, {
-    src: path.join(projectRoot, 'assets/brand', sourceName), width: size - padding * 2, height: size - padding * 2,
-    resizeMode: 'contain',
-  });
-  let exportedImage = source;
-  if (padding) {
-    const background = await generateImageBackgroundAsync({ width: size, height: size, resizeMode: 'contain', backgroundColor: colors.transparent });
-    exportedImage = await compositeImagesAsync({ foreground: source, background, x: padding, y: padding });
-  }
-  fs.writeFileSync(path.join(projectRoot, 'assets', filename), exportedImage);
+// Vector reconstruction of the supplied house/check mark. All exports share this geometry.
+function symbolMarkup(monochrome = false) {
+  const fill = monochrome ? colors.white : 'url(#brandGradient)';
+  return `<defs><linearGradient id="brandGradient" x1="0" y1="1" x2="1" y2="0"><stop stop-color="${colors.primaryStrong}"/><stop offset=".55" stop-color="${colors.primary}"/><stop offset="1" stop-color="${colors.accent}"/></linearGradient></defs>
+  <path fill="${fill}" d="M371 77 Q371 60 389 60 H421 Q439 60 439 78 V153 Q439 160 433 155 L371 101 Z"/>
+  <path fill="${fill}" d="M392 222 H478 V386 Q478 478 387 478 H253 Q239 478 250 464 L300 413 Q307 405 319 405 H367 Q392 405 392 380 Z"/>
+  <path fill="none" stroke="${fill}" stroke-width="76" stroke-linecap="round" stroke-linejoin="round" d="M60 362 V235 Q60 225 70 216 L235 70 Q255 52 275 70 L436 218"/>
+  <path fill="none" stroke="${fill}" stroke-width="70" stroke-linecap="round" stroke-linejoin="round" d="M162 339 L224 401 L334 289"/>`;
 }
-
-async function createWhiteSymbol(size, padding = 0) {
-  const symbol = await Jimp.read(path.join(projectRoot, 'assets/brand/symbol.png'));
-  const contentSize = size - padding * 2;
-  symbol.autocrop().contain(contentSize, contentSize);
-  const white = Jimp.intToRGBA(Jimp.cssColorToHex(colors.white));
-  symbol.scan(0, 0, contentSize, contentSize, function (x, y, index) {
-    this.bitmap.data[index] = white.r;
-    this.bitmap.data[index + 1] = white.g;
-    this.bitmap.data[index + 2] = white.b;
-  });
-  if (!padding) return symbol;
-  return new Jimp(size, size, colors.transparent).composite(symbol, padding, padding);
+function svgDocument(content, viewBox = '0 0 512 512') {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${content}</svg>`;
 }
-
+async function exportPng(filename, markup, size) {
+  await sharp(Buffer.from(markup)).resize(size, size, { fit: 'contain', background: colors.transparent }).png().toFile(path.join(projectRoot, 'assets', filename));
+}
 async function prepareBrandAssets() {
-  await exportImage('icon.png', 'launcherSource.png', 1024);
-  const launcherForeground = await createWhiteSymbol(1024, 242);
-  await launcherForeground.writeAsync(path.join(projectRoot, 'assets/android-icon-foreground.png'));
-  await launcherForeground.writeAsync(path.join(projectRoot, 'assets/android-icon-monochrome.png'));
-  await exportImage('splash-icon.png', 'symbol.png', 512);
-  await exportImage('favicon.png', 'launcherSource.png', 64);
-  const background = await generateImageBackgroundAsync({ width: 1024, height: 1024, backgroundColor: colors.primary, resizeMode: 'contain' });
-  fs.writeFileSync(path.join(projectRoot, 'assets/android-icon-background.png'), background);
-  const notificationIcon = await createWhiteSymbol(96);
-  await notificationIcon.writeAsync(path.join(projectRoot, 'assets/notificationIcon.png'));
-  fs.copyFileSync(path.join(projectRoot, 'assets/brand/symbol.png'), path.join(projectRoot, 'motion/public/brandSymbol.png'));
-  fs.copyFileSync(path.join(projectRoot, 'assets/brand/wordmark.png'), path.join(projectRoot, 'motion/public/brandWordmark.png'));
-}
+  const symbol = svgDocument(symbolMarkup());
+  fs.writeFileSync(path.join(projectRoot, 'assets/brand/symbol.svg'), symbol);
+  await exportPng('brand/symbol.png', symbol, 1024);
+  const launcher = svgDocument(`<rect width="512" height="512" fill="${colors.surface}"/><g transform="translate(82 82) scale(.68)">${symbolMarkup()}</g>`);
+  await exportPng('brand/launcherSource.png', launcher, 1024);
+  await exportPng('icon.png', launcher, 1024);
+  await exportPng('favicon.png', launcher, 64);
+  await exportPng('android-icon-foreground.png', svgDocument(`<g transform="translate(118 118) scale(.54)">${symbolMarkup()}</g>`), 1024);
+  await exportPng('android-icon-monochrome.png', svgDocument(`<g transform="translate(118 118) scale(.54)">${symbolMarkup(true)}</g>`), 1024);
+  await exportPng('android-icon-background.png', svgDocument(`<rect width="512" height="512" fill="${colors.surface}"/>`), 1024);
+  await exportPng('splash-icon.png', svgDocument(symbolMarkup(true)), 512);
+  await exportPng('notificationIcon.png', svgDocument(symbolMarkup(true)), 96);
 
+  const fontPath = path.join(projectRoot, 'node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf');
+  const fontBytes = fs.readFileSync(fontPath);
+  const font = opentype.parse(fontBytes.buffer.slice(fontBytes.byteOffset, fontBytes.byteOffset + fontBytes.byteLength));
+  const wordmark = new opentype.Path();
+  let letterPosition = 0;
+  for (const letter of 'HomeEasy') {
+    const glyph = font.charToGlyph(letter);
+    wordmark.extend(glyph.getPath(letterPosition, 0, 120));
+    letterPosition += glyph.advanceWidth * 120 / font.unitsPerEm;
+  }
+  wordmark.fill = colors.text;
+  const bounds = wordmark.getBoundingBox();
+  const wordmarkSvg = svgDocument(wordmark.toSVG(), `${bounds.x1} ${bounds.y1} ${bounds.x2 - bounds.x1} ${bounds.y2 - bounds.y1}`);
+  fs.writeFileSync(path.join(projectRoot, 'assets/brand/wordmark.svg'), wordmarkSvg);
+  await sharp(Buffer.from(wordmarkSvg)).resize({width:1200}).png().toFile(path.join(projectRoot, 'assets/brand/wordmark.png'));
+  fs.writeFileSync(path.join(projectRoot, 'src/vendor/mapFont.ts'), `// Generated by scripts/prepareBrandAssets.cjs.\nexport const mapFontSource = 'data:font/ttf;base64,${fontBytes.toString('base64')}';\n`);
+}
 prepareBrandAssets().catch(error => { process.stderr.write(`${error.message}\n`); process.exitCode = 1; });

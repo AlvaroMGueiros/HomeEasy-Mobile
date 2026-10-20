@@ -1,8 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { MenuRow } from '../components/ui/MenuRow';
@@ -25,7 +26,7 @@ export function ProfileScreen() {
       .catch(() => setProfile(null));
   }, []));
 
-  const profileName = profile?.name || user?.name || 'Home Easy';
+  const profileName = profile?.name || user?.name || 'HomeEasy';
   const profileEmail = profile?.email || user?.email;
   const locationLabel = [profile?.city, profile?.state].filter(Boolean).join(', ');
 
@@ -37,7 +38,7 @@ export function ProfileScreen() {
         <View style={styles.profileInfo}>
           <Text style={styles.name}>{profileName}</Text>
           {Boolean(profileEmail) && <Text style={styles.email}>{profileEmail}</Text>}
-          <View style={styles.roleBadge}><Text style={styles.role}>{user?.role === 'admin' ? 'Administrador' : 'Conta Home Easy'}</Text></View>
+          <View style={styles.roleBadge}><Text style={styles.role}>{user?.role === 'admin' ? 'Administrador' : 'Conta HomeEasy'}</Text></View>
         </View>
       </View>
       <View style={styles.profileMeta}>

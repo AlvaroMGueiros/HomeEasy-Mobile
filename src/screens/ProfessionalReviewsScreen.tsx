@@ -1,7 +1,8 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { ProfessionalReviewCard } from '../components/professional/ProfessionalReviewCard';
 import { Screen } from '../components/ui/Screen';

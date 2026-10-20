@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 
 export function AppButton({ label, onPress, loading = false, disabled = false, variant = 'primary', icon }: { label: string; onPress(): void; loading?: boolean; disabled?: boolean; variant?: 'primary' | 'secondary' | 'danger'; icon?: ReactNode; }) {

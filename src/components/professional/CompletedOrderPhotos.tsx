@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../ui/AppText';
 import { apiRequest } from '../../api/api-client';
 import { colors } from '../../theme/colors';
 import { Professional } from '../../types/api';

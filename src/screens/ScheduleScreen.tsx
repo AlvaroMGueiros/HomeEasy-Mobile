@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { ProfessionalScheduleDay } from '../components/professional/ProfessionalScheduleDay';
 import { AppButton } from '../components/ui/AppButton';

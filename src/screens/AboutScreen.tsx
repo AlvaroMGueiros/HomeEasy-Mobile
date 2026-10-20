@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { colors } from '../theme/colors';
@@ -8,8 +9,8 @@ const team = [{ initials: 'AM', name: 'Álvaro Miguel', role: 'Design de produto
 
 export function AboutScreen() {
   return <Screen>
-    <SectionHeader title="Sobre o Home Easy" />
-    <Text style={styles.text}>No Home Easy, você encontra profissionais para serviços domésticos e reformas, pede orçamentos e acompanha os atendimentos. Profissionais podem cadastrar seus serviços e responder aos pedidos da região.</Text>
+    <SectionHeader title="Sobre o HomeEasy" />
+    <Text style={styles.text}>No HomeEasy, você encontra profissionais para serviços domésticos e reformas, pede orçamentos e acompanha os atendimentos. Profissionais podem cadastrar seus serviços e responder aos pedidos da região.</Text>
     <SectionHeader title="Equipe" />
     {team.map(member => <View key={member.initials} style={styles.member}>
       <View style={styles.avatar}><Text style={styles.avatarText}>{member.initials}</Text></View>

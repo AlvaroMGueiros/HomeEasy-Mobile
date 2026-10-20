@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Alert, Linking, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { AppButton } from '../components/ui/AppButton';
 import { PrivateMediaImage } from '../components/ui/PrivateMediaImage';
@@ -30,7 +31,7 @@ export function AdminScreen() {
   }
 
   async function review(path: string, status: string) {
-    try { await apiRequest(path, { method: 'PATCH', body: JSON.stringify({ status, notes: 'Analisado pelo aplicativo Home Easy.' }) }); await load(); }
+    try { await apiRequest(path, { method: 'PATCH', body: JSON.stringify({ status, notes: 'Analisado pelo aplicativo HomeEasy.' }) }); await load(); }
     catch { Alert.alert('Ação não concluída', 'Não foi possível atualizar esta análise. Tente novamente.'); }
   }
 

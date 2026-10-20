@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
+import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
 import { resolvePublicMediaUrl } from '../../utils/media-url';
 import { resolveUserInitials } from '../../utils/user-name';
