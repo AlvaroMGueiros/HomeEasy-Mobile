@@ -1,4 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
+import { ServiceIssue } from '../config/serviceIssues';
 
 export enum ProfileEditorSection { Personal = 'personal', Professional = 'professional' }
 
@@ -23,7 +24,7 @@ export type RootStackParamList = {
   RegionalMap: undefined;
   ServiceAddressMap: { address?: string; city: string; state: string };
   CityProfessionals: { city: string; state: string };
-  RequestForm: { serviceId: string; serviceName: string; professionalId?: string };
+  RequestForm: { serviceId: string; serviceName: string; professionalId?: string; sourceOrderId?: string };
   RequestDetail: { requestId: string };
   ProposalForm: { requestId: string; serviceName: string };
   OrderDetail: { orderId: string };
@@ -36,8 +37,9 @@ export type RootStackParamList = {
   Verification: undefined;
   Admin: undefined;
   Report: { targetUserId?: string; conversationId?: string; messageId?: string };
-  Dispute: { orderId: string };
+  Dispute: { orderId: string; issue?: ServiceIssue };
   Opportunities: undefined;
   Notifications: undefined;
+  NotificationPreferences: undefined;
   DeleteAccount: undefined;
 };

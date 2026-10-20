@@ -17,6 +17,7 @@ import { Screen } from '../components/ui/Screen';
 import { StateView } from '../components/ui/StateView';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { ServiceIssue } from '../config/serviceIssues';
 import { Conversation, Dispute, Order, OrderDetail, OrderStatus } from '../types/api';
 import { formatCurrency } from '../utils/currency';
 import { isOrderClosed, resolveOrderStatusDescription } from '../utils/orderDetails';
@@ -116,12 +117,9 @@ export function OrderDetailScreen() {
     navigation.navigate('Chat', { conversationId: conversation.id, otherUserId: conversation.otherUser.id, otherUserName: conversation.otherUser.name, serviceName: conversation.service.name, isWritable: conversation.isWritable });
   }
 
-  async function rehire() {
-    if (loading) return;
-    setLoading(true);
-    try { await apiRequest(`/marketplace/orders/${params.orderId}/rehire`, { method: 'POST' }); Alert.alert('Solicitação criada', 'O profissional receberá um novo pedido direcionado.'); }
-    catch (failure) { Alert.alert('Solicitação não criada', failure instanceof Error ? failure.message : 'Não foi possível solicitar uma nova contratação deste profissional.'); }
-    finally { setLoading(false); }
+  function rehire() {
+    if (!order || order.clientId !== user?.id) return;
+    navigation.navigate('RequestForm', { serviceId: order.request.serviceId, serviceName: order.request.service?.name || 'Serviço', professionalId: order.professionalId, sourceOrderId: order.id });
   }
 
   if (!order || order.id !== params.orderId) return <Screen><StateView loading={!error} title={error ? 'Pedido indisponível' : undefined} message={error || 'Carregando seu atendimento...'} onAction={error ? () => void loadOrder() : undefined} /></Screen>;
@@ -148,7 +146,11 @@ export function OrderDetailScreen() {
     {order.status === OrderStatus.Completed && <OrderReviewPanel key={`review-${order.id}`} orderId={order.id} review={order.review} isClient={isClient} onPublished={review => { mutationVersion.current += 1; setOrder(current => current ? { ...current, review } : current); }} />}
     {isClient && order.status === OrderStatus.Completed && <AppButton label="Contratar novamente" variant="secondary" onPress={() => void rehire()} loading={loading} />}
     <View style={styles.helpCard}><Pressable accessibilityRole="button" accessibilityState={{ expanded: helpExpanded }} onPress={() => setHelpExpanded(current => !current)} style={styles.helpTrigger}><Feather name="help-circle" size={20} color={colors.primary} /><Text style={styles.helpTitle}>Ajuda com este serviço</Text><Feather name={helpExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} /></Pressable>
-      {helpExpanded && <View style={styles.helpActions}><AppButton label="Falar com o suporte" variant="secondary" onPress={() => navigation.navigate('Contact')} />{![OrderStatus.CancelledByClient, OrderStatus.CancelledByProfessional, OrderStatus.Disputed].includes(order.status) && <AppButton label="Registrar problema com o serviço" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id })} />}{!isFinished && order.status !== OrderStatus.Disputed && <AppButton label="Cancelar pedido" variant="secondary" onPress={cancel} loading={loading} />}{order.status === OrderStatus.Disputed && <Text style={styles.help}>O cancelamento fica indisponível enquanto nossa equipe analisa o problema registrado.</Text>}</View>}
+      {helpExpanded && <View style={styles.helpActions}>
+      {!isFinished && order.status !== OrderStatus.Disputed && <>
+        <AppButton label="Relatar atraso" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id, issue: ServiceIssue.Delay })} />
+        <AppButton label="Relatar ausência" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id, issue: ServiceIssue.Absence })} />
+      </>}<AppButton label="Falar com o suporte" variant="secondary" onPress={() => navigation.navigate('Contact')} />{![OrderStatus.CancelledByClient, OrderStatus.CancelledByProfessional, OrderStatus.Disputed].includes(order.status) && <AppButton label="Registrar problema com o serviço" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id })} />}{!isFinished && order.status !== OrderStatus.Disputed && <AppButton label="Cancelar pedido" variant="secondary" onPress={cancel} loading={loading} />}{order.status === OrderStatus.Disputed && <Text style={styles.help}>O cancelamento fica indisponível enquanto nossa equipe analisa o problema registrado.</Text>}</View>}
     </View>
   </Screen>;
 }

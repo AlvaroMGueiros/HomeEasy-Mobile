@@ -46,7 +46,8 @@
     "bundle:leaflet": "node scripts/bundleLeaflet.cjs",
     "verify:forms": "node scripts/verifyFormExperience.cjs",
     "verify:permissions": "node scripts/verifyPermissions.cjs",
-    "assets:brand": "node scripts/prepareBrandAssets.cjs"
+    "assets:brand": "node scripts/prepareBrandAssets.cjs",
+    "verify:product": "node scripts/verifyProductExperience.cjs"
   },
   "private": true
 }

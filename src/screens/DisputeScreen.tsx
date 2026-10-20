@@ -1,5 +1,48 @@
-import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native'; import { useState } from 'react'; import { Alert, StyleSheet } from 'react-native';
-import { AppText as Text } from '../components/ui/AppText';
-import { apiRequest } from '../api/api-client'; import { AppButton } from '../components/ui/AppButton'; import { ChoiceChips } from '../components/ui/ChoiceChips'; import { FormField } from '../components/ui/FormField'; import { Screen } from '../components/ui/Screen'; import { SectionHeader } from '../components/ui/SectionHeader'; import { RootStackParamList } from '../navigation/types'; import { colors } from '../theme/colors';
-export function DisputeScreen() { const { params } = useRoute<RouteProp<RootStackParamList, 'Dispute'>>(); const navigation = useNavigation<NavigationProp<RootStackParamList>>(); const [reason, setReason] = useState<'service_not_performed' | 'service_quality' | 'price_conflict' | 'property_damage' | 'conduct' | 'other'>('service_quality'); const [description, setDescription] = useState(''); const [loading, setLoading] = useState(false); async function submit() { if (description.trim().length < 20) { Alert.alert('Conte o que aconteceu', 'Explique o problema com o serviço usando pelo menos 20 caracteres.'); return; } setLoading(true); try { await apiRequest(`/orders/${params.orderId}/disputes`, { method: 'POST', body: JSON.stringify({ reason, description: description.trim() }) }); Alert.alert('Problema registrado', 'Nossa equipe vai analisar seu relato e acompanhar o caso.', [{ text: 'Concluir', onPress: () => navigation.goBack() }]); } catch (error) { Alert.alert('Problema não registrado', error instanceof Error ? error.message : 'Tente novamente.'); } finally { setLoading(false); } } return <Screen><SectionHeader eyebrow="Ajuda com um atendimento" title="Problema com o serviço" /><Text style={styles.label}>Motivo</Text><ChoiceChips value={reason} onChange={setReason} options={[{ value: 'service_not_performed', label: 'O serviço não foi feito' }, { value: 'service_quality', label: 'Problema na qualidade' }, { value: 'price_conflict', label: 'Valor diferente do combinado' }, { value: 'property_damage', label: 'Algo foi danificado' }, { value: 'conduct', label: 'Comportamento inadequado' }, { value: 'other', label: 'Outro' }]} /><FormField required label="O que aconteceu?" placeholder="Conte o que foi combinado, qual foi o problema e como você espera resolver." hint="Mínimo de 20 caracteres." value={description} onChangeText={setDescription} multiline /><AppButton label="Enviar relato para análise" onPress={submit} loading={loading} /></Screen>; }
-const styles = StyleSheet.create({ label: { color: colors.text, fontWeight: '800' } });
+﻿import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useState } from 'react';
+import { Alert, StyleSheet } from 'react-native';
+
+import { apiRequest } from '../api/api-client';
+import { AppText } from '../components/ui/AppText';
+import { AppButton } from '../components/ui/AppButton';
+import { ChoiceChips } from '../components/ui/ChoiceChips';
+import { FormField } from '../components/ui/FormField';
+import { Screen } from '../components/ui/Screen';
+import { SectionHeader } from '../components/ui/SectionHeader';
+import { ServiceIssue, serviceIssues } from '../config/serviceIssues';
+import { RootStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
+import { prepareServiceIssue } from '../utils/serviceIssue';
+
+export function DisputeScreen() {
+  const { params } = useRoute<RouteProp<RootStackParamList, 'Dispute'>>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [issue, setIssue] = useState(params.issue || ServiceIssue.Quality);
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function submit() {
+    if (loading) return;
+    let report;
+    try { report = prepareServiceIssue(issue, description); }
+    catch (failure) { Alert.alert('Revise o relato', (failure as Error).message); return; }
+    setLoading(true);
+    try {
+      await apiRequest(`/orders/${params.orderId}/disputes`, { method: 'POST', body: JSON.stringify(report) });
+      Alert.alert('Problema registrado', 'Acompanhe a análise no atendimento.', [{ text: 'Ver atendimento', onPress: () => navigation.navigate('OrderDetail', { orderId: params.orderId }) }]);
+    } catch (failure) { Alert.alert('Problema não registrado', failure instanceof Error ? failure.message : 'Não foi possível enviar o relato deste atendimento.'); }
+    finally { setLoading(false); }
+  }
+
+  return <Screen>
+    <SectionHeader title="Ajuda com o atendimento" />
+    <AppButton label="Ver histórico do atendimento" variant="secondary" disabled={loading} onPress={() => navigation.navigate('OrderDetail', { orderId: params.orderId })} />
+    <AppText style={styles.label}>O que aconteceu?</AppText>
+    <ChoiceChips value={issue} onChange={setIssue} options={serviceIssues} />
+    <FormField required label="Conte os detalhes" placeholder="Informe o combinado e o que aconteceu." value={description} onChangeText={setDescription} multiline maxLength={2900} editable={!loading} />
+    <AppText style={styles.note}>O relato fica vinculado a este serviço e abre uma análise. O outro participante também será avisado.</AppText>
+    <AppButton label="Enviar para análise" onPress={() => void submit()} loading={loading} />
+  </Screen>;
+}
+
+const styles = StyleSheet.create({ label: { color: colors.text, fontWeight: '800' }, note: { color: colors.textMuted, fontSize: 12, lineHeight: 19 } });

@@ -24,7 +24,7 @@ jobs:
       - run: node scripts/verifySecrets.cjs
       - run: npx --no-install tsc --noEmit
       - run: node scripts/verifySessionSecurity.cjs
-      - run: npm run verify:forms && npm run verify:permissions
+      - run: npm run verify:forms && npm run verify:permissions && npm run verify:product
       - run: npm audit --audit-level=critical
       - run: npm ci --ignore-scripts --prefix motion
       - run: node motion/node_modules/typescript/bin/tsc --project motion/tsconfig.json --noEmit

@@ -8,6 +8,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
+import { ProfessionalVerificationDetails } from '../components/professional/ProfessionalVerificationDetails';
+import { ProfessionalAvailability } from '../components/professional/ProfessionalAvailability';
 import { ProfessionalProfileAbout } from '../components/professional/ProfessionalProfileAbout';
 import { ProfessionalProfileHeader } from '../components/professional/ProfessionalProfileHeader';
 import { ProfessionalProfilePhotos } from '../components/professional/ProfessionalProfilePhotos';
@@ -112,7 +114,7 @@ export function ProfessionalScreen() {
   const shareProfile = useCallback(async () => {
     if (!professional || !summary) return;
     try {
-      await Share.share({ title: professional.name, message: `${professional.name} — ${summary.specialty}\n${summary.location}\nConheça este profissional no HomeEasy.` });
+      await Share.share({ title: professional.name, message: `${professional.name} — ${summary.specialty}\n${summary.location}\nConheça este profissional no HomeEasy.\nhomeeasy://professionals/${professional.id}` });
     } catch {
       Alert.alert('Não foi possível compartilhar', 'Tente compartilhar o perfil novamente.');
     }
@@ -175,6 +177,8 @@ export function ProfessionalScreen() {
       <View style={styles.body}>
         {Boolean(profileError) && <StateView message={profileError} onAction={refreshProfile} />}
         {activeTab === ProfessionalProfileTab.About && <>
+          <ProfessionalVerificationDetails professional={professional} />
+          <ProfessionalAvailability key={professional.id} professionalId={professional.id} />
           <ProfessionalProfileAbout professional={professional} priceLabel={summary.priceLabel} coverage={summary.coverage} schedule={schedule} />
           <ProfessionalProfileReviews response={reviews} loading={reviewsLoading} error={reviewsError} preview onRetry={refreshProfile} onViewAll={viewAllReviews} />
         </>}

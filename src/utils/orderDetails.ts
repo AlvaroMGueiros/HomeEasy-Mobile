@@ -1,5 +1,5 @@
 import { Order, OrderStatus } from '../types/api';
-import { resolveServiceQuestion } from './serviceRequestForm';
+import { resolveServiceAnswerDetails } from './serviceRequestForm';
 
 export function groupOrdersByUserRole(orders: Order[], userId?: string) {
   const hiredOrders: Order[] = [];
@@ -56,16 +56,5 @@ export function summarizeOrders(orders: Order[]) {
 }
 
 export function resolveOrderAnswerDetails(order: Order) {
-  if (!order.request.answers) return [];
-  const fields = new Map(order.request.service?.requestForm?.map(field => [field.key, field]));
-  return Object.entries(order.request.answers).map(([key, answer]) => {
-    const field = fields.get(key);
-    let value = String(answer);
-    if (typeof answer === 'boolean') value = answer ? 'Sim' : 'Não';
-    const selectedOption = field?.options?.find(option => option.value === value);
-    if (selectedOption) value = selectedOption.label;
-    else if (value === 'yes') value = 'Sim';
-    else if (value === 'no') value = 'Não';
-    return { key, label: field ? resolveServiceQuestion(field).label : 'Informação adicional do serviço', value };
-  });
+  return resolveServiceAnswerDetails(order.request.answers, order.request.service?.requestForm);
 }
