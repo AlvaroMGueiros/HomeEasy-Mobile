@@ -8,6 +8,8 @@ import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
 import { useAuth } from '../auth/AuthContext';
 import { RegionalMap } from '../components/RegionalMap';
+import { HighlightsPreview } from '../components/professional/HighlightsPreview';
+import { resolveHighlightLocation } from '../utils/highlights';
 import { ProfessionalDiscoveryCard } from '../components/professional/ProfessionalDiscoveryCard';
 import { MenuRow } from '../components/ui/MenuRow';
 import { StateView } from '../components/ui/StateView';
@@ -36,6 +38,7 @@ export function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [locating, setLocating] = useState(false);
   const [locationLabel, setLocationLabel] = useState('Localização atual');
+  const highlightLocation = resolveHighlightLocation(locationLabel, profile);
   const [isExpanded, setIsExpanded] = useState(false);
   const mapHeight = Math.min(Math.max(height * 0.68, 480), 620);
   const defaultSheetTop = Math.min(Math.max(height * 0.46, 360), 430) - 24;
@@ -236,6 +239,7 @@ export function HomeScreen() {
         {loading && <Text style={styles.loadingText}>Preparando sua região...</Text>}
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Serviços para sua casa</Text><Pressable accessibilityRole="button" style={styles.seeAllButton} onPress={() => navigation.navigate('Services')}><Text style={styles.seeAll}>Ver todos</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
         <View style={styles.categoryGrid}>{services.slice(0, 6).map(service => <Pressable key={service.id} style={styles.category} onPress={() => navigation.navigate('ServiceProfessionals', { serviceId: service.id, serviceName: service.name })}><Feather name={resolveServiceIcon(service.name)} size={23} color={colors.primary} /><Text style={styles.categoryName} numberOfLines={2}>{service.name}</Text></Pressable>)}</View>
+        <HighlightsPreview city={highlightLocation?.city} state={highlightLocation?.state} />
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Profissionais recomendados</Text>
           <Pressable style={styles.seeAllButton} onPress={handleExploreProfessionals}>

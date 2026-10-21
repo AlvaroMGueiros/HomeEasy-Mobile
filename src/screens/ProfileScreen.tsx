@@ -69,6 +69,8 @@ export function ProfileScreen() {
         <View style={styles.divider} />
         <MenuRow icon="calendar" title="Agenda" onPress={() => navigation.navigate('Schedule')} />
         <View style={styles.divider} />
+        <MenuRow icon="star" title="Minhas publicações" onPress={() => navigation.navigate('MyHighlights')} />
+        <View style={styles.divider} />
         <MenuRow icon="shield" title="Confirmar meus documentos" onPress={() => navigation.navigate('Verification')} />
         <View style={styles.divider} />
         <MenuRow icon="search" title="Trabalhos disponíveis" onPress={() => navigation.navigate('Opportunities')} />

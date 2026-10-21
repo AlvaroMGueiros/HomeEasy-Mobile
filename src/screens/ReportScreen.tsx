@@ -34,6 +34,7 @@ export function ReportScreen() {
 
   return <Screen>
     <SectionHeader eyebrow="Segurança" title="Fazer denúncia" />
+    {params.highlightId && <Text style={styles.help}>Esta denúncia está vinculada à publicação selecionada.</Text>}
     {params.messageId && <Text style={styles.help}>Mensagem selecionada para análise.</Text>}
     <Text style={styles.label}>Motivo</Text>
     <ChoiceChips value={category} onChange={setCategory} options={[
