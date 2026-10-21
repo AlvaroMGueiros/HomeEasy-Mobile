@@ -6,6 +6,13 @@ Este repositório contém o aplicativo React Native e Expo. O backend NestJS é 
 
 ## Recursos
 
+### Destaques
+
+- Feed regional com fotos de trabalhos, avaliações reais, favoritos e pedido de orçamento.
+- Publicações do profissional com aprovação administrativa e denúncia de conteúdo.
+- Prévia na home quando houver publicações aprovadas na região.
+- Piloto sem cobrança ativa. Consulte [publicação, endpoints e migration](docs/highlightsFeed.md) antes de disponibilizar o recurso.
+
 ### Busca e contratação
 
 - Catálogo e pesquisa de serviços, mapa regional, localização atual e profissionais por cidade.

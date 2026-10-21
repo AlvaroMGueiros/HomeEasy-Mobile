@@ -1,3 +1,5 @@
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../navigation/types';
 import { useEffect, useState } from 'react';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 
@@ -14,10 +16,11 @@ import { resolveEnumLabel } from '../utils/status';
 
 interface AdminDocument { id: string; type: string; mediaId: string; createdAt: string; professional?: { name: string; email: string }; media?: { fileName: string; contentType: string }; }
 interface AdminDispute { id: string; reason: string; description: string; createdAt: string; opener?: { name: string; email: string }; order?: { client?: { name: string }; professional?: { user?: { name: string } }; request?: { service?: { name: string } } }; }
-interface AdminReport { id: string; category: string; description?: string; }
+interface AdminReport { highlightId?: string; id: string; category: string; description?: string; }
 interface AdminQueue { documents: AdminDocument[]; reports: AdminReport[]; disputes: AdminDispute[]; }
 
 export function AdminScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [queue, setQueue] = useState<AdminQueue | null>(null);
   const [error, setError] = useState('');
@@ -42,10 +45,11 @@ export function AdminScreen() {
 
   if (error) return <Screen><StateView message={error} /></Screen>;
   return <Screen><SectionHeader eyebrow="Administração" title="Moderação e métricas" />
+    <AppButton label="Aprovar publicações dos destaques" variant="secondary" onPress={() => navigation.navigate('HighlightsModeration')} />
     {metrics && <View style={styles.metrics}><Metric label="Solicitações" value={metrics.totalRequests} /><Metric label="Abertas" value={metrics.openRequests} /><Metric label="Conversão" value={`${metrics.conversionRate}%`} /><Metric label="Verificações" value={metrics.pendingVerifications} /></View>}
     {!queue && <StateView loading message="Carregando fila..." />}
     {queue?.documents.map(document => <View key={document.id} style={styles.card}><Text style={styles.title}>Documento: {resolveEnumLabel(document.type)}</Text><Text style={styles.line}>Enviado por: {resolveDisplayValue(document.professional?.name)}</Text><Text style={styles.line}>Conta: {resolveDisplayValue(document.professional?.email)}</Text><Text style={styles.line}>Arquivo: {resolveDisplayValue(document.media?.fileName)}</Text><Text style={styles.line}>Enviado em: {formatDateTime(document.createdAt)}</Text>{document.media?.contentType.startsWith('image/') && <PrivateMediaImage mediaId={document.mediaId} accessibilityLabel={`Documento de ${resolveDisplayValue(document.professional?.name)}`} />}<AppButton label="Abrir documento completo" variant="secondary" onPress={() => openDocument(document.mediaId)} /><View style={styles.actions}><View style={styles.grow}><AppButton label="Aprovar" onPress={() => review(`/admin/verification/documents/${document.id}`, 'approved')} /></View><View style={styles.grow}><AppButton label="Rejeitar" variant="secondary" onPress={() => review(`/admin/verification/documents/${document.id}`, 'rejected')} /></View></View></View>)}
-    {queue?.reports.map(report => <ModerationCard key={report.id} title={`Denúncia: ${resolveEnumLabel(report.category)}`} description={report.description} onResolve={() => review(`/admin/reports/${report.id}`, 'resolved')} />)}
+    {queue?.reports.map(report => <View key={report.id} style={{ gap: 10 }}>{report.highlightId && <AppButton label="Remover publicação denunciada" variant="secondary" onPress={() => review(`/highlights/${report.highlightId}/review`, 'rejected')} />}<ModerationCard key={report.id} title={`Denúncia: ${resolveEnumLabel(report.category)}`} description={report.description} onResolve={() => review(`/admin/reports/${report.id}`, 'resolved')} /></View>)}
     {queue?.disputes.map(dispute => <View key={dispute.id} style={styles.card}><Text style={styles.title}>Disputa: {resolveEnumLabel(dispute.reason)}</Text><Text style={styles.line}>Aberta por: {formatUser(dispute.opener)}</Text><Text style={styles.line}>Cliente: {resolveDisplayValue(dispute.order?.client?.name)}</Text><Text style={styles.line}>Profissional: {resolveDisplayValue(dispute.order?.professional?.user?.name)}</Text><Text style={styles.line}>Serviço: {resolveDisplayValue(dispute.order?.request?.service?.name)}</Text><Text style={styles.line}>Aberta em: {formatDateTime(dispute.createdAt)}</Text><Text style={styles.description}>{dispute.description}</Text><AppButton label="Marcar como resolvido" onPress={() => review(`/admin/disputes/${dispute.id}`, 'resolved')} /></View>)}
   </Screen>;
 }

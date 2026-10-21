@@ -27,6 +27,10 @@ import { EditProfileScreen } from "../screens/EditProfileScreen";
 import { FavoritesScreen } from "../screens/FavoritesScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { FullPrivacyPolicyScreen } from "../screens/FullPrivacyPolicyScreen";
+import { HighlightsScreen } from '../screens/HighlightsScreen';
+import { MyHighlightsScreen } from '../screens/MyHighlightsScreen';
+import { CreateHighlightScreen } from '../screens/CreateHighlightScreen';
+import { HighlightsModerationScreen } from '../screens/HighlightsModerationScreen';
 import { HomeScreen } from "../screens/HomeScreen";
 import { HowItWorksScreen } from "../screens/HowItWorksScreen";
 import { LoginScreen } from "../screens/LoginScreen";
@@ -70,6 +74,7 @@ const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const tabIcons: Record<keyof AppTabParamList, keyof typeof Feather.glyphMap> = {
   Home: "home",
   Requests: "clipboard",
+  Highlights: "star",
   Conversations: "message-circle",
   Profile: "user",
 };
@@ -80,7 +85,7 @@ function AppTabs() {
     <Tabs.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarLabelStyle: { fontFamily: fontFamilies.semiBold },
+        tabBarLabelStyle: { fontFamily: fontFamilies.semiBold, fontSize: 10 },
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
@@ -105,6 +110,7 @@ function AppTabs() {
         component={RequestsScreen}
         options={{ title: "Meus serviços" }}
       />
+      <Tabs.Screen name="Highlights" component={HighlightsScreen} options={{ title: "Destaques" }} />
       <Tabs.Screen
         name="Conversations"
         component={ConversationsScreen}
@@ -345,6 +351,9 @@ export function AppNavigator() {
               component={DisputeScreen}
               options={{ title: "Problema com o serviço" }}
             />
+            <Stack.Screen name="MyHighlights" component={MyHighlightsScreen} options={{ title: "Minhas publicações" }} />
+            <Stack.Screen name="CreateHighlight" component={CreateHighlightScreen} options={{ title: "Publicar trabalho" }} />
+            <Stack.Screen name="HighlightsModeration" component={HighlightsModerationScreen} options={{ title: "Aprovar publicações" }} />
             <Stack.Screen
               name="NotificationPreferences"
               component={NotificationPreferencesScreen}

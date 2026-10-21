@@ -3,7 +3,7 @@ import { ServiceIssue } from '../config/serviceIssues';
 
 export enum ProfileEditorSection { Personal = 'personal', Professional = 'professional' }
 
-export type AppTabParamList = { Home: undefined; Requests: undefined; Conversations: undefined; Profile: undefined; };
+export type AppTabParamList = { Home: undefined; Requests: undefined; Highlights: { city?: string; state?: string } | undefined; Conversations: undefined; Profile: undefined; };
 export type RootStackParamList = {
   PublicHome: undefined;
   Login: { mode?: 'login' | 'register' } | undefined;
@@ -36,9 +36,12 @@ export type RootStackParamList = {
   Schedule: undefined;
   Verification: undefined;
   Admin: undefined;
-  Report: { targetUserId?: string; conversationId?: string; messageId?: string };
+  Report: { targetUserId?: string; conversationId?: string; messageId?: string; highlightId?: string };
   Dispute: { orderId: string; issue?: ServiceIssue };
   Opportunities: undefined;
+  MyHighlights: undefined;
+  CreateHighlight: undefined;
+  HighlightsModeration: undefined;
   Notifications: undefined;
   NotificationPreferences: undefined;
   DeleteAccount: undefined;
