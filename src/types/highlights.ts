@@ -1,4 +1,4 @@
-import { Professional } from './api';
+import { Professional, ProfessionalReview } from './api';
 
 export enum HighlightStatus { Pending = 'pending', Approved = 'approved', Rejected = 'rejected' }
 export interface HighlightSummary {
@@ -6,7 +6,7 @@ export interface HighlightSummary {
   title: string; description: string; mediaIds: string[]; status: HighlightStatus;
   createdAt: string; isSponsored: boolean; reviewNotes?: string | null;
 }
-export interface Highlight extends HighlightSummary { professional: Professional; }
+export interface Highlight extends HighlightSummary { professional: Professional; latestReview?: ProfessionalReview | null; }
 export interface HighlightsResponse { highlights: Highlight[]; page: number; hasMore: boolean; }
 export interface HighlightLocation { city: string; state: string; }
 export interface ModerationHighlight extends HighlightSummary { professionalName: string; }

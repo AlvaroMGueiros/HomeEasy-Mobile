@@ -3,6 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   createNavigationContainerRef,
   NavigationContainer,
+  NavigationProp,
+  useNavigation,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Notifications from "expo-notifications";
@@ -11,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "../auth/AuthContext";
 import { WelcomeGuideModal } from "../components/ui/WelcomeGuideModal";
+import { HighlightsTabButton } from "../components/ui/HighlightsTabButton";
 import { GettingStartedGoal } from "../config/gettingStarted";
 import { CityProfessionalsScreen } from "../screens/CityProfessionalsScreen";
 import { AboutScreen } from "../screens/AboutScreen";
@@ -81,6 +84,7 @@ const tabIcons: Record<keyof AppTabParamList, keyof typeof Feather.glyphMap> = {
 
 function AppTabs() {
   const insets = useSafeAreaInsets();
+  const rootNavigation = useNavigation<NavigationProp<RootStackParamList>>();
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
@@ -110,7 +114,7 @@ function AppTabs() {
         component={RequestsScreen}
         options={{ title: "Meus serviços" }}
       />
-      <Tabs.Screen name="Highlights" component={HighlightsScreen} options={{ title: "Destaques" }} />
+      <Tabs.Screen name="Highlights" component={HighlightsScreen} options={{ title: "Destaques", tabBarButton: props => <HighlightsTabButton {...props} onPublish={() => rootNavigation.navigate('CreateHighlight')} /> }} />
       <Tabs.Screen
         name="Conversations"
         component={ConversationsScreen}

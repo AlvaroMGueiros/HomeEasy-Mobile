@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ImageSourcePropType, ScrollView, StyleSheet, View } from 'react-native';
 
 import { colors } from '../../theme/colors';
 import { resolvePublicMediaUrl } from '../../utils/media-url';
 import { AppText } from '../ui/AppText';
 
-function HighlightImage({ mediaId, width, title }: { mediaId: string; width: number; title: string }) {
+function HighlightImage({ source, width, title }: { source: ImageSourcePropType; width: number; title: string }) {
   const [failed, setFailed] = useState(false);
   return <View style={{ width, aspectRatio: 4 / 3 }}>
-    {failed ? <View style={styles.placeholder}><AppText style={styles.placeholderText}>Foto indisponível</AppText></View> : <Image source={{ uri: resolvePublicMediaUrl(mediaId) }} resizeMode="cover" style={styles.image} accessibilityLabel={title} onError={() => setFailed(true)} />}
+    {failed ? <View style={styles.placeholder}><AppText style={styles.placeholderText}>Foto indisponível</AppText></View> : <Image source={source} resizeMode="cover" style={styles.image} accessibilityLabel={title} onError={() => setFailed(true)} />}
   </View>;
 }
 
@@ -16,12 +16,13 @@ export function HighlightGallery({ mediaIds, title }: { mediaIds: string[]; titl
   const [width, setWidth] = useState(300);
   const [index, setIndex] = useState(0);
   const photoKey = mediaIds.join(',');
+  const images = mediaIds.map(mediaId => ({ uri: resolvePublicMediaUrl(mediaId) }));
   useEffect(() => { setIndex(0); }, [photoKey]);
   return <View style={styles.container} onLayout={event => setWidth(event.nativeEvent.layout.width)}>
     <ScrollView key={photoKey} horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={event => setIndex(Math.round(event.nativeEvent.contentOffset.x / width))}>
-      {mediaIds.map(mediaId => <HighlightImage key={mediaId} mediaId={mediaId} width={width} title={title} />)}
+      {images.map((source, photoIndex) => <HighlightImage key={mediaIds[photoIndex] || photoIndex} source={source} width={width} title={title} />)}
     </ScrollView>
-    {mediaIds.length > 1 && <View style={styles.counter}><AppText style={styles.counterText}>{Math.min(index + 1, mediaIds.length)}/{mediaIds.length}</AppText></View>}
+    {images.length > 1 && <View style={styles.counter}><AppText style={styles.counterText}>{Math.min(index + 1, images.length)}/{images.length}</AppText></View>}
   </View>;
 }
 

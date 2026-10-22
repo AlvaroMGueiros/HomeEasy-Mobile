@@ -1,19 +1,21 @@
+import { Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
+import { HighlightAuthor } from '../components/professional/HighlightAuthor';
+import { HighlightPhotoPicker } from '../components/professional/HighlightPhotoPicker';
 import { AppButton } from '../components/ui/AppButton';
 import { AppText } from '../components/ui/AppText';
-import { FormField } from '../components/ui/FormField';
+import { AppTextInput } from '../components/ui/AppTextInput';
+import { FieldLabel } from '../components/ui/FieldLabel';
 import { Screen } from '../components/ui/Screen';
-import { SectionHeader } from '../components/ui/SectionHeader';
 import { SelectField } from '../components/ui/SelectField';
 import { StateView } from '../components/ui/StateView';
 import { ProfileEditorSection, RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Professional } from '../types/api';
-import { resolvePublicMediaUrl } from '../utils/media-url';
 
 export function CreateHighlightScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -65,18 +67,38 @@ export function CreateHighlightScreen() {
   </Screen>;
 
   return <Screen>
-    <SectionHeader title="Publicar trabalho" />
-    <SelectField required label="Serviço" value={serviceId} onChange={setServiceId} options={activeServices.map(service => ({ value: service.id, label: service.name }))} disabled={saving} />
-    <FormField required label="Título" value={title} onChangeText={setTitle} placeholder="Ex.: Montagem de guarda-roupa" maxLength={80} editable={!saving} />
-    <FormField required label="Sobre o trabalho" value={description} onChangeText={setDescription} placeholder="Conte o que foi feito ou o serviço que você oferece." hint="De 20 a 700 caracteres." maxLength={700} multiline editable={!saving} />
-    <AppText style={styles.label}>Fotos do portfólio · {mediaIds.length}/3</AppText>
-    <View style={styles.photos}>{photos.map(photo => <Pressable key={photo.mediaId} accessibilityRole="checkbox" accessibilityLabel={photo.caption || 'Selecionar foto do portfólio'} accessibilityState={{ checked: mediaIds.includes(photo.mediaId), disabled: saving }} disabled={saving} onPress={() => selectPhoto(photo.mediaId)} style={[styles.photo, mediaIds.includes(photo.mediaId) && styles.selected]}>
-      <Image source={{ uri: resolvePublicMediaUrl(photo.mediaId) }} style={styles.image} />
-      {mediaIds.includes(photo.mediaId) && <View style={styles.position}><AppText style={styles.positionText}>{mediaIds.indexOf(photo.mediaId) + 1}</AppText></View>}
-    </Pressable>)}</View>
-    <View style={styles.consent}><AppText style={styles.consentText}>Tenho autorização para publicar estas fotos e elas não expõem dados privados dos clientes.</AppText><Switch accessibilityLabel="Confirmar autorização para publicar as fotos" value={consent} onValueChange={setConsent} disabled={saving} trackColor={{ false: colors.border, true: colors.primary }} thumbColor={colors.white} /></View>
-    <AppButton label="Enviar para aprovação" loading={saving} onPress={() => void publish()} />
+    <View style={styles.composer}>
+      <View style={styles.author}><HighlightAuthor professional={professional} subtitle="Publicação pública · após aprovação" /></View>
+      <View style={styles.writing}>
+        <FieldLabel label="Título" required style={styles.fieldLabel} />
+        <AppTextInput accessibilityLabel="Título da publicação, obrigatório, mínimo 5 caracteres" value={title} onChangeText={setTitle} placeholder="Dê um título ao seu trabalho" placeholderTextColor={colors.textMuted} maxLength={80} editable={!saving} style={styles.titleInput} />
+        <FieldLabel label="Sobre o trabalho" required style={styles.fieldLabel} />
+        <AppTextInput accessibilityLabel="Sobre o trabalho, obrigatório, mínimo 20 caracteres" value={description} onChangeText={setDescription} placeholder="Qual trabalho você quer mostrar hoje?" placeholderTextColor={colors.textMuted} maxLength={700} multiline editable={!saving} textAlignVertical="top" style={styles.descriptionInput} />
+        <AppText style={styles.counter}>{description.length}/700</AppText>
+      </View>
+      <View style={styles.attachments}>
+        <SelectField required label="Serviço da publicação" placeholder="Qual serviço você realizou?" value={serviceId} onChange={setServiceId} options={activeServices.map(service => ({ value: service.id, label: service.name }))} disabled={saving} />
+        <HighlightPhotoPicker photos={photos} selectedIds={mediaIds} disabled={saving} onSelect={selectPhoto} />
+      </View>
+    </View>
+    <Pressable accessibilityRole="checkbox" accessibilityLabel="Tenho autorização para publicar as fotos e não exponho dados privados dos clientes" accessibilityState={{ checked: consent, disabled: saving }} disabled={saving} onPress={() => setConsent(current => !current)} style={styles.consent}>
+      <View style={[styles.checkbox, consent && styles.checked]}>{consent && <Feather name="check" size={15} color={colors.white} />}</View>
+      <AppText style={styles.consentText}>Tenho autorização para divulgar as fotos, sem dados privados dos clientes.</AppText>
+    </Pressable>
+    <AppButton label="Publicar trabalho" loading={saving} onPress={() => void publish()} />
+    <View style={styles.reviewNote}><Feather name="shield" size={13} color={colors.textMuted} /><AppText style={styles.note}>Sua publicação passa por aprovação.</AppText></View>
   </Screen>;
 }
 
-const styles = StyleSheet.create({ label: { color: colors.text, fontWeight: '700' }, photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, photo: { width: '30%', aspectRatio: 1, borderRadius: 14, borderWidth: 3, borderColor: colors.transparent, overflow: 'hidden' }, selected: { borderColor: colors.primary }, image: { width: '100%', height: '100%', backgroundColor: colors.primarySoft }, position: { position: 'absolute', top: 4, right: 4, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary }, positionText: { color: colors.white, fontSize: 12, fontWeight: '700' }, consent: { flexDirection: 'row', gap: 12, alignItems: 'center' }, consentText: { flex: 1, color: colors.textMuted, fontSize: 13, lineHeight: 20 } });
+const styles = StyleSheet.create({
+  composer: { backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  author: { padding: 16, flexDirection: 'row' }, writing: { paddingHorizontal: 16 },
+  fieldLabel: { color: colors.textMuted, fontSize: 11, marginTop: 6 },
+  titleInput: { color: colors.text, fontSize: 20, fontWeight: '700', paddingVertical: 10 },
+  descriptionInput: { color: colors.text, fontSize: 17, lineHeight: 27, minHeight: 156, paddingTop: 8, paddingBottom: 12 },
+  counter: { color: colors.textMuted, fontSize: 11, textAlign: 'right', paddingBottom: 14 },
+  attachments: { borderTopWidth: StyleSheet.hairlineWidth, borderColor: colors.border, padding: 16, gap: 18 },
+  consent: { flexDirection: 'row', gap: 10, alignItems: 'center', minHeight: 48 }, consentText: { flex: 1, color: colors.textMuted, fontSize: 12, lineHeight: 19 },
+  checkbox: { width: 22, height: 22, borderWidth: 1.5, borderColor: colors.textMuted, borderRadius: 6, alignItems: 'center', justifyContent: 'center' }, checked: { backgroundColor: colors.primary, borderColor: colors.primary },
+  reviewNote: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }, note: { color: colors.textMuted, fontSize: 11 },
+});

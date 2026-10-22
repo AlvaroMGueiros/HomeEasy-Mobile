@@ -6,6 +6,12 @@ const statusLabels: Record<HighlightStatus, string> = {
 
 export function resolveHighlightStatus(status: HighlightStatus) { return statusLabels[status]; }
 
+export function formatHighlightDate(createdAt: string) {
+  const publishedAt = new Date(createdAt);
+  if (Number.isNaN(publishedAt.getTime())) return '';
+  return publishedAt.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+}
+
 export function resolveHighlightLocation(label?: string, fallback?: { city?: string | null; state?: string | null } | null): HighlightLocation | null {
   const separator = label?.lastIndexOf(',') ?? -1;
   if (label && separator > 0) {
