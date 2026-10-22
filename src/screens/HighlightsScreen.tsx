@@ -17,6 +17,7 @@ import { Favorite, Service, UserProfile } from '../types/api';
 import { Highlight, HighlightLocation, HighlightsResponse } from '../types/highlights';
 import { buildHighlightsQuery, mergeHighlights, resolveHighlightLocation } from '../utils/highlights';
 
+
 export function HighlightsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { params } = useRoute<RouteProp<AppTabParamList, 'Highlights'>>();
@@ -91,14 +92,14 @@ export function HighlightsScreen() {
   }
 
   return <SafeAreaView edges={['top', 'left', 'right']} style={styles.root}>
-    <FlatList data={highlights} keyExtractor={highlight => highlight.id} contentContainerStyle={styles.content}
+    <FlatList<Highlight> data={highlights} keyExtractor={highlight => highlight.id} contentContainerStyle={styles.content}
       renderItem={({ item: highlight }) => <HighlightCard highlight={highlight} isFavorite={favoriteIds.has(highlight.professionalId)} favoriteBusy={!favoritesReady || Boolean(favoriteBusyId)} onFavorite={() => void toggleFavorite(highlight.professionalId)} />}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       refreshing={loading && page === 1} onRefresh={() => void loadPage()} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5}
       ListHeaderComponent={<View style={styles.header}>
-        <View style={styles.titleRow}><View style={styles.grow}><SectionHeader title="Destaques" /></View><Pressable accessibilityRole="button" accessibilityLabel="Minhas publicações" onPress={() => navigation.navigate('MyHighlights')} style={styles.publish}><Feather name="plus" size={22} color={colors.primary} /></Pressable></View>
+        <View style={styles.titleRow}><View style={styles.grow}><SectionHeader title="Destaques" /></View><Pressable accessibilityRole="button" accessibilityLabel="Minhas publicações" onPress={() => navigation.navigate('MyHighlights')} style={styles.publish}><Feather name="grid" size={21} color={colors.primary} /></Pressable></View>
         <HighlightsFilters location={location} services={services} serviceId={serviceId} onApply={(nextLocation, nextServiceId) => { setLocation(nextLocation); setServiceId(nextServiceId); }} />
-        {serviceId && <AppText style={styles.filterLabel}>{services.find(service => service.id === serviceId)?.name}</AppText>}
+        {Boolean(serviceId) && <AppText style={styles.filterLabel}>{services.find(service => service.id === serviceId)?.name}</AppText>}
         {(initializing || (loading && !highlights.length)) && <StateView loading message="Carregando destaques..." />}
         {Boolean(error) && <StateView title="Destaques indisponíveis" message={error} onAction={() => void loadPage(hasMore ? page + 1 : 1)} />}
       </View>}
@@ -107,4 +108,8 @@ export function HighlightsScreen() {
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({ root: { flex: 1, backgroundColor: colors.background }, content: { padding: 20, paddingBottom: 28 }, header: { gap: 18, marginBottom: 20 }, titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1 }, publish: { width: 46, height: 46, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' }, separator: { height: 22 }, empty: { alignItems: 'center', paddingVertical: 48, gap: 20 }, emptyTitle: { fontSize: 18, color: colors.text, fontWeight: '700', textAlign: 'center' }, more: { paddingTop: 22 }, filterLabel: { color: colors.primary, fontSize: 13, fontWeight: '700' } });
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.background }, content: { padding: 20, paddingBottom: 36 }, header: { gap: 18, marginBottom: 20 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1 }, publish: { width: 46, height: 46, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  separator: { height: 22 }, empty: { alignItems: 'center', paddingVertical: 48, gap: 20 }, emptyTitle: { fontSize: 18, color: colors.text, fontWeight: '700', textAlign: 'center' }, more: { paddingTop: 22 }, filterLabel: { color: colors.primary, fontSize: 13, fontWeight: '700' },
+});
