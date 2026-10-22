@@ -6,6 +6,8 @@ Este repositório contém o aplicativo React Native e Expo. O backend NestJS é 
 
 ## Recursos
 
+A integração opcional HomeEasy+ com Google Play/RevenueCat está preparada nesta branch, com vendas desativadas por padrão. Consulte [configuração, testes e liberação](docs/homeEasyPlusSetup.md) antes de habilitar compras.
+
 ### Destaques
 
 - Feed regional com fotos de trabalhos, avaliações reais, favoritos e pedido de orçamento.

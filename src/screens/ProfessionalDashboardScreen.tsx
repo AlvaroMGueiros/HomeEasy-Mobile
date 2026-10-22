@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText as Text } from '../components/ui/AppText';
+import { HomeEasyPlusOffer } from '../components/professional/HomeEasyPlusOffer';
 import { apiRequest } from '../api/api-client';
 import { AppButton } from '../components/ui/AppButton';
 import { Screen } from '../components/ui/Screen';
@@ -41,6 +42,7 @@ export function ProfessionalDashboardScreen() {
 
   return <Screen>
     <SectionHeader title="Painel profissional" />
+    <HomeEasyPlusOffer />
     {loading && <StateView loading message="Calculando seus resultados..." />}
     {Boolean(error) && <StateView message={error} />}
     {!loading && !error && <>

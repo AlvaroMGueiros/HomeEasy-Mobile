@@ -23,11 +23,12 @@ export function CompletedOrderPhotos({ orderId }: { orderId: string }) {
   }
   useEffect(() => { void loadPhotos(); }, [orderId]);
 
+  const portfolioLimit = professional?.portfolioLimit || 30;
   return <View style={styles.card}>
     <View style={styles.heading}><Feather name="check-circle" size={22} color={colors.success} /><Text style={styles.title}>Fotos do serviço concluído</Text></View>
     {!professional ? <StateView loading={loading} message={error || 'Carregando fotos...'} onAction={error ? loadPhotos : undefined} /> : <>
-      <ProfessionalPhotoUpload description="Adicione uma foto do resultado do serviço." disabled={(professional.portfolioPhotos?.length || 0) >= 30} onPublish={async (mediaId, caption) => { setProfessional(await apiRequest<Professional>(`/professionals/me/orders/${orderId}/photos`, { method: 'POST', body: JSON.stringify({ mediaId, caption }) })); }} />
-      {(professional.portfolioPhotos?.length || 0) >= 30 && <Text style={styles.description}>Seu perfil já tem 30 fotos. Remova uma foto em Editar perfil para publicar outra.</Text>}
+      <ProfessionalPhotoUpload description="Adicione uma foto do resultado do serviço." disabled={(professional.portfolioPhotos?.length || 0) >= portfolioLimit} onPublish={async (mediaId, caption) => { setProfessional(await apiRequest<Professional>(`/professionals/me/orders/${orderId}/photos`, { method: 'POST', body: JSON.stringify({ mediaId, caption }) })); }} />
+      {(professional.portfolioPhotos?.length || 0) >= portfolioLimit && <Text style={styles.description}>Seu perfil atingiu o limite de {portfolioLimit} fotos. Remova uma foto em Editar perfil para publicar outra.</Text>}
       {professional.portfolioPhotos?.filter(photo => photo.orderId === orderId).map(photo => <ProfessionalPortfolioPhoto key={photo.mediaId} photo={photo} />)}
     </>}
   </View>;

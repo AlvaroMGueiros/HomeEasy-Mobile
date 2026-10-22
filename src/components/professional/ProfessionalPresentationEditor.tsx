@@ -5,6 +5,7 @@ import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText as Text } from '../ui/AppText';
 import { ApiError, apiRequest } from '../../api/api-client';
+import { isPlusBillingConfigured } from '../../api/subscriptions';
 import { RootStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';
 import { Professional, ProfessionalPhotoKind } from '../../types/api';
@@ -29,6 +30,7 @@ export function ProfessionalPresentationEditor() {
   const [error, setError] = useState('');
   const [needsProfessionalProfile, setNeedsProfessionalProfile] = useState(false);
   const busy = saving || uploading;
+  const portfolioLimit = professional?.portfolioLimit || 30;
 
   async function loadProfile() {
     setLoading(true); setError(''); setNeedsProfessionalProfile(false);
@@ -80,8 +82,9 @@ export function ProfessionalPresentationEditor() {
       <AppButton label="Salvar apresentação" loading={saving} disabled={uploading || bio.trim().length < 40 || bio.trim() === professional.bio?.trim()} onPress={() => void persistChanges({ bio: bio.trim() }, true)} />
     </View>
     <View style={styles.card}>
-      <View style={styles.sectionHeading}><Feather name="grid" size={20} color={colors.primary} /><Text style={styles.heading}>Fotos dos seus trabalhos</Text><Text style={styles.counter}>{photos.length}/30</Text></View>
-      <ProfessionalPhotoUpload description="Adicione exemplos dos serviços que você oferece." disabled={saving || photos.length >= 30} onBusyChange={setUploading} onPublish={(mediaId, caption) => savePresentation({ portfolioPhotos: [...photos, { mediaId, kind: ProfessionalPhotoKind.Offered, caption }] })} />
+      <View style={styles.sectionHeading}><Feather name="grid" size={20} color={colors.primary} /><Text style={styles.heading}>Fotos dos seus trabalhos</Text><Text style={styles.counter}>{photos.length}/{portfolioLimit}</Text></View>
+      {isPlusBillingConfigured() && portfolioLimit === 30 && photos.length >= 30 && <AppButton label="Mais fotos com HomeEasy+" variant="secondary" onPress={() => navigation.navigate('HomeEasyPlus')} />}
+      <ProfessionalPhotoUpload description="Adicione exemplos dos serviços que você oferece." disabled={saving || photos.length >= portfolioLimit} onBusyChange={setUploading} onPublish={(mediaId, caption) => savePresentation({ portfolioPhotos: [...photos, { mediaId, kind: ProfessionalPhotoKind.Offered, caption }] })} />
       <View style={styles.notice}><Feather name="check-circle" size={18} color={colors.success} /><Text style={styles.noticeText}>Adicione fotos de serviços concluídos no atendimento.</Text></View>
     </View>
     {!photos.length && <View style={styles.empty}><Feather name="image" size={28} color={colors.textMuted} /><Text style={styles.heading}>Nenhuma foto publicada</Text></View>}

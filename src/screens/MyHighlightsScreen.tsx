@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { apiRequest } from '../api/api-client';
+import { isPlusBillingConfigured } from '../api/subscriptions';
 import { HighlightCard } from '../components/professional/HighlightCard';
 import { AppButton } from '../components/ui/AppButton';
 import { AppText } from '../components/ui/AppText';
@@ -42,6 +43,7 @@ export function MyHighlightsScreen() {
 
   return <Screen>
     <SectionHeader title="Minhas publicações" />
+    {isPlusBillingConfigured() && professional && (professional.publicationLimit || 4) === 4 && publications.length >= 4 && <AppButton label="Mais publicações com HomeEasy+" variant="secondary" onPress={() => navigation.navigate('HomeEasyPlus')} />}
     <AppButton label="Publicar trabalho" onPress={() => navigation.navigate('CreateHighlight')} disabled={loading || Boolean(removingId)} />
     {loading && <StateView loading message="Carregando publicações..." />}
     {error && <StateView message={error} onAction={() => setRefreshVersion(current => current + 1)} />}

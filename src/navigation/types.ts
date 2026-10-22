@@ -39,6 +39,7 @@ export type RootStackParamList = {
   Report: { targetUserId?: string; conversationId?: string; messageId?: string; highlightId?: string };
   Dispute: { orderId: string; issue?: ServiceIssue };
   Opportunities: undefined;
+  HomeEasyPlus: undefined;
   MyHighlights: undefined;
   CreateHighlight: undefined;
   HighlightsModeration: undefined;

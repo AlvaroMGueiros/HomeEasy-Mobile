@@ -47,6 +47,7 @@ export function DeleteAccountScreen() {
       <Text style={styles.title}>O que acontece depois?</Text>
       <Text style={styles.text}>Seu acesso será revogado e seus dados pessoais, documentos, fotos e anexos serão apagados ou anonimizados.</Text>
       <Text style={styles.text}>Registros indispensáveis para segurança, disputas ou obrigações legais poderão ser mantidos com acesso restrito.</Text>
+      <Text style={styles.text}>Se você assina o HomeEasy+, excluir a conta não cancela a cobrança na Google Play. Gerencie sua assinatura na loja antes de sair.</Text>
     </View>
     <Text style={styles.label}>Digite {confirmationText} para confirmar</Text>
     <TextInput accessibilityLabel={`Digite ${confirmationText} para confirmar a exclusão da conta`} placeholder="EXCLUIR" placeholderTextColor={colors.textMuted} autoCapitalize="characters" autoCorrect={false} value={confirmation} onChangeText={setConfirmation} style={styles.input} />

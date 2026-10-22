@@ -27,6 +27,7 @@ import { EditProfileScreen } from "../screens/EditProfileScreen";
 import { FavoritesScreen } from "../screens/FavoritesScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { FullPrivacyPolicyScreen } from "../screens/FullPrivacyPolicyScreen";
+import { HomeEasyPlusScreen } from '../screens/HomeEasyPlusScreen';
 import { HighlightsScreen } from '../screens/HighlightsScreen';
 import { MyHighlightsScreen } from '../screens/MyHighlightsScreen';
 import { CreateHighlightScreen } from '../screens/CreateHighlightScreen';
@@ -351,6 +352,7 @@ export function AppNavigator() {
               component={DisputeScreen}
               options={{ title: "Problema com o serviço" }}
             />
+            <Stack.Screen name="HomeEasyPlus" component={HomeEasyPlusScreen} options={{ title: "HomeEasy+" }} />
             <Stack.Screen name="MyHighlights" component={MyHighlightsScreen} options={{ title: "Minhas publicações" }} />
             <Stack.Screen name="CreateHighlight" component={CreateHighlightScreen} options={{ title: "Publicar trabalho" }} />
             <Stack.Screen name="HighlightsModeration" component={HighlightsModerationScreen} options={{ title: "Aprovar publicações" }} />

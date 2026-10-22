@@ -63,6 +63,8 @@ export function ProfileScreen() {
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Área profissional</Text>
       <View style={styles.menuCard}>
+        <MenuRow icon="star" title="HomeEasy+" onPress={() => navigation.navigate('HomeEasyPlus')} />
+        <View style={styles.divider} />
         <MenuRow icon="bar-chart-2" title="Painel profissional" onPress={() => navigation.navigate('ProfessionalDashboard')} />
         <View style={styles.divider} />
         <MenuRow icon="briefcase" title="Perfil e serviços" onPress={() => navigation.navigate('ProfessionalManager')} />
