@@ -7,14 +7,14 @@ import { ProfessionalReview } from '../../types/api';
 import { formatDate } from '../../utils/date';
 import { UserAvatar } from '../ui/UserAvatar';
 
-export function ProfessionalReviewCard({ review }: { review: ProfessionalReview }) {
-  return <View style={styles.card}>
+export function ProfessionalReviewCard({ review, compact = false }: { review: ProfessionalReview; compact?: boolean }) {
+  return <View style={[styles.card, compact && { padding: 12, gap: 8 }]}>
     <View style={styles.header}>
-      <UserAvatar name={review.clientName} size={38} />
+      <UserAvatar name={review.clientName} size={compact ? 28 : 38} />
       <View style={styles.content}><Text style={styles.name}>{review.clientName}</Text><View style={styles.meta}><Feather name="star" size={12} color={colors.warning} /><Text style={styles.rating}>{review.rating.toLocaleString('pt-BR', { minimumFractionDigits: 1 })}</Text><Text style={styles.date}>· {formatDate(review.createdAt)}</Text></View></View>
       <Feather name="check-circle" size={15} color={colors.success} accessibilityLabel="Avaliação de serviço concluído" />
     </View>
-    <Text style={styles.comment}>{review.comment}</Text>
+    <Text style={styles.comment} numberOfLines={compact ? 3 : undefined}>{review.comment}</Text>
     {Boolean(review.professionalResponse) && <View style={styles.response}><Text style={styles.responseLabel}>Resposta do profissional</Text><Text style={styles.responseText}>{review.professionalResponse}</Text></View>}
   </View>;
 }

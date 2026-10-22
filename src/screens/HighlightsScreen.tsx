@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,13 +9,16 @@ import { HighlightCard } from '../components/professional/HighlightCard';
 import { HighlightsFilters } from '../components/professional/HighlightsFilters';
 import { AppButton } from '../components/ui/AppButton';
 import { AppText } from '../components/ui/AppText';
+import { ChoiceChips } from '../components/ui/ChoiceChips';
+import { SearchField } from '../components/ui/SearchField';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
 import { AppTabParamList, RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { Favorite, Service, UserProfile } from '../types/api';
 import { Highlight, HighlightLocation, HighlightsResponse } from '../types/highlights';
-import { buildHighlightsQuery, mergeHighlights, resolveHighlightLocation } from '../utils/highlights';
+import { buildHighlightCategoryOptions, buildHighlightsQuery, mergeHighlights, resolveHighlightLocation } from '../utils/highlights';
+
 
 
 export function HighlightsScreen() {
@@ -23,6 +26,10 @@ export function HighlightsScreen() {
   const { params } = useRoute<RouteProp<AppTabParamList, 'Highlights'>>();
   const [location, setLocation] = useState<HighlightLocation | null>(null);
   const [serviceId, setServiceId] = useState('');
+  const [category, setCategory] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [services, setServices] = useState<Service[]>([]);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [initializing, setInitializing] = useState(true);
@@ -37,6 +44,13 @@ export function HighlightsScreen() {
   const loadingPage = useRef(false);
   const favoriteMutation = useRef(0);
   const favoriteInFlight = useRef(false);
+  const categoryOptions = useMemo(() => buildHighlightCategoryOptions(services), [services]);
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setSearchQuery(searchTerm.trim().slice(0, 80)), 300);
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
 
   useEffect(() => {
     let active = true;
@@ -58,14 +72,14 @@ export function HighlightsScreen() {
     loadingPage.current = true; setLoading(true); setError('');
     if (requestedPage === 1) { setHighlights([]); setHasMore(false); setPage(1); }
     try {
-      const response = await apiRequest<HighlightsResponse>(`/highlights?${buildHighlightsQuery(location, serviceId, requestedPage)}`);
+      const response = await apiRequest<HighlightsResponse>(`/highlights?${buildHighlightsQuery(location, serviceId, requestedPage, 10, { search: searchQuery, category })}`);
       if (version !== requestVersion.current) return;
       setHighlights(current => requestedPage === 1 ? response.highlights : mergeHighlights(current, response.highlights));
       setPage(response.page); setHasMore(response.hasMore);
     } catch (failure) {
       if (version === requestVersion.current) setError(failure instanceof ApiError && failure.status === 404 ? 'Os destaques ainda não estão disponíveis nesta versão do servidor.' : 'Não foi possível carregar os destaques desta região. Tente novamente.');
     } finally { if (version === requestVersion.current) { setLoading(false); loadingPage.current = false; } }
-  }, [location?.city, location?.state, serviceId]);
+  }, [location?.city, location?.state, serviceId, searchQuery, category]);
 
   useFocusEffect(useCallback(() => {
     void loadPage();
@@ -91,25 +105,30 @@ export function HighlightsScreen() {
     finally { favoriteInFlight.current = false; setFavoriteBusyId(''); }
   }
 
+  let emptyContent: ReactElement | null = null;
+  if (!loading && !initializing && !error && location) emptyContent = <View style={styles.empty}><Feather name="star" size={40} color={colors.primary} /><AppText style={styles.emptyTitle}>Ainda não há destaques nesta região</AppText><AppButton label="Publicar meu trabalho" variant="secondary" onPress={() => navigation.navigate('MyHighlights')} /></View>;
+
   return <SafeAreaView edges={['top', 'left', 'right']} style={styles.root}>
     <FlatList<Highlight> data={highlights} keyExtractor={highlight => highlight.id} contentContainerStyle={styles.content}
       renderItem={({ item: highlight }) => <HighlightCard highlight={highlight} isFavorite={favoriteIds.has(highlight.professionalId)} favoriteBusy={!favoritesReady || Boolean(favoriteBusyId)} onFavorite={() => void toggleFavorite(highlight.professionalId)} />}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       refreshing={loading && page === 1} onRefresh={() => void loadPage()} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5}
       ListHeaderComponent={<View style={styles.header}>
-        <View style={styles.titleRow}><View style={styles.grow}><SectionHeader title="Destaques" /></View><Pressable accessibilityRole="button" accessibilityLabel="Minhas publicações" onPress={() => navigation.navigate('MyHighlights')} style={styles.publish}><Feather name="grid" size={21} color={colors.primary} /></Pressable></View>
-        <HighlightsFilters location={location} services={services} serviceId={serviceId} onApply={(nextLocation, nextServiceId) => { setLocation(nextLocation); setServiceId(nextServiceId); }} />
+        <View style={styles.titleRow}><View style={styles.grow}><SectionHeader title="Destaques" /></View><Pressable accessibilityRole="button" accessibilityLabel="Buscar publicações" accessibilityState={{ expanded: showSearch }} onPress={() => { setShowSearch(current => !current); if (showSearch) setSearchTerm(''); }} style={styles.publish}><Feather name="search" size={22} color={colors.primary} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Publicar trabalho" onPress={() => navigation.navigate('CreateHighlight')} style={[styles.publish, styles.create]}><Feather name="plus" size={25} color={colors.white} /></Pressable></View>
+        {showSearch && <SearchField value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar trabalho ou profissional" />}
+        <HighlightsFilters location={location} services={services} serviceId={serviceId} onApply={(nextLocation, nextServiceId) => { setLocation(nextLocation); setServiceId(nextServiceId); setCategory(''); }} />
+        <ChoiceChips options={categoryOptions} value={category} onChange={nextCategory => { setCategory(nextCategory); setServiceId(''); }} scrollable compact />
         {Boolean(serviceId) && <AppText style={styles.filterLabel}>{services.find(service => service.id === serviceId)?.name}</AppText>}
         {(initializing || (loading && !highlights.length)) && <StateView loading message="Carregando destaques..." />}
         {Boolean(error) && <StateView title="Destaques indisponíveis" message={error} onAction={() => void loadPage(hasMore ? page + 1 : 1)} />}
       </View>}
-      ListEmptyComponent={!loading && !initializing && !error && location ? <View style={styles.empty}><Feather name="star" size={40} color={colors.primary} /><AppText style={styles.emptyTitle}>Ainda não há destaques nesta região</AppText><AppButton label="Publicar meu trabalho" variant="secondary" onPress={() => navigation.navigate('MyHighlights')} /></View> : null}
+      ListEmptyComponent={emptyContent}
       ListFooterComponent={hasMore && !error ? <View style={styles.more}><AppButton label="Carregar mais" variant="secondary" loading={loading} onPress={() => void loadPage(page + 1)} /></View> : null} />
   </SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background }, content: { padding: 20, paddingBottom: 36 }, header: { gap: 18, marginBottom: 20 },
+  root: { flex: 1, backgroundColor: colors.background }, content: { padding: 14, paddingBottom: 36 }, header: { gap: 12, marginBottom: 18 }, create: { backgroundColor: colors.primary },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1 }, publish: { width: 46, height: 46, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   separator: { height: 22 }, empty: { alignItems: 'center', paddingVertical: 48, gap: 20 }, emptyTitle: { fontSize: 18, color: colors.text, fontWeight: '700', textAlign: 'center' }, more: { paddingTop: 22 }, filterLabel: { color: colors.primary, fontSize: 13, fontWeight: '700' },
 });
