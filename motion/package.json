@@ -13,7 +13,7 @@
     "@remotion/google-fonts": "^4.0.414",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "remotion": "^4.0.414"
+    "remotion": "^4.0.544"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
