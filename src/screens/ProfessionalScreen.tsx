@@ -1,8 +1,9 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText as Text } from '../components/ui/AppText';
@@ -126,8 +127,8 @@ export function ProfessionalScreen() {
       title: 'Perfil profissional',
       headerStyle: { backgroundColor: colors.surface },
       headerRight: () => <View style={styles.headerActions}>
-        {!isOwnProfile && <Pressable accessibilityRole="button" accessibilityLabel={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} accessibilityState={{ selected: isFavorite, disabled: favoriteLoading }} disabled={favoriteLoading || !professional} onPress={() => void toggleFavorite()} style={styles.headerAction}>{favoriteLoading ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="heart" size={21} color={isFavorite ? colors.accent : colors.primary} />}</Pressable>}
-        <Pressable accessibilityRole="button" accessibilityLabel="Compartilhar informações do perfil" disabled={!professional} onPress={() => void shareProfile()} style={styles.headerAction}><Feather name="share" size={20} color={colors.primary} /></Pressable>
+        {!isOwnProfile && <Pressable accessibilityRole="button" accessibilityLabel={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} accessibilityState={{ selected: isFavorite, disabled: favoriteLoading }} disabled={favoriteLoading || !professional} onPress={() => void toggleFavorite()} style={styles.headerAction}>{favoriteLoading ? <ActivityIndicator size="small" color={colors.primary} /> : <AppIcon name="heart" size={21} color={isFavorite ? colors.accent : colors.primary} />}</Pressable>}
+        <Pressable accessibilityRole="button" accessibilityLabel="Compartilhar informações do perfil" disabled={!professional} onPress={() => void shareProfile()} style={styles.headerAction}><AppIcon name="share" size={20} color={colors.primary} /></Pressable>
       </View>
     });
   }, [navigation, professional, isOwnProfile, isFavorite, favoriteLoading, toggleFavorite, shareProfile]);
@@ -186,7 +187,7 @@ export function ProfessionalScreen() {
         {activeTab === ProfessionalProfileTab.Services && <ProfessionalServiceList services={summary.activeServices} onSelect={startRequest} canRequest={!isOwnProfile} />}
         {activeTab === ProfessionalProfileTab.Reviews && <ProfessionalProfileReviews response={reviews} loading={reviewsLoading} error={reviewsError} onRetry={refreshProfile} onViewAll={viewAllReviews} />}
         {activeTab === ProfessionalProfileTab.Photos && <ProfessionalProfilePhotos professional={professional} />}
-        {!isOwnProfile && <Pressable accessibilityRole="button" onPress={() => user ? navigation.navigate('Report', { targetUserId: professional.id }) : navigation.navigate('Login')} style={styles.report}><Feather name="flag" size={14} color={colors.textMuted} /><Text style={styles.reportText}>Denunciar este perfil</Text></Pressable>}
+        {!isOwnProfile && <Pressable accessibilityRole="button" onPress={() => user ? navigation.navigate('Report', { targetUserId: professional.id }) : navigation.navigate('Login')} style={styles.report}><AppIcon name="flag" size={14} color={colors.textMuted} /><Text style={styles.reportText}>Denunciar este perfil</Text></Pressable>}
         {!isOwnProfile && user && <UserSafetyActions key={professional.id} targetUserId={professional.id} />}
       </View>
     </ScrollView>
@@ -195,13 +196,13 @@ export function ProfessionalScreen() {
         <Text style={styles.footerHint}>{isOwnProfile ? 'Este é seu perfil profissional' : summary.priceLabel}</Text>
         <AppButton label={isOwnProfile ? 'Editar apresentação e fotos' : 'Solicitar orçamento'} onPress={() => isOwnProfile ? navigation.navigate('EditProfile', { section: ProfileEditorSection.Professional }) : requestQuote()} disabled={!isOwnProfile && !summary.activeServices.length} />
       </View>
-      {!isOwnProfile && <Pressable accessibilityRole="button" accessibilityLabel={conversation ? 'Abrir conversa com o profissional' : 'Como conversar com o profissional'} disabled={conversationLoading} onPress={openConversation} style={styles.chatButton}>{conversationLoading ? <ActivityIndicator color={colors.primary} /> : <Feather name="message-circle" size={23} color={colors.primary} />}</Pressable>}
+      {!isOwnProfile && <Pressable accessibilityRole="button" accessibilityLabel={conversation ? 'Abrir conversa com o profissional' : 'Como conversar com o profissional'} disabled={conversationLoading} onPress={openConversation} style={styles.chatButton}>{conversationLoading ? <ActivityIndicator color={colors.primary} /> : <AppIcon name="message-circle" size={23} color={colors.primary} />}</Pressable>}
     </View>
     <Modal visible={pickerVisible} transparent animationType="slide" onRequestClose={() => setPickerVisible(false)}>
       <View style={styles.pickerOverlay}>
-        <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Fechar seleção de serviço" onPress={() => setPickerVisible(false)} />
+        <Pressable feedback="none" style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Fechar seleção de serviço" onPress={() => setPickerVisible(false)} />
         <View style={[styles.picker, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <View style={styles.pickerHeader}><View style={styles.pickerHeading}><Text style={styles.pickerTitle}>Qual serviço você precisa?</Text><Text style={styles.pickerDescription}>Seu pedido será enviado a {professional.name}.</Text></View><Pressable accessibilityRole="button" accessibilityLabel="Fechar seleção de serviço" onPress={() => setPickerVisible(false)} style={styles.headerAction}><Feather name="x" size={23} color={colors.primary} /></Pressable></View>
+          <View style={styles.pickerHeader}><View style={styles.pickerHeading}><Text style={styles.pickerTitle}>Qual serviço você precisa?</Text><Text style={styles.pickerDescription}>Seu pedido será enviado a {professional.name}.</Text></View><Pressable accessibilityRole="button" accessibilityLabel="Fechar seleção de serviço" onPress={() => setPickerVisible(false)} style={styles.headerAction}><AppIcon name="x" size={23} color={colors.primary} /></Pressable></View>
           <ScrollView showsVerticalScrollIndicator={false}><ProfessionalServiceList services={summary.activeServices} onSelect={startRequest} compact /></ScrollView>
         </View>
       </View>
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   headerAction: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   body: { padding: 20, gap: 22, backgroundColor: colors.background, flexGrow: 1 },
-  report: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  report: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   reportText: { color: colors.textMuted, fontSize: 12 },
   footer: { paddingHorizontal: 20, paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
   footerAction: { flex: 1, gap: 6 },

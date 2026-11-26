@@ -1,6 +1,7 @@
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
@@ -84,7 +85,7 @@ export function NotificationsScreen() {
       {loading && <StateView loading message="Carregando notificações..." />}
       {Boolean(error) && <StateView message={error} />}
       {!loading && !error && !items.length && (
-        <StateView message="Você está em dia. Nenhuma notificação nova." />
+        <StateView icon="bell" title="Você está em dia" message="Nenhuma notificação nova." />
       )}
       {items.map(item => (
         <Pressable

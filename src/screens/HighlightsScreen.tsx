@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ApiError, apiRequest } from '../api/api-client';
@@ -14,6 +15,7 @@ import { SearchField } from '../components/ui/SearchField';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StateView } from '../components/ui/StateView';
 import { AppTabParamList, RootStackParamList } from '../navigation/types';
+import { useTabBarClearance } from '../navigation/tabBar';
 import { colors } from '../theme/colors';
 import { Favorite, Service, UserProfile } from '../types/api';
 import { Highlight, HighlightLocation, HighlightsResponse } from '../types/highlights';
@@ -22,6 +24,7 @@ import { buildHighlightCategoryOptions, buildHighlightsQuery, mergeHighlights, r
 
 
 export function HighlightsScreen() {
+  const tabBarClearance = useTabBarClearance();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { params } = useRoute<RouteProp<AppTabParamList, 'Highlights'>>();
   const [location, setLocation] = useState<HighlightLocation | null>(null);
@@ -106,15 +109,15 @@ export function HighlightsScreen() {
   }
 
   let emptyContent: ReactElement | null = null;
-  if (!loading && !initializing && !error && location) emptyContent = <View style={styles.empty}><Feather name="star" size={40} color={colors.primary} /><AppText style={styles.emptyTitle}>Ainda não há destaques nesta região</AppText><AppButton label="Publicar meu trabalho" variant="secondary" onPress={() => navigation.navigate('MyHighlights')} /></View>;
+  if (!loading && !initializing && !error && location) emptyContent = <View style={styles.empty}><AppIcon name="star" size={40} color={colors.primary} /><AppText style={styles.emptyTitle}>Ainda não há destaques nesta região</AppText><AppButton label="Publicar meu trabalho" variant="secondary" onPress={() => navigation.navigate('MyHighlights')} /></View>;
 
   return <SafeAreaView edges={['top', 'left', 'right']} style={styles.root}>
-    <FlatList<Highlight> data={highlights} keyExtractor={highlight => highlight.id} contentContainerStyle={styles.content}
+    <FlatList<Highlight> data={highlights} keyExtractor={highlight => highlight.id} contentContainerStyle={[styles.content, { paddingBottom: tabBarClearance }]}
       renderItem={({ item: highlight }) => <HighlightCard highlight={highlight} isFavorite={favoriteIds.has(highlight.professionalId)} favoriteBusy={!favoritesReady || Boolean(favoriteBusyId)} onFavorite={() => void toggleFavorite(highlight.professionalId)} />}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       refreshing={loading && page === 1} onRefresh={() => void loadPage()} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5}
       ListHeaderComponent={<View style={styles.header}>
-        <View style={styles.titleRow}><View style={styles.grow}><SectionHeader title="Destaques" /></View><Pressable accessibilityRole="button" accessibilityLabel="Buscar publicações" accessibilityState={{ expanded: showSearch }} onPress={() => { setShowSearch(current => !current); if (showSearch) setSearchTerm(''); }} style={styles.publish}><Feather name="search" size={22} color={colors.primary} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Publicar trabalho" onPress={() => navigation.navigate('CreateHighlight')} style={[styles.publish, styles.create]}><Feather name="plus" size={25} color={colors.white} /></Pressable></View>
+        <View style={styles.titleRow}><View style={styles.grow}><SectionHeader title="Destaques" /></View><Pressable accessibilityRole="button" accessibilityLabel="Buscar publicações" accessibilityState={{ expanded: showSearch }} onPress={() => { setShowSearch(current => !current); if (showSearch) setSearchTerm(''); }} style={styles.publish}><AppIcon name="search" size={22} color={colors.primary} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Publicar trabalho" onPress={() => navigation.navigate('CreateHighlight')} style={[styles.publish, styles.create]}><AppIcon name="plus" size={25} color={colors.white} /></Pressable></View>
         {showSearch && <SearchField value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar trabalho ou profissional" />}
         <HighlightsFilters location={location} services={services} serviceId={serviceId} onApply={(nextLocation, nextServiceId) => { setLocation(nextLocation); setServiceId(nextServiceId); setCategory(''); }} />
         <ChoiceChips options={categoryOptions} value={category} onChange={nextCategory => { setCategory(nextCategory); setServiceId(''); }} scrollable compact />

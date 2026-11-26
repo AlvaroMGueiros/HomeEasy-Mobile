@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -26,7 +26,7 @@ type RequestsSection = 'requests' | 'opportunities' | 'proposals' | 'orders' | '
 
 const sectionOptions: ChoiceOption<RequestsSection>[] = [
   { value: 'orders', label: 'Atendimentos' },
-  { value: 'requests', label: 'Orçamentos pedidos' },
+  { value: 'requests', label: 'Orçamentos' },
   { value: 'jobs', label: 'Atendimentos' },
   { value: 'proposals', label: 'Orçamentos' },
   { value: 'opportunities', label: 'Oportunidades' }
@@ -81,31 +81,33 @@ export function RequestsScreen() {
   return <Screen>
     <SectionHeader title="Meus serviços" />
     <ChoiceChips value={isProfessionalSection ? 'professional' : 'client'} onChange={role => setSection(role === 'professional' ? 'jobs' : 'orders')} options={roleOptions} segmented />
-    <ChoiceChips value={section} onChange={setSection} options={visibleSectionOptions} />
+    <ChoiceChips value={section} onChange={setSection} options={visibleSectionOptions} tabs />
     {!loading && !error && (section === 'orders' || section === 'jobs') && <ServiceActivitySummary {...orderSummary} />}
-    {section === 'requests' && <AppButton label="Pedir um novo orçamento" icon={<Feather name="plus" size={19} color={colors.white} />} onPress={() => navigation.navigate('Services')} />}
+    {section === 'requests' && <AppButton label="Pedir um novo orçamento" icon={<AppIcon name="plus" size={19} color={colors.white} />} onPress={() => navigation.navigate('Services')} />}
     {loading && <StateView loading message="Carregando solicitações e pedidos..." />}
     {Boolean(error) && <StateView icon="alert-circle" title="Não foi possível atualizar" message={error} onAction={() => void loadRequests()} />}
     {!loading && !error && <>
       <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{sectionTitles[section]}</Text><Text style={styles.count}>{sectionCount} {sectionCount === 1 ? 'serviço' : 'serviços'}</Text></View>
 
       {section === 'requests' && <>
-        {!requests.length && <StateView icon="file-text" title="Nenhum pedido de orçamento" />}
+        {!requests.length && <StateView icon="file-text" title="Nenhum pedido de orçamento" message="Descreva o que precisa e receba propostas de profissionais da região." />}
         {requests.map(request => <ServiceActivityCard key={request.id} title={request.service?.name || 'Serviço'} status={request.status} description={request.description} location={`${request.city}, ${request.state}`} summary={`${request.proposalCount} ${request.proposalCount === 1 ? 'proposta recebida' : 'propostas recebidas'}`} actionLabel="Ver pedido de orçamento" onPress={() => navigation.navigate('RequestDetail', { requestId: request.id })} />)}
       </>}
 
       {section === 'proposals' && <>
-        {!proposals.length && <StateView icon="send" title="Nenhuma proposta enviada" />}
+        {!proposals.length && <StateView icon="send" title="Nenhuma proposta enviada" message="Veja os pedidos da sua região e envie seu primeiro orçamento." actionLabel="Ver oportunidades" onAction={() => setSection('opportunities')} />}
         {proposals.map(proposal => <ServiceActivityCard key={proposal.id} title={proposal.request?.service?.name || 'Proposta enviada'} status={proposal.status} statusLabel={resolveProposalStatusLabel(proposal.status)} description={proposal.request?.description || proposal.message} summary={formatCurrency(calculateProposalTotal(proposal))} actionLabel="Ver orçamento" onPress={() => navigation.navigate('RequestDetail', { requestId: proposal.requestId })}><Text style={styles.detail}>{resolveProposalValidity(proposal.validUntil, proposal.status)}</Text></ServiceActivityCard>)}
       </>}
 
       {section === 'opportunities' && <>
-        {!opportunities.length && <StateView icon="search" title="Nenhuma oportunidade agora" />}
+        {!opportunities.length && <StateView icon="search" title="Nenhuma oportunidade agora" message="Pedidos da sua região para os serviços que você oferece aparecem aqui." />}
         {opportunities.map(opportunity => <ServiceActivityCard key={opportunity.id} title={opportunity.service?.name || 'Serviço'} status={opportunity.status} statusLabel={opportunity.preferredProfessionalId ? 'Solicitação direta para você' : 'Oportunidade'} description={opportunity.description} location={`${opportunity.city}, ${opportunity.state}`} summary={`${opportunity.proposalCount} de ${opportunity.maximumProposals} propostas`} actionLabel="Ver oportunidade" onPress={() => navigation.navigate('RequestDetail', { requestId: opportunity.id })}><OpportunityMatch score={opportunity.matchScore} reasons={opportunity.matchReasons} /></ServiceActivityCard>)}
       </>}
 
       {(section === 'orders' || section === 'jobs') && <>
-        {!visibleOrders.length && <StateView icon="briefcase" title={section === 'jobs' ? 'Você ainda não tem trabalhos' : 'Você ainda não contratou um serviço'} />}
+        {!visibleOrders.length && (section === 'jobs'
+          ? <StateView icon="briefcase" title="Você ainda não tem trabalhos" message="Quando um cliente escolher a sua proposta, o atendimento aparece aqui." actionLabel="Ver oportunidades" onAction={() => setSection('opportunities')} />
+          : <StateView icon="briefcase" title="Você ainda não contratou um serviço" message="Quando você escolher uma proposta, o atendimento aparece aqui com data, valor e andamento." actionLabel="Buscar serviços" onAction={() => navigation.navigate('Services')} />)}
         {visibleOrders.map(order => <ServiceActivityCard key={order.id} title={order.request.service?.name || 'Serviço'} status={order.status} location={`${order.request.city}, ${order.request.state}`} appointment={formatAppointment(order.scheduledAt)} summaryLabel="Valor do serviço" summary={formatCurrency(Number(order.agreedPrice))} actionLabel="Ver atendimento" onPress={() => navigation.navigate('OrderDetail', { orderId: order.id })} />)}
       </>}
     </>}

@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from './AppIcon';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText as Text } from './AppText';
@@ -10,7 +10,7 @@ export function OrderProgress({ order, review }: { order: Order; review?: Pick<P
   const stages = resolveOrderProgress(order, review);
   if (!stages.length) return null;
   return <View style={styles.card}><Text style={styles.heading}>Acompanhe seu serviço</Text>{stages.map((stage, index) => <View key={stage.status} style={styles.stage}>
-    <View style={styles.rail}>{index < stages.length - 1 && <View style={[styles.connector, stage.completed && styles.completedConnector]} />}<View style={[styles.marker, (stage.completed || stage.current) && styles.activeMarker]}><Feather name={stage.completed ? 'check' : stage.icon} size={15} color={stage.completed || stage.current ? colors.white : colors.textMuted} /></View></View>
+    <View style={styles.rail}>{index < stages.length - 1 && <View style={[styles.connector, stage.completed && styles.completedConnector]} />}<View style={[styles.marker, (stage.completed || stage.current) && styles.activeMarker]}><AppIcon name={stage.completed ? 'check' : stage.icon} size={15} color={stage.completed || stage.current ? colors.white : colors.textMuted} /></View></View>
     <View style={styles.stageCopy}><View style={styles.labelRow}><Text style={[styles.label, (stage.current || stage.completed) && styles.currentLabel]}>{stage.label}</Text>{stage.current && <Text style={styles.current}>Atual</Text>}</View><Text style={styles.description}>{stage.description}</Text></View>
   </View>)}</View>;
 }

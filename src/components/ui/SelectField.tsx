@@ -1,6 +1,7 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from './AppIcon';
 import { useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, View } from 'react-native';
+import { Pressable } from './Pressable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText as Text } from './AppText';
@@ -40,17 +41,17 @@ export function SelectField({ label, value, options, onChange, placeholder = 'Se
     <FieldLabel label={label} required={required} style={styles.label} />
     <Pressable accessibilityRole="button" accessibilityLabel={`${fieldLabel}: ${selectedOption?.label || placeholder}`} accessibilityHint={hint} accessibilityState={{ expanded: visible, disabled }} disabled={disabled} onPress={() => setVisible(true)} style={styles.trigger}>
       <Text style={[styles.value, !selectedOption && styles.placeholder]}>{selectedOption?.label || placeholder}</Text>
-      <Feather name="chevron-down" size={18} color={colors.textMuted} />
+      <AppIcon name="chevron-down" size={18} color={colors.textMuted} />
     </Pressable>
     {hint && <Text style={styles.hint}>{hint}</Text>}
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <View style={[styles.overlay, { paddingTop: Math.max(insets.top, 20) }]}>
-        <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Fechar opções" onPress={close} />
+        <Pressable feedback="none" style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Fechar opções" onPress={close} />
         <View accessibilityViewIsModal style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}>
-          <View style={styles.header}><Text accessibilityRole="header" style={styles.title}>{label}</Text><Pressable accessibilityRole="button" accessibilityLabel="Fechar opções" onPress={close} style={styles.close}><Feather name="x" size={24} color={colors.primary} /></Pressable></View>
+          <View style={styles.header}><Text accessibilityRole="header" style={styles.title}>{label}</Text><Pressable accessibilityRole="button" accessibilityLabel="Fechar opções" onPress={close} style={styles.close}><AppIcon name="x" size={24} color={colors.primary} /></Pressable></View>
           {searchable && <SearchField value={searchTerm} onChangeText={setSearchTerm} placeholder="Digite para encontrar uma opção" />}
           <FlatList data={filteredOptions} keyExtractor={option => option.value} keyboardShouldPersistTaps="handled" style={styles.options} ListEmptyComponent={<Text style={styles.hint}>Nenhuma opção encontrada. Tente outro nome.</Text>} renderItem={({ item: option }) => <Pressable accessibilityRole="radio" accessibilityState={{ selected: option.value === value }} onPress={() => { onChange(option.value); close(); }} style={styles.option}>
-            <Text style={styles.value}>{option.label}</Text>{option.value === value && <Feather name="check" size={20} color={colors.primary} />}
+            <Text style={styles.value}>{option.label}</Text>{option.value === value && <AppIcon name="check" size={20} color={colors.primary} />}
           </Pressable>} />
         </View>
       </View>
@@ -59,7 +60,7 @@ export function SelectField({ label, value, options, onChange, placeholder = 'Se
 }
 
 const styles = StyleSheet.create({
-  field: { gap: 7 }, label: { color: colors.text, fontWeight: '800' },
+  field: { gap: 8 }, label: { color: colors.text, fontWeight: '800' },
   trigger: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   value: { flex: 1, color: colors.text, fontSize: 15 }, placeholder: { color: colors.textMuted },
   hint: { color: colors.textMuted, fontSize: 12, lineHeight: 18 },

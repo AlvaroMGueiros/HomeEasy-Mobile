@@ -1,8 +1,9 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
@@ -69,19 +70,19 @@ export function RegionalMapScreen() {
     <SectionHeader eyebrow="Profissionais perto de você" title="Explore por região" />
     <Text style={styles.city}>Até que distância você quer buscar?</Text>
     <ChoiceChips value={radiusKm} onChange={setRadiusKm} options={[{ value: 10, label: '10 km' }, { value: 25, label: '25 km' }, { value: 50, label: '50 km' }, { value: 100, label: '100 km' }]} />
-    <Pressable style={styles.locationButton} onPress={centerOnUser}><Feather name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>
+    <Pressable style={styles.locationButton} onPress={centerOnUser}><AppIcon name="navigation" size={18} color={colors.primary} /><Text style={styles.locationLabel}>Usar minha localização</Text></Pressable>
     {loading && <StateView loading message="Preparando mapa..." />}{Boolean(error) && <StateView message={error} />}
     <ChoiceChips value={viewMode} onChange={setViewMode} options={[{ value: 'map', label: 'Mapa' }, { value: 'list', label: 'Lista de cidades' }]} />
-    {!loading && !error && !markers.length && <StateView message="Nenhum profissional encontrado. Tente aumentar a distância da busca." />}
+    {!loading && !error && !markers.length && <StateView icon="map" title="Nenhum profissional encontrado" message="Tente aumentar a distância da busca." />}
     {!loading && viewMode === 'map' && <View style={styles.map}><RegionalMap html={mapHtml} onSelectCity={(city, state) => navigation.navigate('CityProfessionals', { city, state })} /></View>}
     {viewMode === 'list' && markers.map(marker => <View key={marker.key} style={styles.card}>
       <View style={styles.grow}><Text style={styles.city}>{marker.city}, {marker.state}</Text><Text style={styles.meta}>{formatProfessionalCount(marker.professionals.length)}</Text></View>
       <Pressable accessibilityRole="button" onPress={() => navigation.navigate('CityProfessionals', { city: marker.city, state: marker.state })} style={styles.regionButton}>
         <Text style={styles.link}>Ver profissionais</Text>
-        <Feather name="chevron-right" size={18} color={colors.primary} />
+        <AppIcon name="chevron-right" size={18} color={colors.primary} />
       </Pressable>
     </View>)}
   </Screen>;
 }
 
-const styles = StyleSheet.create({ locationButton: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 15, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, locationLabel: { color: colors.primary, fontWeight: '800' }, map: { width: '100%', height: 360, overflow: 'hidden', borderRadius: 20, backgroundColor: colors.background }, card: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, grow: { flex: 1 }, city: { color: colors.text, fontWeight: '800' }, meta: { color: colors.textMuted, fontSize: 12 }, regionButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5 }, link: { color: colors.primary, fontWeight: '800' } });
+const styles = StyleSheet.create({ locationButton: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, locationLabel: { color: colors.primary, fontWeight: '800' }, map: { width: '100%', height: 360, overflow: 'hidden', borderRadius: 20, backgroundColor: colors.background }, card: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, grow: { flex: 1 }, city: { color: colors.text, fontWeight: '800' }, meta: { color: colors.textMuted, fontSize: 12 }, regionButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5 }, link: { color: colors.primary, fontWeight: '800' } });

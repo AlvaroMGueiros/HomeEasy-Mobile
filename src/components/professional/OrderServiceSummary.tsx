@@ -1,5 +1,6 @@
-import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { AppIcon } from '../ui/AppIcon';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
@@ -15,10 +16,10 @@ export function OrderServiceSummary({ order, onViewDetails, onViewAddress }: { o
   const serviceName = order.request.service?.name || 'Meu serviço';
   return <View style={styles.container}>
     <View style={styles.heading}><Text style={styles.title}>{serviceName}</Text><StatusBadge status={order.status} /></View>
-    {attachment ? <PrivateMediaImage mediaId={attachment.mediaId} accessibilityLabel={`Foto da solicitação de ${serviceName}`} wide /> : <View style={styles.serviceIllustration}><View style={styles.serviceIcon}><Feather name={resolveServiceIcon(serviceName)} size={30} color={colors.primary} /></View><View style={styles.serviceCopy}><Text style={styles.serviceLabel}>Seu atendimento</Text><Text numberOfLines={2} style={styles.description}>{order.request.description}</Text></View></View>}
+    {attachment ? <PrivateMediaImage mediaId={attachment.mediaId} accessibilityLabel={`Foto da solicitação de ${serviceName}`} wide /> : <View style={styles.serviceIllustration}><View style={styles.serviceIcon}><AppIcon weight="duotone" name={resolveServiceIcon(serviceName)} size={30} color={colors.primary} /></View><View style={styles.serviceCopy}><Text style={styles.serviceLabel}>Seu atendimento</Text><Text numberOfLines={2} style={styles.description}>{order.request.description}</Text></View></View>}
     <View style={styles.appointment}>
-      <View style={styles.calendar}><Feather name="calendar" size={20} color={colors.primary} /></View>
-      <View style={styles.appointmentCopy}><Pressable accessibilityRole="button" accessibilityLabel="Ver horário do atendimento" onPress={onViewDetails}><Text style={styles.day}>{formatAppointmentDay(order.scheduledAt)}</Text><Text style={styles.hours}>{formatAppointmentTimeRange(order.scheduledAt, order.proposal.estimatedDurationMinutes)}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Ver endereço do serviço no mapa" onPress={onViewAddress} style={[styles.location, { minHeight: 44 }]}><Feather name="map-pin" size={16} color={colors.primary} /><Text numberOfLines={2} style={styles.locationLabel}>{formatServiceAddress(order.request)}</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
+      <View style={styles.calendar}><AppIcon name="calendar" size={20} color={colors.primary} /></View>
+      <View style={styles.appointmentCopy}><Pressable accessibilityRole="button" accessibilityLabel="Ver horário do atendimento" onPress={onViewDetails}><Text style={styles.day}>{formatAppointmentDay(order.scheduledAt)}</Text><Text style={styles.hours}>{formatAppointmentTimeRange(order.scheduledAt, order.proposal.estimatedDurationMinutes)}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Ver endereço do serviço no mapa" onPress={onViewAddress} style={[styles.location, { minHeight: 44 }]}><AppIcon name="map-pin" size={16} color={colors.primary} /><Text numberOfLines={2} style={styles.locationLabel}>{formatServiceAddress(order.request)}</Text><AppIcon name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
     </View>
     {order.scheduledAt && <Text style={styles.help}>Horário de término estimado.</Text>}
   </View>;

@@ -1,5 +1,6 @@
-import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { AppIcon } from '../ui/AppIcon';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
@@ -11,7 +12,7 @@ import { PrivateMediaImage } from '../ui/PrivateMediaImage';
 
 export function OrderAgreementDetails({ order, expanded, onToggle }: { order: Order; expanded: boolean; onToggle(): void }) {
   return <View style={styles.card}>
-    <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={onToggle} style={styles.trigger}><Text style={styles.title}>{expanded ? 'Detalhes do atendimento' : 'Ver detalhes do atendimento'}</Text><Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} /></Pressable>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={onToggle} style={styles.trigger}><Text style={styles.title}>{expanded ? 'Detalhes do atendimento' : 'Ver detalhes do atendimento'}</Text><AppIcon name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} /></Pressable>
     {expanded && <View style={styles.details}>
       <Text style={styles.label}>O que foi solicitado</Text><Text style={styles.description}>{order.request.description}</Text>
       <Text style={styles.label}>Local do serviço</Text><Text style={styles.description}>{[order.request.address, order.request.city, order.request.state].filter(Boolean).join(', ') || 'Local a combinar'}</Text>

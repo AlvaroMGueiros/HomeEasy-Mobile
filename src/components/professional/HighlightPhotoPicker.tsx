@@ -1,6 +1,7 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../ui/AppIcon';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { colors } from '../../theme/colors';
 import { Professional } from '../../types/api';
@@ -13,9 +14,9 @@ export function HighlightPhotoPicker({ photos, selectedIds, disabled, onSelect }
   return <View style={styles.container}>
     {selectedIds.length > 0 && <HighlightGallery mediaIds={selectedIds} title="Fotos da publicação" />}
     <Pressable accessibilityRole="button" accessibilityState={{ expanded, disabled }} disabled={disabled} onPress={() => setExpanded(current => !current)} style={styles.trigger}>
-      <View style={styles.icon}><Feather name="image" size={23} color={colors.success} /></View>
+      <View style={styles.icon}><AppIcon name="image" size={23} color={colors.success} /></View>
       <View style={styles.copy}><AppText style={styles.title}>Fotos do trabalho</AppText><AppText style={styles.subtitle}>{selectedIds.length ? `${selectedIds.length} de 3 selecionadas` : 'Escolha até 3 fotos do portfólio'}</AppText></View>
-      <Feather name={expanded ? 'chevron-up' : 'plus'} size={20} color={colors.primary} />
+      <AppIcon name={expanded ? 'chevron-up' : 'plus'} size={20} color={colors.primary} />
     </Pressable>
     {expanded && <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photos}>
       {photos.map(photo => {

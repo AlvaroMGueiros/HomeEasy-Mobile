@@ -1,5 +1,6 @@
-import { Feather } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { AppIcon } from '../ui/AppIcon';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { AppText as Text } from '../ui/AppText';
 import { colors } from '../../theme/colors';
@@ -10,7 +11,7 @@ import { ProfessionalReputation } from './ProfessionalReputation';
 export function OrderParticipantSummary({ order, isClient, canChat, onChat, onViewProfessional }: { order: OrderDetail; isClient: boolean; canChat: boolean; onChat(): void; onViewProfessional(): void }) {
   const participant = isClient ? order.professional : order.client;
   return <View style={styles.container}>
-    <View style={styles.identity}><Pressable disabled={!isClient} accessibilityRole={isClient ? 'button' : undefined} accessibilityLabel={isClient ? 'Ver perfil do profissional responsável' : undefined} onPress={onViewProfessional} style={styles.participant}><UserAvatar name={participant.name} mediaId={participant.profilePhotoMediaId} size={52} /><View style={styles.copy}><Text style={styles.name}>{participant.name}</Text><Text style={styles.role}>{isClient ? 'Profissional responsável' : 'Cliente do serviço'}</Text></View></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Abrir conversa do serviço" disabled={!canChat} onPress={onChat} style={styles.chat}><Feather name="message-circle" size={21} color={colors.primary} /></Pressable></View>
+    <View style={styles.identity}><Pressable disabled={!isClient} accessibilityRole={isClient ? 'button' : undefined} accessibilityLabel={isClient ? 'Ver perfil do profissional responsável' : undefined} onPress={onViewProfessional} style={styles.participant}><UserAvatar name={participant.name} mediaId={participant.profilePhotoMediaId} size={52} /><View style={styles.copy}><Text style={styles.name}>{participant.name}</Text><Text style={styles.role}>{isClient ? 'Profissional responsável' : 'Cliente do serviço'}</Text></View></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Abrir conversa do serviço" disabled={!canChat} onPress={onChat} style={styles.chat}><AppIcon name="message-circle" size={21} color={colors.primary} /></Pressable></View>
     {isClient && <ProfessionalReputation professional={order.professional} compact />}
   </View>;
 }

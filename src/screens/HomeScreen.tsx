@@ -1,8 +1,11 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, PanResponder, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { BlurTargetView } from 'expo-blur';
+import { AccessibilityInfo, Alert, Animated, Modal, PanResponder, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
@@ -12,6 +15,10 @@ import { HighlightsPreview } from '../components/professional/HighlightsPreview'
 import { resolveHighlightLocation } from '../utils/highlights';
 import { ProfessionalDiscoveryCard } from '../components/professional/ProfessionalDiscoveryCard';
 import { MenuRow } from '../components/ui/MenuRow';
+import { AppButton } from '../components/ui/AppButton';
+import { AppTextInput } from '../components/ui/AppTextInput';
+import { GlassSurface } from '../components/ui/GlassSurface';
+import { useTabBarClearance } from '../navigation/tabBar';
 import { StateView } from '../components/ui/StateView';
 import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
@@ -37,6 +44,13 @@ export function HomeScreen() {
   const [mapHtml, setMapHtml] = useState(() => buildRegionalMapHtml(brazilRegion, [], false, true));
   const [loading, setLoading] = useState(true);
   const [locating, setLocating] = useState(false);
+  const [cityPickerVisible, setCityPickerVisible] = useState(false);
+  const [cityQuery, setCityQuery] = useState('');
+  const [cityError, setCityError] = useState('');
+  const [searchingCity, setSearchingCity] = useState(false);
+  const mapBlurTarget = useRef<View>(null);
+  const insets = useSafeAreaInsets();
+  const tabBarClearance = useTabBarClearance();
   const [locationLabel, setLocationLabel] = useState('Localização atual');
   const highlightLocation = resolveHighlightLocation(locationLabel, profile);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -47,6 +61,13 @@ export function HomeScreen() {
   const sheetTop = useRef(new Animated.Value(defaultSheetTop)).current;
   const dragStartTop = useRef(defaultSheetTop);
   const sheetPositionRef = useRef<SheetPosition>('default');
+  const reduceMotionRef = useRef(false);
+
+  useEffect(() => {
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', value => { reduceMotionRef.current = value; });
+    void AccessibilityInfo.isReduceMotionEnabled().then(value => { reduceMotionRef.current = value; }).catch(() => undefined);
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     const deviceRegionPromise = resolveDeviceRegion();
@@ -101,6 +122,7 @@ export function HomeScreen() {
     const expanded = position === 'expanded';
     sheetPositionRef.current = position;
     setIsExpanded(expanded);
+    if (reduceMotionRef.current) { sheetTop.setValue(resolveSheetTop(position)); return; }
     Animated.spring(sheetTop, { toValue: resolveSheetTop(position), useNativeDriver: false, damping: 22, stiffness: 220, mass: 0.8 }).start();
   }
 
@@ -207,6 +229,31 @@ export function HomeScreen() {
     setLocationLabel(resolvedLabel || 'Localização atual');
   }
 
+  async function searchCity() {
+    const query = cityQuery.trim();
+    if (query.length < 3) { setCityError('Digite o nome da cidade.'); return; }
+    setSearchingCity(true);
+    setCityError('');
+    try {
+      const [place] = await Location.geocodeAsync(`${query}, Brasil`);
+      if (!place) { setCityError('Não encontramos essa cidade. Confira o nome e tente de novo.'); return; }
+      const region = createNearbyRegion(place.latitude, place.longitude);
+      await updateLocationLabel(place.latitude, place.longitude);
+      await updateMap(await loadProfessionalsForRegion(region, []), region);
+      setCityPickerVisible(false);
+      setCityQuery('');
+    } catch {
+      setCityError('Não foi possível buscar essa cidade agora. Tente novamente.');
+    } finally {
+      setSearchingCity(false);
+    }
+  }
+
+  function selectCurrentLocation() {
+    setCityPickerVisible(false);
+    void centerOnUser();
+  }
+
   function handleExploreProfessionals() {
     const [cityPart, statePart] = locationLabel.split(',').map(s => s.trim());
     if (!cityPart || !statePart) {
@@ -222,32 +269,46 @@ export function HomeScreen() {
   const firstName = (profile?.name || user?.name || 'Cliente').split(' ')[0];
   return <View style={styles.root}>
     <View style={[styles.mapContainer, { height: mapHeight }]}>
-      <RegionalMap html={mapHtml} onSelectCity={(city, state) => navigation.navigate('CityProfessionals', { city, state })} />
-      <Pressable style={styles.locationPill} onPress={centerOnUser} disabled={locating} accessibilityRole="button"><Feather name="map-pin" size={20} color={colors.primary} /><Text style={styles.locationText} numberOfLines={1}>{locationLabel}</Text><Feather name="chevron-down" size={18} color={colors.primary} /></Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="Abrir notificações" onPress={() => navigation.navigate('Notifications')} style={styles.notificationButton}><Feather name="bell" size={21} color={colors.text} />{unreadCount > 0 && <View style={styles.notificationDot} />}</Pressable>
-      <Pressable style={styles.targetButton} onPress={centerOnUser} disabled={locating} accessibilityRole="button" accessibilityLabel="Usar minha localização"><Feather name={locating ? 'loader' : 'crosshair'} size={21} color={colors.text} /></Pressable>
+      <BlurTargetView ref={mapBlurTarget} style={StyleSheet.absoluteFill}>
+        <RegionalMap html={mapHtml} onSelectCity={(city, state) => navigation.navigate('CityProfessionals', { city, state })} />
+      </BlurTargetView>
+      <View style={[styles.mapOverlay, { top: insets.top + 12 }]} pointerEvents="box-none">
+        <GlassSurface radius={22} blurTarget={mapBlurTarget} style={styles.searchCard}>
+          <Pressable feedback="opacity" accessibilityLabel="Buscar serviço ou profissional" onPress={() => navigation.navigate('Services')} style={styles.searchRow}>
+            <View style={styles.searchIconBox}><AppIcon name="search" size={20} color={colors.white} weight="bold" /></View>
+            <Text style={styles.searchPlaceholder} numberOfLines={1}>Qual serviço você precisa?</Text>
+          </Pressable>
+          <View style={styles.cityRow}>
+            <AppIcon name="map-pin" size={16} color={colors.primary} />
+            <Text style={styles.cityText} numberOfLines={1}>{locating ? 'Localizando…' : locationLabel}</Text>
+            <Pressable feedback="opacity" accessibilityLabel="Alterar cidade" hitSlop={10} onPress={() => { setCityError(''); setCityPickerVisible(true); }} style={styles.changeChip}><Text style={styles.changeText}>Alterar</Text></Pressable>
+          </View>
+        </GlassSurface>
+        <GlassSurface radius={24} blurTarget={mapBlurTarget}>
+          <Pressable feedback="opacity" accessibilityLabel="Abrir notificações" onPress={() => navigation.navigate('Notifications')} style={styles.notificationButton}><AppIcon name="bell" size={21} color={colors.text} />{unreadCount > 0 && <View style={styles.notificationDot} />}</Pressable>
+        </GlassSurface>
+      </View>
       <Animated.View style={[styles.exploreButtonContainer, { top: Animated.subtract(sheetTop, 76) }]}>
-        <Pressable style={styles.exploreButton} onPress={handleExploreProfessionals} accessibilityRole="button"><Feather name="list" size={22} color={colors.text} /><View><Text style={styles.exploreTitle}>Ver profissionais</Text><Text style={styles.exploreText}>{professionals.length} nesta área</Text></View></Pressable>
+        <Pressable style={styles.exploreButton} onPress={handleExploreProfessionals} accessibilityRole="button"><AppIcon name="list" size={22} color={colors.text} /><View><Text style={styles.exploreTitle}>Ver profissionais</Text><Text style={styles.exploreText}>{professionals.length} nesta área</Text></View></Pressable>
       </Animated.View>
     </View>
     <Animated.View style={[styles.sheet, { top: sheetTop }]}>
       <View style={styles.dragArea} {...sheetPanResponder.panHandlers}><View style={styles.dragHandle} /></View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
-        {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet('default')} accessibilityRole="button"><Feather name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
-        <Text style={styles.greeting}>Olá, {firstName}!</Text><Text style={styles.question}>Como podemos te ajudar hoje?</Text>
-        <Pressable style={styles.search} onPress={() => navigation.navigate('Services')} accessibilityRole="button"><Feather name="search" size={22} color={colors.text} /><Text style={styles.searchText}>Buscar serviço ou profissional</Text></Pressable>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.sheetContent, { paddingBottom: tabBarClearance }]}>
+        {isExpanded && <Pressable style={styles.backToMapButton} onPress={() => animateSheet('default')} accessibilityRole="button"><AppIcon name="map" size={18} color={colors.primary} /><Text style={styles.backToMapText}>Voltar para o mapa</Text></Pressable>}
+        <Text style={styles.greeting}>Olá, {firstName}</Text><Text style={styles.question}>Como podemos te ajudar hoje?</Text>
         {loading && <Text style={styles.loadingText}>Preparando sua região...</Text>}
-        <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Serviços para sua casa</Text><Pressable accessibilityRole="button" style={styles.seeAllButton} onPress={() => navigation.navigate('Services')}><Text style={styles.seeAll}>Ver todos</Text><Feather name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
-        <View style={styles.categoryGrid}>{services.slice(0, 6).map(service => <Pressable key={service.id} style={styles.category} onPress={() => navigation.navigate('ServiceProfessionals', { serviceId: service.id, serviceName: service.name })}><Feather name={resolveServiceIcon(service.name)} size={23} color={colors.primary} /><Text style={styles.categoryName} numberOfLines={2}>{service.name}</Text></Pressable>)}</View>
+        <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Serviços para sua casa</Text><Pressable accessibilityRole="button" style={styles.seeAllButton} onPress={() => navigation.navigate('Services')}><Text style={styles.seeAll}>Ver todos</Text><AppIcon name="chevron-right" size={18} color={colors.primary} /></Pressable></View>
+        <View style={styles.categoryGrid}>{services.slice(0, 6).map(service => <Pressable key={service.id} style={styles.category} onPress={() => navigation.navigate('ServiceProfessionals', { serviceId: service.id, serviceName: service.name })}><AppIcon weight="duotone" name={resolveServiceIcon(service.name)} size={23} color={colors.primary} /><Text style={styles.categoryName} numberOfLines={2}>{service.name.replace(/-/g, '‑')}</Text></Pressable>)}</View>
         <HighlightsPreview city={highlightLocation?.city} state={highlightLocation?.state} />
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Profissionais recomendados</Text>
           <Pressable style={styles.seeAllButton} onPress={handleExploreProfessionals}>
             <Text style={styles.seeAll}>Ver todos</Text>
-            <Feather name="chevron-right" size={18} color={colors.primary} />
+            <AppIcon name="chevron-right" size={18} color={colors.primary} />
           </Pressable>
         </View>
-        {!loading && !professionals.length && <StateView message="Nenhum profissional nesta região." />}
+        {!loading && !professionals.length && <StateView icon="map-pin" title="Ainda não há profissionais aqui" message="Faça um pedido de orçamento aberto à região. Os profissionais que atendem aqui poderão responder." actionLabel="Pedir orçamento" onAction={() => navigation.navigate('Services')} />}
         {isExpanded ? <View style={styles.verticalList}>
           {professionals.map(professional => <ProfessionalDiscoveryCard key={professional.id} professional={professional} expanded onPress={() => navigation.navigate('Professional', { professionalId: professional.id })} />)}
         </View> : <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList} contentContainerStyle={styles.horizontalContent}>
@@ -257,6 +318,18 @@ export function HomeScreen() {
         <View style={styles.shortcut}><MenuRow icon="briefcase" title="Quer oferecer seus serviços?" onPress={() => navigation.navigate('ProfessionalManager')} /></View>
       </ScrollView>
     </Animated.View>
+    <Modal visible={cityPickerVisible} transparent animationType="fade" onRequestClose={() => setCityPickerVisible(false)}>
+      <View style={styles.pickerBackdrop}>
+        <Pressable feedback="none" accessibilityLabel="Fechar" style={StyleSheet.absoluteFill} onPress={() => setCityPickerVisible(false)} />
+        <View accessibilityViewIsModal style={[styles.pickerSheet, { paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
+          <Text accessibilityRole="header" style={styles.pickerTitle}>Escolher cidade</Text>
+          <AppTextInput value={cityQuery} onChangeText={setCityQuery} placeholder="Ex.: Caruaru, PE" placeholderTextColor={colors.textMuted} autoFocus autoCapitalize="words" autoComplete="postal-address-locality" returnKeyType="search" onSubmitEditing={() => void searchCity()} style={styles.pickerInput} accessibilityLabel="Cidade" />
+          {Boolean(cityError) && <Text style={styles.pickerError} accessibilityLiveRegion="polite">{cityError}</Text>}
+          <AppButton label="Buscar cidade" loading={searchingCity} onPress={() => void searchCity()} />
+          <Pressable feedback="opacity" onPress={selectCurrentLocation} style={styles.pickerLocation}><AppIcon name="crosshair" size={18} color={colors.primary} /><Text style={styles.pickerLocationText}>Usar minha localização</Text></Pressable>
+        </View>
+      </View>
+    </Modal>
   </View>;
 }
 
@@ -267,63 +340,24 @@ function createNearbyRegion(latitude: number, longitude: number): RegionalMapReg
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   mapContainer: { overflow: 'hidden', backgroundColor: colors.background },
-  locationPill: {
-    position: 'absolute',
-    top: 38,
-    left: 20,
-    maxWidth: '60%',
-    minHeight: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 14,
-    borderRadius: 25,
-    backgroundColor: colors.surface,
-    elevation: 5,
-    shadowColor: colors.text,
-    shadowOpacity: 0.14,
-    shadowRadius: 9
-  },
-  locationText: { flexShrink: 1, color: colors.text, fontSize: 15, fontWeight: '900' },
-  notificationButton: {
-    position: 'absolute',
-    top: 38,
-    right: 20,
-    width: 50,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-    backgroundColor: colors.surface,
-    elevation: 5,
-    shadowColor: colors.text,
-    shadowOpacity: 0.14,
-    shadowRadius: 9
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 7,
-    right: 7,
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-    backgroundColor: colors.danger
-  },
-  targetButton: {
-    position: 'absolute',
-    top: 100,
-    right: 20,
-    width: 50,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-    backgroundColor: colors.surface,
-    elevation: 5,
-    shadowColor: colors.text,
-    shadowOpacity: 0.14,
-    shadowRadius: 9
-  },
+  mapOverlay: { position: 'absolute', right: 16, left: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  searchCard: { flex: 1, padding: 8, gap: 2 },
+  searchRow: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  searchIconBox: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: colors.primary },
+  searchPlaceholder: { flex: 1, color: colors.textMuted, fontSize: 15 },
+  cityRow: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6 },
+  cityText: { flex: 1, color: colors.text, fontSize: 13, fontWeight: '500' },
+  changeChip: { minHeight: 28, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 14, backgroundColor: colors.primarySoft },
+  changeText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
+  notificationButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  notificationDot: { position: 'absolute', top: 11, right: 12, width: 9, height: 9, borderRadius: 5, borderWidth: 2, borderColor: colors.surface, backgroundColor: colors.danger },
+  pickerBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(16, 45, 45, 0.4)' },
+  pickerSheet: { gap: 14, paddingHorizontal: 20, paddingTop: 20, borderTopLeftRadius: 28, borderTopRightRadius: 28, backgroundColor: colors.surface },
+  pickerTitle: { color: colors.text, fontSize: 20, fontWeight: '600' },
+  pickerInput: { minHeight: 52, paddingHorizontal: 16, borderRadius: 14, borderWidth: 1, borderColor: colors.border, color: colors.text, fontSize: 16, backgroundColor: colors.background },
+  pickerError: { color: colors.danger, fontSize: 13 },
+  pickerLocation: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  pickerLocationText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
   exploreButtonContainer: {
     position: 'absolute',
     right: 20,
@@ -333,8 +367,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingHorizontal: 17,
-    borderRadius: 29,
+    paddingHorizontal: 16,
+    borderRadius: 28,
     backgroundColor: colors.surface,
     elevation: 5,
     shadowColor: colors.text,
@@ -366,7 +400,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 13,
+    paddingHorizontal: 12,
     borderRadius: 14,
     backgroundColor: colors.background,
     borderWidth: 1,
@@ -374,40 +408,28 @@ const styles = StyleSheet.create({
   },
   backToMapText: { color: colors.primary, fontWeight: '800' },
   greeting: { color: colors.textMuted, fontSize: 15 },
-  question: { color: colors.text, fontSize: 24, lineHeight: 30, fontWeight: '900' },
-  search: {
-    minHeight: 54,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    borderRadius: 17,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border
-  },
-  searchText: { flex: 1, color: colors.textMuted, fontSize: 15 },
+  question: { color: colors.text, fontSize: 24, lineHeight: 30, fontWeight: '600' },
   loadingText: { color: colors.textMuted, fontSize: 12 },
-  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   category: {
     width: '31%',
     minHeight: 88,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 8,
     padding: 8,
-    borderRadius: 17,
-    backgroundColor: colors.primarySoft,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border
   },
-  categoryName: { color: colors.text, fontSize: 11, fontWeight: '800', textAlign: 'center' },
+  categoryName: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '500', textAlign: 'center' },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  sectionTitle: { flex: 1, color: colors.text, fontSize: 17, fontWeight: '900' },
+  sectionTitle: { flex: 1, color: colors.text, fontSize: 17, fontWeight: '600' },
   seeAllButton: { flexDirection: 'row', alignItems: 'center' },
-  seeAll: { color: colors.primary, fontWeight: '800' },
+  seeAll: { color: colors.primary, fontSize: 14, fontWeight: '500' },
   horizontalList: { flexGrow: 0 },
   horizontalContent: { gap: 10, paddingRight: 4 },
   verticalList: { gap: 10, marginTop: 2 },
-  shortcut: { borderRadius: 17, overflow: 'hidden', backgroundColor: colors.primarySoft }
+  shortcut: { borderRadius: 16, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }
 });

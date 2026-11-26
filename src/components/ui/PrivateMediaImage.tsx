@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, StyleSheet, View } from 'react-native';
+import { Pressable } from './Pressable';
 
 import { AppText as Text } from './AppText';
 import { apiRequest } from '../../api/api-client';
@@ -34,7 +35,7 @@ export function PrivateMediaImage({ mediaId, accessibilityLabel, compact = false
       <Image source={{ uri: imageUrl }} style={[styles.image, compact && styles.compact, wide && styles.wide]} resizeMode="cover" onError={() => setFailed(true)} />
     </Pressable>
     <Modal visible={expanded} transparent animationType="fade" onRequestClose={() => setExpanded(false)}>
-      <Pressable style={styles.overlay} onPress={() => setExpanded(false)}>
+      <Pressable feedback="none" style={styles.overlay} onPress={() => setExpanded(false)}>
         <Image source={{ uri: imageUrl }} style={styles.expandedImage} resizeMode="contain" />
         <Text style={styles.close}>Toque para fechar</Text>
       </Pressable>

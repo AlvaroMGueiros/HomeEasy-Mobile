@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from './AppIcon';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Modal, StyleSheet, View } from 'react-native';
+import { Pressable } from './Pressable';
 
 import { AppText as Text } from './AppText';
 import { apiRequest } from '../../api/api-client';
@@ -76,7 +77,7 @@ export function UserSafetyActions({ targetUserId, conversationId, onStatusChange
     Alert.alert(isBlocked ? 'Desbloquear esta pessoa?' : 'Bloquear esta pessoa?', isBlocked ? 'As mensagens poderão voltar se a conversa estiver ativa e não houver outro bloqueio.' : 'Vocês não poderão trocar novas mensagens. Para cancelar ou resolver um serviço, abra o atendimento.', [{ text: 'Voltar', style: 'cancel' }, { text: isBlocked ? 'Desbloquear' : 'Bloquear', onPress: () => void changeBlock(isBlocked) }]);
   }
 
-  return <View><Pressable accessibilityRole="button" accessibilityLabel="Segurança: denunciar, bloquear ou desbloquear pessoa" disabled={busy} onPress={() => void openActions()} style={styles.action}><Feather name="shield" size={18} color={colors.primary} /><Text style={styles.label}>{busy ? 'Atualizando...' : 'Segurança'}</Text></Pressable>{Boolean(error) && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
+  return <View><Pressable accessibilityRole="button" accessibilityLabel="Segurança: denunciar, bloquear ou desbloquear pessoa" disabled={busy} onPress={() => void openActions()} style={styles.action}><AppIcon name="shield" size={18} color={colors.primary} /><Text style={styles.label}>{busy ? 'Atualizando...' : 'Segurança'}</Text></Pressable>{Boolean(error) && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
     <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}><View style={styles.overlay}><View accessibilityViewIsModal style={styles.sheet}>
       <Text style={styles.title}>Segurança</Text><Text style={styles.description}>O bloqueio impede novas mensagens entre vocês. O histórico e os serviços contratados são mantidos.</Text>
       <AppButton label={status?.isBlocked ? 'Desbloquear pessoa' : 'Bloquear pessoa'} variant="secondary" disabled={!status || busy} onPress={confirmBlock} />

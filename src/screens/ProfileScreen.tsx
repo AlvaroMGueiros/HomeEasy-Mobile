@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -42,11 +42,11 @@ export function ProfileScreen() {
         </View>
       </View>
       <View style={styles.profileMeta}>
-        <View style={styles.metaRow}><Feather name="map-pin" size={15} color={colors.textMuted} /><Text style={styles.meta}>{locationLabel || 'Localização não informada'}</Text></View>
-        {profile?.memberSince && <View style={styles.metaRow}><Feather name="calendar" size={15} color={colors.textMuted} /><Text style={styles.meta}>Membro desde {formatDate(profile.memberSince)}</Text></View>}
+        <View style={styles.metaRow}><AppIcon name="map-pin" size={15} color={colors.textMuted} /><Text style={styles.meta}>{locationLabel || 'Localização não informada'}</Text></View>
+        {profile?.memberSince && <View style={styles.metaRow}><AppIcon name="calendar" size={15} color={colors.textMuted} /><Text style={styles.meta}>Membro desde {formatDate(profile.memberSince)}</Text></View>}
       </View>
       <Pressable accessibilityRole="button" onPress={() => navigation.navigate('EditProfile')} style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}>
-        <Feather name="edit-2" size={16} color={colors.primary} /><Text style={styles.editLabel}>Editar perfil</Text><Feather name="chevron-right" size={18} color={colors.primary} />
+        <AppIcon name="edit-2" size={16} color={colors.primary} /><Text style={styles.editLabel}>Editar perfil</Text><AppIcon name="chevron-right" size={18} color={colors.primary} />
       </Pressable>
     </View>
 
@@ -105,12 +105,12 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1, gap: 5 },
   name: { color: colors.text, fontSize: 20, lineHeight: 26, fontWeight: '800' },
   email: { color: colors.textMuted, fontSize: 13, lineHeight: 19, flexShrink: 1 },
-  roleBadge: { alignSelf: 'flex-start', paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: colors.primarySoft },
+  roleBadge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 5, borderRadius: 8, backgroundColor: colors.primarySoft },
   role: { color: colors.primary, fontSize: 11, fontWeight: '800' },
   profileMeta: { gap: 8 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   meta: { flex: 1, color: colors.textMuted, fontSize: 12, lineHeight: 18 },
-  editButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 12, borderRadius: 12, backgroundColor: colors.primarySoft },
+  editButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, borderRadius: 12, backgroundColor: colors.primarySoft },
   editLabel: { flex: 1, color: colors.primary, fontSize: 14, fontWeight: '800' },
   pressed: { opacity: 0.75 },
   section: { gap: 10 },

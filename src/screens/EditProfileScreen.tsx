@@ -1,6 +1,7 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';

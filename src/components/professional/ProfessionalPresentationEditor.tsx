@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../ui/AppIcon';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Image, StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { AppText as Text } from '../ui/AppText';
 import { ApiError, apiRequest } from '../../api/api-client';
@@ -67,26 +68,26 @@ export function ProfessionalPresentationEditor() {
   return <View style={styles.container}>
     <View style={styles.preview}>
       <Pressable accessibilityRole="button" accessibilityLabel="Alterar capa do perfil" disabled={busy} onPress={() => void changeCover()} style={styles.cover}>
-        {professional.coverPhotoMediaId ? <Image key={professional.coverPhotoMediaId} source={{ uri: resolvePublicMediaUrl(professional.coverPhotoMediaId) }} style={StyleSheet.absoluteFill} /> : <View style={styles.coverPlaceholder}><Feather name="image" size={30} color={colors.primary} /><Text style={styles.coverHint}>Uma capa para valorizar seu trabalho</Text></View>}
-        <View style={styles.coverAction}><Feather name="camera" size={15} color={colors.primary} /><Text style={styles.coverActionLabel}>{professional.coverPhotoMediaId ? 'Alterar capa' : 'Adicionar capa'}</Text></View>
+        {professional.coverPhotoMediaId ? <Image key={professional.coverPhotoMediaId} source={{ uri: resolvePublicMediaUrl(professional.coverPhotoMediaId) }} style={StyleSheet.absoluteFill} /> : <View style={styles.coverPlaceholder}><AppIcon name="image" size={30} color={colors.primary} /><Text style={styles.coverHint}>Uma capa para valorizar seu trabalho</Text></View>}
+        <View style={styles.coverAction}><AppIcon name="camera" size={15} color={colors.primary} /><Text style={styles.coverActionLabel}>{professional.coverPhotoMediaId ? 'Alterar capa' : 'Adicionar capa'}</Text></View>
       </Pressable>
       <View style={styles.identity}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={60} /><View style={styles.identityCopy}><Text style={styles.name}>{professional.name}</Text><Text style={styles.help}>Seu perfil público no HomeEasy</Text></View></View>
       {professional.coverPhotoMediaId && <AppButton label="Remover capa" variant="secondary" disabled={busy} onPress={() => void persistChanges({ coverPhotoMediaId: null })} />}
     </View>
     <View style={styles.card}>
-      <View style={styles.sectionHeading}><Feather name="edit-3" size={20} color={colors.primary} /><Text style={styles.heading}>Sobre meu trabalho</Text></View>
+      <View style={styles.sectionHeading}><AppIcon name="edit-3" size={20} color={colors.primary} /><Text style={styles.heading}>Sobre meu trabalho</Text></View>
       <FormField label="Conte sobre seu trabalho" value={bio} onChangeText={setBio} multiline maxLength={2000} editable={!busy} placeholder="Conte aos clientes por que escolher seu trabalho..." />
       <View style={styles.characterCount}><Text style={styles.help}>Mínimo de 40 caracteres</Text><Text style={styles.help}>{bio.trim().length}/2.000</Text></View>
       <AppButton label="Salvar apresentação" loading={saving} disabled={uploading || bio.trim().length < 40 || bio.trim() === professional.bio?.trim()} onPress={() => void persistChanges({ bio: bio.trim() }, true)} />
     </View>
     <View style={styles.card}>
-      <View style={styles.sectionHeading}><Feather name="grid" size={20} color={colors.primary} /><Text style={styles.heading}>Fotos dos seus trabalhos</Text><Text style={styles.counter}>{photos.length}/30</Text></View>
+      <View style={styles.sectionHeading}><AppIcon name="grid" size={20} color={colors.primary} /><Text style={styles.heading}>Fotos dos seus trabalhos</Text><Text style={styles.counter}>{photos.length}/30</Text></View>
       <ProfessionalPhotoUpload description="Adicione exemplos dos serviços que você oferece." disabled={saving || photos.length >= 30} onBusyChange={setUploading} onPublish={(mediaId, caption) => savePresentation({ portfolioPhotos: [...photos, { mediaId, kind: ProfessionalPhotoKind.Offered, caption }] })} />
-      <View style={styles.notice}><Feather name="check-circle" size={18} color={colors.success} /><Text style={styles.noticeText}>Adicione fotos de serviços concluídos no atendimento.</Text></View>
+      <View style={styles.notice}><AppIcon name="check-circle" size={18} color={colors.success} /><Text style={styles.noticeText}>Adicione fotos de serviços concluídos no atendimento.</Text></View>
     </View>
-    {!photos.length && <View style={styles.empty}><Feather name="image" size={28} color={colors.textMuted} /><Text style={styles.heading}>Nenhuma foto publicada</Text></View>}
+    {!photos.length && <View style={styles.empty}><AppIcon name="image" size={28} color={colors.textMuted} /><Text style={styles.heading}>Nenhuma foto publicada</Text></View>}
     {photos.map(photo => <View key={photo.mediaId} style={styles.card}><ProfessionalPortfolioPhoto photo={photo} /><AppButton label="Remover esta foto do perfil" variant="secondary" disabled={busy} onPress={() => Alert.alert('Remover foto?', 'Esta foto deixará de aparecer no seu perfil público.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: () => void persistChanges({ portfolioPhotos: photos.filter(currentPhoto => currentPhoto.mediaId !== photo.mediaId) }) }])} /></View>)}
   </View>;
 }
 
-const styles = StyleSheet.create({ container: { gap: 18 }, preview: { gap: 16, paddingBottom: 16, overflow: 'hidden', borderRadius: 22, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, cover: { height: 160, backgroundColor: colors.primarySoft, justifyContent: 'center' }, coverPlaceholder: { alignItems: 'center', gap: 8, paddingBottom: 32 }, coverHint: { color: colors.primary, fontSize: 12 }, coverAction: { position: 'absolute', bottom: 12, right: 12, flexDirection: 'row', gap: 7, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 12, backgroundColor: colors.surface }, coverActionLabel: { color: colors.primary, fontWeight: '800', fontSize: 12 }, identity: { paddingHorizontal: 16, flexDirection: 'row', gap: 12, alignItems: 'center' }, identityCopy: { flex: 1, gap: 5 }, name: { color: colors.text, fontSize: 18, fontWeight: '800' }, card: { gap: 14, padding: 18, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 10 }, heading: { flex: 1, color: colors.text, fontSize: 17, fontWeight: '800' }, description: { color: colors.textMuted, fontSize: 13, lineHeight: 20 }, characterCount: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 }, help: { color: colors.textMuted, fontSize: 12, lineHeight: 18 }, counter: { color: colors.primary, fontSize: 12, fontWeight: '800' }, notice: { flexDirection: 'row', gap: 10, padding: 12, borderRadius: 14, backgroundColor: colors.successSoft }, noticeText: { flex: 1, color: colors.text, fontSize: 12, lineHeight: 19 }, empty: { gap: 10, padding: 20, alignItems: 'center' } });
+const styles = StyleSheet.create({ container: { gap: 18 }, preview: { gap: 16, paddingBottom: 16, overflow: 'hidden', borderRadius: 22, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, cover: { height: 160, backgroundColor: colors.primarySoft, justifyContent: 'center' }, coverPlaceholder: { alignItems: 'center', gap: 8, paddingBottom: 32 }, coverHint: { color: colors.primary, fontSize: 12 }, coverAction: { position: 'absolute', bottom: 12, right: 12, flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: colors.surface }, coverActionLabel: { color: colors.primary, fontWeight: '800', fontSize: 12 }, identity: { paddingHorizontal: 16, flexDirection: 'row', gap: 12, alignItems: 'center' }, identityCopy: { flex: 1, gap: 5 }, name: { color: colors.text, fontSize: 18, fontWeight: '800' }, card: { gap: 14, padding: 18, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 10 }, heading: { flex: 1, color: colors.text, fontSize: 17, fontWeight: '800' }, description: { color: colors.textMuted, fontSize: 13, lineHeight: 20 }, characterCount: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 }, help: { color: colors.textMuted, fontSize: 12, lineHeight: 18 }, counter: { color: colors.primary, fontSize: 12, fontWeight: '800' }, notice: { flexDirection: 'row', gap: 10, padding: 12, borderRadius: 14, backgroundColor: colors.successSoft }, noticeText: { flex: 1, color: colors.text, fontSize: 12, lineHeight: 19 }, empty: { gap: 10, padding: 20, alignItems: 'center' } });

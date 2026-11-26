@@ -35,5 +35,5 @@ export function ProfessionalReviewsScreen() {
 
 const styles = StyleSheet.create({
   summary: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, average: { color: colors.primary, fontSize: 38, fontWeight: '900' }, summaryLabel: { color: colors.text, fontWeight: '700' }, total: { color: colors.textMuted, marginTop: 3 },
-  empty: { alignItems: 'center', gap: 7, padding: 24, borderRadius: 18, backgroundColor: colors.surface }, emptyTitle: { color: colors.text, fontSize: 18, fontWeight: '800' }, emptyText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 }
+  empty: { alignItems: 'center', gap: 8, padding: 24, borderRadius: 18, backgroundColor: colors.surface }, emptyTitle: { color: colors.text, fontSize: 18, fontWeight: '800' }, emptyText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 }
 });

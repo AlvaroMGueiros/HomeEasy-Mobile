@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -55,9 +56,9 @@ export function LoginScreen() {
   const title = mode === 'login' ? 'Entrar na sua conta' : 'Criar conta';
 
   return <AuthLayout title={title}>
-    <View style={styles.tabs}>
-      <Pressable onPress={() => changeMode('login')} style={[styles.tab, mode === 'login' && styles.activeTab]}><Text style={[styles.tabText, mode === 'login' && styles.activeTabText]}>Entrar</Text></Pressable>
-      <Pressable onPress={() => changeMode('register')} style={[styles.tab, mode === 'register' && styles.activeTab]}><Text style={[styles.tabText, mode === 'register' && styles.activeTabText]}>Criar conta</Text></Pressable>
+    <View style={styles.tabs} accessibilityRole="tablist">
+      <Pressable accessibilityRole="tab" accessibilityState={{ selected: mode === 'login' }} onPress={() => changeMode('login')} style={[styles.tab, mode === 'login' && styles.activeTab]}><Text style={[styles.tabText, mode === 'login' && styles.activeTabText]}>Entrar</Text></Pressable>
+      <Pressable accessibilityRole="tab" accessibilityState={{ selected: mode === 'register' }} onPress={() => changeMode('register')} style={[styles.tab, mode === 'register' && styles.activeTab]}><Text style={[styles.tabText, mode === 'register' && styles.activeTabText]}>Criar conta</Text></Pressable>
     </View>
     {mode === 'register' && <>
       <FormField {...formCopy.name} required value={name} onChangeText={setName} maxLength={160} />
@@ -74,7 +75,7 @@ export function LoginScreen() {
 
 const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', padding: 4, borderRadius: 14, backgroundColor: colors.background },
-  tab: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
+  tab: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   activeTab: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   tabText: { color: colors.textMuted, fontWeight: '700' },
   activeTabText: { color: colors.primary },

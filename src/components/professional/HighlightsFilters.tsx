@@ -1,6 +1,7 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../ui/AppIcon';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { colors } from '../../theme/colors';
 import { Service } from '../../types/api';
@@ -27,9 +28,9 @@ export function HighlightsFilters({ location, services, serviceId, onApply }: { 
   }
   return <View style={styles.panel}><View style={styles.controls}>
     <Pressable accessibilityRole="button" accessibilityLabel="Filtrar destaques por cidade e serviço" accessibilityState={{ expanded }} onPress={() => setExpanded(current => !current)} style={styles.trigger}>
-      <Feather name="map-pin" size={19} color={colors.primary} /><AppText style={styles.region}>{location ? `${location.city}, ${location.state}` : 'Escolha sua cidade'}</AppText><Feather name="chevron-down" size={17} color={colors.primary} />
+      <AppIcon name="map-pin" size={19} color={colors.primary} /><AppText style={styles.region}>{location ? `${location.city}, ${location.state}` : 'Escolha sua cidade'}</AppText><AppIcon name="chevron-down" size={17} color={colors.primary} />
     </Pressable>
-    <Pressable accessibilityRole="button" accessibilityLabel="Filtrar publicações por serviço" accessibilityState={{ expanded }} onPress={() => setExpanded(current => !current)} style={styles.filterToggle}><Feather name="sliders" size={22} color={colors.primary} /></Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel="Filtrar publicações por serviço" accessibilityState={{ expanded }} onPress={() => setExpanded(current => !current)} style={styles.filterToggle}><AppIcon name="sliders" size={22} color={colors.primary} /></Pressable>
     </View>
     {expanded && <View style={styles.fields}>
       <FormField label="Cidade" required value={city} onChangeText={setCity} placeholder="Ex.: Recife" maxLength={100} />

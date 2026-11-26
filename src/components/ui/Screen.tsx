@@ -5,6 +5,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '../../theme/colors';
+import { useTabBarClearance } from '../../navigation/tabBar';
 
 export function Screen({ children, scroll = true, header, refreshing = false, onRefresh }: PropsWithChildren<{ scroll?: boolean; header?: ReactNode; refreshing?: boolean; onRefresh?(): void }>) {
   const headerShown = useContext(HeaderShownContext);
@@ -12,7 +13,8 @@ export function Screen({ children, scroll = true, header, refreshing = false, on
   const edges: Edge[] = ['left', 'right'];
   if (!headerShown) edges.push('top');
   if (tabBarHeight === undefined) edges.push('bottom');
-  const content = <View style={styles.content}>{header}{children}</View>;
+  const clearance = useTabBarClearance();
+  const content = <View style={[styles.content, clearance > 0 && { paddingBottom: clearance }]}>{header}{children}</View>;
   return <SafeAreaView edges={edges} style={styles.safe}>{scroll ? <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll} refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} /> : undefined}>{content}</ScrollView> : content}</SafeAreaView>;
 }
 

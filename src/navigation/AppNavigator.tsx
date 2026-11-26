@@ -1,4 +1,5 @@
-import { Feather } from "@expo/vector-icons";
+import { AppIcon, type IconName } from '../components/ui/AppIcon';
+import { LiquidTabBar } from "../components/ui/LiquidTabBar";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   createNavigationContainerRef,
@@ -74,7 +75,7 @@ import { AppTabParamList, RootStackParamList } from "./types";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<AppTabParamList>();
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
-const tabIcons: Record<keyof AppTabParamList, keyof typeof Feather.glyphMap> = {
+const tabIcons: Record<keyof AppTabParamList, IconName> = {
   Home: "home",
   Requests: "clipboard",
   Highlights: "star",
@@ -87,20 +88,11 @@ function AppTabs() {
   const rootNavigation = useNavigation<NavigationProp<RootStackParamList>>();
   return (
     <Tabs.Navigator
+      tabBar={props => <LiquidTabBar {...props} />}
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarLabelStyle: { fontFamily: fontFamilies.semiBold, fontSize: 10 },
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: {
-          height: 68 + insets.bottom,
-          paddingTop: 8,
-          paddingBottom: 8 + insets.bottom,
-          borderTopColor: colors.border,
-          backgroundColor: colors.surface,
-        },
-        tabBarIcon: ({ color, size }) => (
-          <Feather name={tabIcons[route.name]} color={color} size={size} />
+        tabBarIcon: ({ color, size, focused }) => (
+          <AppIcon name={tabIcons[route.name]} color={color} size={size - 2} weight={focused ? "fill" : "regular"} />
         ),
       })}
     >
@@ -174,7 +166,7 @@ export function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerTintColor: colors.primary,
-          headerTitleStyle: { fontFamily: fontFamilies.bold },
+          headerTitleStyle: { fontFamily: fontFamilies.semiBold, fontSize: 17, color: colors.text },
           headerShadowVisible: false,
           headerStyle: { backgroundColor: colors.background },
           contentStyle: { backgroundColor: colors.background },

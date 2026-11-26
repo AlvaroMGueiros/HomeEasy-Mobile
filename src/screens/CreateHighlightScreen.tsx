@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { apiRequest } from '../api/api-client';
 import { HighlightAuthor } from '../components/professional/HighlightAuthor';
@@ -82,11 +83,11 @@ export function CreateHighlightScreen() {
       </View>
     </View>
     <Pressable accessibilityRole="checkbox" accessibilityLabel="Tenho autorização para publicar as fotos e não exponho dados privados dos clientes" accessibilityState={{ checked: consent, disabled: saving }} disabled={saving} onPress={() => setConsent(current => !current)} style={styles.consent}>
-      <View style={[styles.checkbox, consent && styles.checked]}>{consent && <Feather name="check" size={15} color={colors.white} />}</View>
+      <View style={[styles.checkbox, consent && styles.checked]}>{consent && <AppIcon name="check" size={15} color={colors.white} />}</View>
       <AppText style={styles.consentText}>Tenho autorização para divulgar as fotos, sem dados privados dos clientes.</AppText>
     </Pressable>
     <AppButton label="Publicar trabalho" loading={saving} onPress={() => void publish()} />
-    <View style={styles.reviewNote}><Feather name="shield" size={13} color={colors.textMuted} /><AppText style={styles.note}>Sua publicação passa por aprovação.</AppText></View>
+    <View style={styles.reviewNote}><AppIcon name="shield" size={13} color={colors.textMuted} /><AppText style={styles.note}>Sua publicação passa por aprovação.</AppText></View>
   </Screen>;
 }
 

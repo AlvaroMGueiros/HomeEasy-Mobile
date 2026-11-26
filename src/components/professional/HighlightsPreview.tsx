@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../ui/AppIcon';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable } from '../ui/Pressable';
 
 import { apiRequest } from '../../api/api-client';
 import { RootStackParamList } from '../../navigation/types';
@@ -25,7 +26,7 @@ export function HighlightsPreview({ city, state }: { city?: string; state?: stri
   function viewAll() { navigation.navigate('App', { screen: 'Highlights', params: { city, state } }); }
   if (!highlights.length) return null;
   return <View style={styles.container}>
-    <View style={styles.header}><AppText style={styles.heading}>Destaques na região</AppText><Pressable accessibilityRole="button" onPress={viewAll} style={styles.viewAll}><AppText style={styles.link}>Ver todos</AppText><Feather name="chevron-right" size={17} color={colors.primary} /></Pressable></View>
+    <View style={styles.header}><AppText style={styles.heading}>Destaques na região</AppText><Pressable accessibilityRole="button" onPress={viewAll} style={styles.viewAll}><AppText style={styles.link}>Ver todos</AppText><AppIcon name="chevron-right" size={17} color={colors.primary} /></Pressable></View>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cards}>
       {highlights.map(highlight => <View key={highlight.id} style={styles.card}>
         <HighlightGallery mediaIds={highlight.mediaIds.slice(0, 1)} title={highlight.title} />
@@ -42,6 +43,6 @@ export function HighlightsPreview({ city, state }: { city?: string; state?: stri
 const styles = StyleSheet.create({
   container: { gap: 12 }, header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, heading: { color: colors.text, fontSize: 17, fontWeight: '800', flex: 1 },
   viewAll: { flexDirection: 'row', alignItems: 'center', minHeight: 44 }, link: { color: colors.primary, fontSize: 12, fontWeight: '700' }, cards: { gap: 12 },
-  card: { width: 250, borderRadius: 18, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, body: { padding: 13, gap: 12 }, title: { color: colors.text, fontSize: 15, fontWeight: '800' }, sponsored: { color: colors.textMuted, fontSize: 10 },
+  card: { width: 250, borderRadius: 18, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, body: { padding: 12, gap: 12 }, title: { color: colors.text, fontSize: 15, fontWeight: '800' }, sponsored: { color: colors.textMuted, fontSize: 10 },
   identity: { flexDirection: 'row', gap: 8, alignItems: 'center' }, grow: { flex: 1, gap: 2 }, name: { color: colors.text, fontSize: 12, fontWeight: '700' }, city: { color: colors.textMuted, fontSize: 11 },
 });

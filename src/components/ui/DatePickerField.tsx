@@ -1,7 +1,8 @@
 import DateTimePicker from '@expo/ui/community/datetime-picker';
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from './AppIcon';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from './Pressable';
 
 import { AppText as Text } from './AppText';
 import { colors } from '../../theme/colors';
@@ -28,9 +29,9 @@ export function DatePickerField({ label, value, onChange, minimumDate, maximumDa
   return <View style={styles.field}>
     <Text style={styles.label}>{label}</Text>
     <Pressable accessibilityRole="button" accessibilityLabel={`${label}: ${formatIsoDateForDisplay(value)}`} onPress={() => setIsPickerVisible(true)} style={styles.trigger}>
-      <Feather name="calendar" size={19} color={colors.primary} />
+      <AppIcon name="calendar" size={19} color={colors.primary} />
       <Text style={[styles.value, !value && styles.placeholder]}>{formatIsoDateForDisplay(value)}</Text>
-      <Feather name="chevron-down" size={18} color={colors.textMuted} />
+      <AppIcon name="chevron-down" size={18} color={colors.textMuted} />
     </Pressable>
     {clearable && Boolean(value) && <Pressable accessibilityRole="button" onPress={() => onChange('')} style={styles.clear}><Text style={styles.clearLabel}>Deixar a data para combinar depois</Text></Pressable>}
     {isPickerVisible && <DateTimePicker
@@ -50,7 +51,7 @@ export function DatePickerField({ label, value, onChange, minimumDate, maximumDa
 }
 
 const styles = StyleSheet.create({
-  field: { gap: 7 },
+  field: { gap: 8 },
   label: { color: colors.text, fontWeight: '800' },
   trigger: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   value: { flex: 1, color: colors.text, fontSize: 15 },

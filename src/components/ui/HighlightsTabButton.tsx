@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from './AppIcon';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { PlatformPressable } from '@react-navigation/elements';
 import { useEffect, useRef } from 'react';
@@ -43,9 +43,9 @@ export function HighlightsTabButton({ onPublish, ...props }: BottomTabBarButtonP
     onPress={selected ? onPublish : props.onPress}
     style={[props.style, styles.button]}>
     <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.content}>
-      <Animated.View style={[styles.star, { opacity: inactiveOpacity, transform: [{ rotate: transition.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '90deg'] }) }, { scale: transition.interpolate({ inputRange: [0, 1], outputRange: [1, 0.5] }) }] }]}><Feather name="star" size={24} color={colors.textMuted} /></Animated.View>
+      <Animated.View style={[styles.star, { opacity: inactiveOpacity, transform: [{ rotate: transition.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '90deg'] }) }, { scale: transition.interpolate({ inputRange: [0, 1], outputRange: [1, 0.5] }) }] }]}><AppIcon name="star" size={24} color={colors.textMuted} /></Animated.View>
       <Animated.View style={[styles.circle, { opacity: activeOpacity, transform: [{ translateY: transition.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }, { scale: transition.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }] }]}>
-        <Animated.View style={{ transform: [{ rotate: transition.interpolate({ inputRange: [0, 1], outputRange: ['-90deg', '0deg'] }) }] }}><Feather name="plus" size={30} color={colors.white} /></Animated.View>
+        <Animated.View style={{ transform: [{ rotate: transition.interpolate({ inputRange: [0, 1], outputRange: ['-90deg', '0deg'] }) }] }}><AppIcon name="plus" size={30} color={colors.white} /></Animated.View>
       </Animated.View>
       <View style={styles.labels}>
         <Animated.View style={[styles.labelLayer, { opacity: inactiveOpacity }]}><AppText style={[styles.label, styles.inactiveLabel]}>Destaques</AppText></Animated.View>

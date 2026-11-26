@@ -1,6 +1,7 @@
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
@@ -46,7 +47,7 @@ export function ConversationsScreen() {
     {Boolean(error) && <StateView message={error} />}
     {!loading && !error && <>
     <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{section === 'active' ? 'Conversas em andamento' : 'Conversas encerradas'}</Text><Text style={styles.count}>{visibleConversations.length}</Text></View>
-    {!visibleConversations.length && <StateView icon={section === 'active' ? 'message-circle' : 'archive'} title={section === 'active' ? 'Nenhuma conversa em andamento' : 'Nenhuma conversa encerrada'} />}
+    {!visibleConversations.length && <StateView icon={section === 'active' ? 'message-circle' : 'archive'} title={section === 'active' ? 'Nenhuma conversa em andamento' : 'Nenhuma conversa encerrada'} message={section === 'active' ? 'Cada conversa fica ligada a um atendimento. Ela aparece aqui quando um serviço é combinado.' : 'Conversas de atendimentos finalizados ficam guardadas aqui.'} />}
     {visibleConversations.map(conversation => <Pressable
       key={conversation.id}
       accessibilityRole="button"
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'space-between' },
   sectionTitle: { flex: 1, color: colors.text, fontSize: 20, fontWeight: '800' },
   count: { color: colors.textMuted, fontSize: 14 },
-  card: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  card: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   grow: { flex: 1 },
   name: { color: colors.text, fontWeight: '800' },
   person: { color: colors.text, fontSize: 13 },

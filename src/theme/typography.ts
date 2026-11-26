@@ -16,7 +16,6 @@ export function resolveFontStyle(style: StyleProp<TextStyle>): TextStyle {
   let fontFamily: string = fontFamilies.regular;
   if (numericWeight === 500) fontFamily = fontFamilies.medium;
   else if (numericWeight === 600) fontFamily = fontFamilies.semiBold;
-  else if (numericWeight === 700 || weight === 'bold') fontFamily = fontFamilies.bold;
-  else if (numericWeight >= 800) fontFamily = fontFamilies.extraBold;
+  else if (numericWeight >= 700 || weight === 'bold') fontFamily = fontFamilies.semiBold;
   return { fontFamily, fontWeight: 'normal' };
 }

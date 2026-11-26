@@ -21,7 +21,7 @@ export function AboutScreen() {
 
 const styles = StyleSheet.create({
   text: { color: colors.textMuted, lineHeight: 21 },
-  member: { flexDirection: 'row', alignItems: 'center', gap: 13, padding: 15, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  member: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   avatar: { width: 48, height: 48, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: colors.white, fontWeight: '900' },
   name: { color: colors.text, fontSize: 16, fontWeight: '800' }

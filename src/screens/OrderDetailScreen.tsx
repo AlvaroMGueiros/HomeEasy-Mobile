@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
-import { Alert, AppState, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, AppState, StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
@@ -131,11 +132,11 @@ export function OrderDetailScreen() {
   return <Screen refreshing={refreshing} onRefresh={() => void loadOrder(true)}>
     {Boolean(error) && <StateView message={error} onAction={() => void loadOrder(true)} />}
     <OrderServiceSummary order={order} onViewDetails={() => setDetailsExpanded(true)} onViewAddress={() => navigation.navigate('ServiceAddressMap', { address: order.request.address, city: order.request.city, state: order.request.state })} />
-    {order.status === OrderStatus.Disputed && <View style={[styles.statusNotice, styles.disputedNotice]}><Feather name="info" size={18} color={colors.primary} /><Text style={styles.statusDescription}>{resolveOrderStatusDescription(order.status, isClient, Boolean(order.scheduledAt))}</Text></View>}
+    {order.status === OrderStatus.Disputed && <View style={[styles.statusNotice, styles.disputedNotice]}><AppIcon name="info" size={18} color={colors.primary} /><Text style={styles.statusDescription}>{resolveOrderStatusDescription(order.status, isClient, Boolean(order.scheduledAt))}</Text></View>}
     <OrderParticipantSummary order={order} isClient={isClient} canChat={Boolean(conversation)} onChat={openConversation} onViewProfessional={() => navigation.navigate('Professional', { professionalId: order.professionalId })} />
     <OrderProgress order={order} review={order.review} />
-    <View style={styles.priceCard}><View style={styles.priceLabel}><Feather name="tag" size={18} color={colors.primary} /><Text style={styles.line}>Valor combinado</Text></View><Text style={styles.price}>{formatCurrency(Number(order.agreedPrice))}</Text></View>
-    <AppButton label={conversation?.isWritable ? `Conversar com ${participant.name.split(' ')[0]}` : 'Ver conversa do serviço'} icon={<Feather name="message-circle" size={18} color={colors.white} />} disabled={!conversation} onPress={openConversation} />
+    <View style={styles.priceCard}><View style={styles.priceLabel}><AppIcon name="tag" size={18} color={colors.primary} /><Text style={styles.line}>Valor combinado</Text></View><Text style={styles.price}>{formatCurrency(Number(order.agreedPrice))}</Text></View>
+    <AppButton label={conversation?.isWritable ? `Conversar com ${participant.name.split(' ')[0]}` : 'Ver conversa do serviço'} icon={<AppIcon name="message-circle" size={18} color={colors.white} />} disabled={!conversation} onPress={openConversation} />
     {Boolean(chatError) && <Text style={styles.help}>{chatError}</Text>}
     <OrderAgreementDetails order={order} expanded={detailsExpanded} onToggle={() => setDetailsExpanded(current => !current)} />
     {dispute && <View style={styles.disputeCard}><Text style={styles.heading}>Problema registrado</Text><Text style={styles.disputeLabel}>Motivo</Text><Text style={styles.line}>{resolveEnumLabel(dispute.reason)}</Text><Text style={styles.disputeLabel}>Relato enviado</Text><Text style={styles.line}>{dispute.description}</Text><Text style={styles.disputeLabel}>Andamento</Text><Text style={styles.line}>{resolveStatusLabel(dispute.status)}</Text>{Boolean(dispute.resolutionNotes) && <><Text style={styles.disputeLabel}>Resposta da nossa equipe</Text><Text style={styles.line}>{dispute.resolutionNotes}</Text></>}<Text style={styles.help}>Você também receberá avisos quando nossa equipe atualizar este caso.</Text></View>}
@@ -145,7 +146,7 @@ export function OrderDetailScreen() {
     {isProfessional && order.status === OrderStatus.Completed && <CompletedOrderPhotos key={`photos-${order.id}`} orderId={order.id} />}
     {order.status === OrderStatus.Completed && <OrderReviewPanel key={`review-${order.id}`} orderId={order.id} review={order.review} isClient={isClient} onPublished={review => { mutationVersion.current += 1; setOrder(current => current ? { ...current, review } : current); }} />}
     {isClient && order.status === OrderStatus.Completed && <AppButton label="Contratar novamente" variant="secondary" onPress={() => void rehire()} loading={loading} />}
-    <View style={styles.helpCard}><Pressable accessibilityRole="button" accessibilityState={{ expanded: helpExpanded }} onPress={() => setHelpExpanded(current => !current)} style={styles.helpTrigger}><Feather name="help-circle" size={20} color={colors.primary} /><Text style={styles.helpTitle}>Ajuda com este serviço</Text><Feather name={helpExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} /></Pressable>
+    <View style={styles.helpCard}><Pressable accessibilityRole="button" accessibilityState={{ expanded: helpExpanded }} onPress={() => setHelpExpanded(current => !current)} style={styles.helpTrigger}><AppIcon name="help-circle" size={20} color={colors.primary} /><Text style={styles.helpTitle}>Ajuda com este serviço</Text><AppIcon name={helpExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} /></Pressable>
       {helpExpanded && <View style={styles.helpActions}>
       {!isFinished && order.status !== OrderStatus.Disputed && <>
         <AppButton label="Relatar atraso" variant="secondary" onPress={() => navigation.navigate('Dispute', { orderId: order.id, issue: ServiceIssue.Delay })} />

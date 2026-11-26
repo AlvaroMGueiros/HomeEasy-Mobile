@@ -1,4 +1,5 @@
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 

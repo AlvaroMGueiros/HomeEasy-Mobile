@@ -53,7 +53,7 @@ export function VerificationScreen() {
     <ChoiceChips value={type} onChange={setType} options={[{ value: 'identity', label: 'Documento com foto' }, { value: 'address_proof', label: 'Comprovante de endereço' }, { value: 'professional_certificate', label: 'Certificado de curso' }]} />
     <Text style={styles.notes}>{documentInstructions[type]}</Text>
     <AppButton label="Escolher foto e enviar documento" onPress={submit} loading={loading} />
-    {!documents.length && <StateView message="Nenhum documento enviado." />}
+    {!documents.length && <StateView icon="file" title="Nenhum documento enviado" />}
     {documents.map(document => <View key={document.id} style={styles.card}>
       <Text style={styles.title}>{resolveEnumLabel(document.type)}</Text>
       <Text style={styles.status}>{resolveStatusLabel(document.status)}</Text>

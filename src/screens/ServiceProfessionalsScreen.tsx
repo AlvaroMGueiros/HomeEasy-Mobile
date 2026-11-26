@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { AppTextInput as TextInput } from '../components/ui/AppTextInput';
@@ -81,8 +82,8 @@ export function ServiceProfessionalsScreen() {
   return <Screen>
     <SectionHeader eyebrow="Profissionais disponíveis" title={params.serviceName} />
     <AppButton label={user ? 'Pedir orçamentos nesta região' : 'Entrar para solicitar'} onPress={() => user ? navigation.navigate('RequestForm', { serviceId: params.serviceId, serviceName: params.serviceName }) : navigation.navigate('Login')} />
-    <View style={styles.searchBox}><Feather name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar por nome ou cidade" placeholderTextColor={colors.textMuted} style={styles.searchInput} accessibilityLabel="Buscar profissional" /></View>
-    <Pressable style={styles.filterButton} onPress={() => setIsFilterOpen(currentValue => !currentValue)}><Feather name="sliders" size={18} color={colors.primary} /><Text style={styles.filterButtonText}>{isFilterOpen ? 'Ocultar filtros' : 'Mais filtros'}</Text></Pressable>
+    <View style={styles.searchBox}><AppIcon name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar por nome ou cidade" placeholderTextColor={colors.textMuted} style={styles.searchInput} accessibilityLabel="Buscar profissional" /></View>
+    <Pressable style={styles.filterButton} onPress={() => setIsFilterOpen(currentValue => !currentValue)}><AppIcon name="sliders" size={18} color={colors.primary} /><Text style={styles.filterButtonText}>{isFilterOpen ? 'Ocultar filtros' : 'Mais filtros'}</Text></Pressable>
     {Boolean(availabilityQuery) && <Text style={styles.resultCount}>Agenda livre para até 1 hora no período escolhido · horário de Brasília</Text>}
     {isFilterOpen && <View style={styles.filterPanel}>
       <DatePickerField clearable label="Dia do atendimento" value={availableDate} onChange={setAvailableDate} minimumDate={new Date()} />
@@ -97,11 +98,11 @@ export function ServiceProfessionalsScreen() {
     {loading && <StateView loading message="Buscando profissionais..." />}
     {Boolean(error) && <StateView message={error} />}
     {!loading && !error && !hasInvalidPriceRange && <Text style={styles.resultCount}>{filteredProfessionals.length} {filteredProfessionals.length === 1 ? 'profissional encontrado' : 'profissionais encontrados'}</Text>}
-    {!loading && !error && !hasInvalidPriceRange && !filteredProfessionals.length && <View style={styles.empty}><Feather name="users" size={30} color={colors.textMuted} /><Text style={styles.emptyTitle}>Nenhum profissional disponível</Text><Text style={styles.emptyText}>Tente buscar outra cidade ou volte ao catálogo para escolher outro serviço.</Text></View>}
+    {!loading && !error && !hasInvalidPriceRange && !filteredProfessionals.length && <View style={styles.empty}><AppIcon name="users" size={30} color={colors.textMuted} /><Text style={styles.emptyTitle}>Nenhum profissional disponível</Text><Text style={styles.emptyText}>Use "Pedir orçamentos nesta região" para que os profissionais que atendem aqui recebam o seu pedido.</Text></View>}
     {filteredProfessionals.map(professional => {
       const service = professional.services.find(currentService => currentService.id === params.serviceId);
       return <Pressable key={professional.id} style={styles.card} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}>
-        <View style={styles.header}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={58} /><View style={styles.grow}><Text style={styles.name}>{professional.name}</Text><Text style={styles.location}>{professional.city || 'Cidade não informada'}{professional.state ? `, ${professional.state}` : ''}</Text></View><Feather name="chevron-right" size={21} color={colors.primary} /></View>
+        <View style={styles.header}><UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={58} /><View style={styles.grow}><Text style={styles.name}>{professional.name}</Text><Text style={styles.location}>{professional.city || 'Cidade não informada'}{professional.state ? `, ${professional.state}` : ''}</Text></View><AppIcon name="chevron-right" size={21} color={colors.primary} /></View>
         <ProfessionalReputation professional={professional} compact />
         <View style={styles.details}><Text style={styles.price}>{service?.basePrice ? `A partir de ${formatCurrency(service.basePrice)}` : 'Preço a combinar'}</Text></View>
       </Pressable>;
@@ -112,12 +113,12 @@ export function ServiceProfessionalsScreen() {
 const styles = StyleSheet.create({
   searchBox: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   searchInput: { flex: 1, color: colors.text, fontSize: 16 }, resultCount: { color: colors.textMuted, fontSize: 13, fontWeight: '700' },
-  filterButton: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 15, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, filterButtonText: { color: colors.primary, fontWeight: '800' },
+  filterButton: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, filterButtonText: { color: colors.primary, fontWeight: '800' },
   filterPanel: { gap: 12, padding: 16, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, filterLabel: { color: colors.text, fontWeight: '800' }, chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 13, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }, selectedChip: { backgroundColor: colors.primary, borderColor: colors.primary }, chipText: { color: colors.textMuted, fontWeight: '700' }, selectedChipText: { color: colors.white },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }, selectedChip: { backgroundColor: colors.primary, borderColor: colors.primary }, chipText: { color: colors.textMuted, fontWeight: '700' }, selectedChipText: { color: colors.white },
   priceFields: { flexDirection: 'row', gap: 10 }, priceInput: { flex: 1, minHeight: 48, paddingHorizontal: 14, borderRadius: 14, color: colors.text, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }, clearText: { color: colors.primary, fontWeight: '800' },
   filterError: { color: colors.danger, fontWeight: '700' },
-  card: { gap: 14, padding: 16, borderRadius: 19, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, header: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1, gap: 3 },
+  card: { gap: 14, padding: 16, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }, header: { flexDirection: 'row', alignItems: 'center', gap: 12 }, grow: { flex: 1, gap: 3 },
   name: { color: colors.text, fontSize: 17, fontWeight: '800' }, location: { color: colors.textMuted, fontSize: 13 }, details: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
   price: { flex: 1, color: colors.primary, fontWeight: '800', textAlign: 'right' },
   empty: { alignItems: 'center', gap: 8, padding: 26, borderRadius: 18, backgroundColor: colors.surface }, emptyTitle: { color: colors.text, fontSize: 18, fontWeight: '800' }, emptyText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 }

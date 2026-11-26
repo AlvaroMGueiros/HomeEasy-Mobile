@@ -1,6 +1,7 @@
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { apiRequest } from '../api/api-client';
@@ -37,7 +38,7 @@ export function OpportunitiesScreen() {
       />
       {loading && <StateView loading message="Buscando oportunidades..." />}
       {Boolean(error) && <StateView message={error} />}
-      {!loading && !error && !opportunities.length && <StateView message="Nenhuma oportunidade disponível agora." />}
+      {!loading && !error && !opportunities.length && <StateView icon="search" title="Nenhuma oportunidade agora" message="Pedidos da sua região para os serviços que você oferece aparecem aqui." />}
       {opportunities.map(opportunity => (
         <Pressable
           key={opportunity.id}
@@ -58,9 +59,9 @@ export function OpportunitiesScreen() {
 
 const styles = StyleSheet.create({
   card: {
-    padding: 17,
+    padding: 16,
     gap: 8,
-    borderRadius: 19,
+    borderRadius: 20,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border

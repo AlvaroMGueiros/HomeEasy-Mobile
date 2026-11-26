@@ -1,7 +1,8 @@
-import { Feather } from '@expo/vector-icons';
+import { AppIcon } from '../components/ui/AppIcon';
 import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/ui/Pressable';
 
 import { AppText as Text } from '../components/ui/AppText';
 import { AppTextInput as TextInput } from '../components/ui/AppTextInput';
@@ -46,18 +47,18 @@ export function CityProfessionalsScreen() {
   }, [professionals, searchTerm, selectedCategory]);
 
   return <Screen>
-    <SectionHeader eyebrow="Profissionais da cidade" title={`${params.city}, ${params.state}`} />
-    <View style={styles.searchBox}><Feather name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar profissional pelo nome" placeholderTextColor={colors.textMuted} style={styles.searchInput} returnKeyType="search" accessibilityLabel="Buscar profissional pelo nome" /></View>
+    <SectionHeader title={`${params.city}, ${params.state}`} />
+    <View style={styles.searchBox}><AppIcon name="search" size={20} color={colors.primary} /><TextInput value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar profissional pelo nome" placeholderTextColor={colors.textMuted} style={styles.searchInput} returnKeyType="search" accessibilityLabel="Buscar profissional pelo nome" /></View>
     <Text style={styles.filterLabel}>Categorias</Text>
     <View style={styles.chips}>{categories.map(category => <Pressable key={category} onPress={() => setSelectedCategory(category)} style={[styles.chip, selectedCategory === category && styles.selectedChip]}><Text style={[styles.chipText, selectedCategory === category && styles.selectedChipText]}>{category}</Text></Pressable>)}</View>
     {loading && <StateView loading message="Buscando profissionais..." />}
     {Boolean(error) && <StateView message={error} />}
-    {!loading && !error && <Text style={styles.resultCount}>{filteredProfessionals.length} profissional(is) encontrado(s)</Text>}
-    {!loading && !error && !filteredProfessionals.length && <View style={styles.empty}><Feather name="users" size={30} color={colors.textMuted} /><Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text><Text style={styles.emptyText}>Tente outro nome ou selecione uma categoria diferente.</Text></View>}
+    {!loading && !error && <Text style={styles.resultCount}>{filteredProfessionals.length} {filteredProfessionals.length === 1 ? 'profissional encontrado' : 'profissionais encontrados'}</Text>}
+    {!loading && !error && !filteredProfessionals.length && <View style={styles.empty}><AppIcon name="users" size={30} color={colors.textMuted} /><Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text><Text style={styles.emptyText}>Tente outro nome ou selecione uma categoria diferente.</Text></View>}
     {filteredProfessionals.map(professional => <Pressable key={professional.id} style={styles.card} onPress={() => navigation.navigate('Professional', { professionalId: professional.id })}>
       <UserAvatar name={professional.name} mediaId={professional.profilePhotoMediaId} size={58} />
       <View style={styles.grow}><Text style={styles.name}>{professional.name}</Text><Text style={styles.services}>{professional.services.map(service => service.name).join(', ') || 'Serviços não informados'}</Text><ProfessionalReputation professional={professional} compact /></View>
-      <Feather name="chevron-right" size={21} color={colors.primary} />
+      <AppIcon name="chevron-right" size={21} color={colors.primary} />
     </Pressable>)}
   </Screen>;
 }
@@ -65,8 +66,8 @@ export function CityProfessionalsScreen() {
 const styles = StyleSheet.create({
   searchBox: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   searchInput: { flex: 1, color: colors.text, fontSize: 16 }, filterLabel: { color: colors.text, fontWeight: '800' }, chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 13, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }, selectedChip: { backgroundColor: colors.primary, borderColor: colors.primary }, chipText: { color: colors.textMuted, fontWeight: '700' }, selectedChipText: { color: colors.white },
-  resultCount: { color: colors.textMuted, fontSize: 13, fontWeight: '700' }, card: { minHeight: 82, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }, selectedChip: { backgroundColor: colors.primary, borderColor: colors.primary }, chipText: { color: colors.textMuted, fontWeight: '700' }, selectedChipText: { color: colors.white },
+  resultCount: { color: colors.textMuted, fontSize: 13, fontWeight: '700' }, card: { minHeight: 82, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   grow: { flex: 1, gap: 4 }, name: { color: colors.text, fontSize: 17, fontWeight: '800' }, services: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   empty: { alignItems: 'center', gap: 8, padding: 26, borderRadius: 18, backgroundColor: colors.surface }, emptyTitle: { color: colors.text, fontSize: 18, fontWeight: '800' }, emptyText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 }
 });

@@ -27,7 +27,7 @@ export function WelcomeGuideModal({ userId, onStart }: { userId: string; onStart
     if (goal) onStart(goal);
   }
 
-  return <Modal visible={visible} transparent animationType="slide" onRequestClose={() => close()}>
+  return <Modal visible={visible} transparent animationType="fade" onRequestClose={() => close()}>
     <View style={[styles.overlay, { paddingTop: Math.max(insets.top, 20) }]}>
       <View accessibilityViewIsModal style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
